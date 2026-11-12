@@ -18,7 +18,12 @@
           <h1>Members</h1>
           <p>Invite teammates and manage who has access to this workspace.</p>
         </div>
-        <button type="button" class="btn btn-primary" id="invite-button">Invite member</button>
+        <div style="position: relative;">
+          <button type="button" class="btn btn-secondary" id="more-actions" aria-label="More actions">⋯</button>
+          <div id="more-menu" class="card" hidden style="position: absolute; right: 0; top: 40px; padding: 6px; min-width: 180px; z-index: 5;">
+            <button type="button" class="btn btn-secondary" id="menu-invite" style="width: 100%; border: none;">Invite someone</button>
+          </div>
+        </div>
       </div>
 
       <section class="card">
@@ -57,7 +62,9 @@
         .join('');
     }
 
-    document.getElementById('invite-button').addEventListener('click', () => dialog.showModal());
+    const menu = document.getElementById('more-menu');
+    document.getElementById('more-actions').addEventListener('click', () => { menu.hidden = !menu.hidden; });
+    document.getElementById('menu-invite').addEventListener('click', () => { menu.hidden = true; dialog.showModal(); });
     document.getElementById('invite-cancel').addEventListener('click', () => dialog.close());
     document.getElementById('invite-form').addEventListener('submit', (event) => {
       const email = event.target.inviteEmail.value.trim();
