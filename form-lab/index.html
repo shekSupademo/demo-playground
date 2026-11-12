@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Form Controls Lab</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1d2330; --muted:#677085; --line:#dde1e8; --accent:#5b5bd6; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.5 system-ui, sans-serif; background:var(--bg); color:var(--ink); }
+  header { padding:24px 16px 8px; max-width:1100px; margin:auto; }
+  header p { color:var(--muted); margin:4px 0 0; }
+  main { max-width:1100px; margin:auto; padding:16px; display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:16px; }
+  section { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; }
+  h2 { font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:0 0 12px; }
+  label { display:block; margin:10px 0 4px; font-weight:500; }
+  .inline label { display:inline-flex; gap:6px; align-items:center; margin-right:14px; font-weight:400; }
+  input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]), select, textarea {
+    width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:8px; font:inherit; background:#fff;
+  }
+  input[type=range] { width:100%; accent-color:var(--accent); }
+  input[type=checkbox], input[type=radio] { accent-color:var(--accent); }
+  output, .val { font-variant-numeric:tabular-nums; color:var(--accent); font-weight:600; }
+  button { font:inherit; padding:8px 14px; border-radius:8px; border:1px solid var(--line); background:#fff; cursor:pointer; }
+  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+
+  .switch { position:relative; display:inline-block; width:44px; height:24px; vertical-align:middle; }
+  .switch input { opacity:0; width:0; height:0; }
+  .switch span { position:absolute; inset:0; background:#c9ced8; border-radius:24px; transition:.2s; cursor:pointer; }
+  .switch span::before { content:""; position:absolute; width:18px; height:18px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.2s; }
+  .switch input:checked + span { background:var(--accent); }
+  .switch input:checked + span::before { transform:translateX(20px); }
+
+  .stars button { border:none; background:none; font-size:24px; padding:0 2px; color:#c9ced8; }
+  .stars button[aria-checked=true] { color:#f5a524; }
+
+  .seg { display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+  .seg button { border:none; border-radius:0; }
+  .seg button[aria-pressed=true] { background:var(--accent); color:#fff; }
+
+  .aria-slider { position:relative; height:6px; background:#e3e6ec; border-radius:3px; margin:18px 8px; }
+  .aria-slider .fill { position:absolute; left:0; top:0; bottom:0; background:var(--accent); border-radius:3px; }
+  .aria-slider .thumb { position:absolute; top:50%; width:18px; height:18px; margin:-9px 0 0 -9px; background:#fff; border:2px solid var(--accent); border-radius:50%; cursor:grab; }
+
+  .combo { position:relative; }
+  .combo ul { position:absolute; z-index:5; left:0; right:0; margin:4px 0 0; padding:4px; list-style:none; background:#fff; border:1px solid var(--line); border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,.08); }
+  .combo li { padding:6px 8px; border-radius:6px; cursor:pointer; }
+  .combo li:hover, .combo li[aria-selected=true] { background:#eef0fb; }
+
+  .chips { display:flex; flex-wrap:wrap; gap:6px; padding:6px; border:1px solid var(--line); border-radius:8px; }
+  .chips span { background:#eef0fb; padding:2px 8px; border-radius:12px; }
+  .chips input { border:none !important; flex:1; min-width:80px; padding:4px !important; outline:none; }
+
+  .tabs [role=tablist] { display:flex; gap:4px; border-bottom:1px solid var(--line); }
+  .tabs [role=tab] { border:none; border-bottom:2px solid transparent; border-radius:0; }
+  .tabs [role=tab][aria-selected=true] { border-color:var(--accent); color:var(--accent); }
+  .tabs [role=tabpanel] { padding:10px 0; }
+
+  .dnd li { padding:8px 10px; margin:4px 0; border:1px solid var(--line); border-radius:8px; background:#fafbfc; cursor:grab; list-style:none; }
+  .dnd { padding:0; margin:0; }
+
+  .editable { min-height:60px; padding:8px 10px; border:1px solid var(--line); border-radius:8px; }
+  .drop { border:2px dashed var(--line); border-radius:8px; padding:16px; text-align:center; color:var(--muted); }
+
+  .menubar { display:flex; gap:4px; margin:0; padding:0; list-style:none; }
+  .menubar li { position:relative; list-style:none; }
+  .menubar a { display:block; padding:6px 10px; border-radius:6px; color:inherit; text-decoration:none; white-space:nowrap; }
+  .menubar a:hover, .menubar a:focus { background:#eef0fb; }
+  .menubar ul { display:none; position:absolute; z-index:10; top:100%; left:0; min-width:160px; margin:0; padding:4px; background:#fff; border:1px solid var(--line); border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,.08); }
+  .menubar ul ul { top:-5px; left:100%; }
+  .css-hover li:hover > ul, .css-hover li:focus-within > ul { display:block; }
+  .js-hover li.open > ul { display:block; }
+  .has-sub > a::after { content:" ▸"; color:var(--muted); }
+  .tip { position:relative; display:inline-block; border-bottom:1px dotted var(--muted); cursor:help; }
+  .tip span { visibility:hidden; position:absolute; bottom:125%; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; padding:4px 8px; border-radius:6px; font-size:12px; white-space:nowrap; }
+  .tip:hover span { visibility:visible; }
+
+  .dd { position:relative; display:inline-block; margin-right:8px; }
+  .dd-menu, [popover].dd-menu { margin:4px 0 0; padding:4px; min-width:170px; list-style:none; background:#fff; border:1px solid var(--line); border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,.08); }
+  .dd > .dd-menu { position:absolute; z-index:10; top:100%; left:0; }
+  .dd-menu button, .dd-menu a { display:block; width:100%; text-align:left; border:none; padding:6px 10px; border-radius:6px; background:none; color:inherit; text-decoration:none; }
+  .dd-menu button:hover, .dd-menu a:hover { background:#eef0fb; }
+  .dd-menu hr { border:none; border-top:1px solid var(--line); margin:4px 0; }
+  details.dd > summary { list-style:none; cursor:pointer; padding:8px 14px; border:1px solid var(--line); border-radius:8px; }
+  details.dd > summary::-webkit-details-marker { display:none; }
+  [popover].dd-menu { position:fixed; inset:auto; }
+
+  #state { grid-column:1/-1; }
+  #state pre { margin:0; font-size:12px; white-space:pre-wrap; max-height:260px; overflow:auto; background:#f6f7f9; padding:10px; border-radius:8px; }
+  dialog { border:1px solid var(--line); border-radius:12px; padding:20px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Form controls lab</h1>
+  <p>Every common interactive form element, native and custom, with live values. Record it, then compare what the HTML and screenshot demos keep.</p>
+</header>
+
+<form id="lab" onsubmit="event.preventDefault(); document.getElementById('done').showModal();">
+<main>
+
+<section>
+  <h2>Text inputs</h2>
+  <label for="name">Text</label><input id="name" name="name" placeholder="Jane Doe">
+  <label for="email">Email</label><input id="email" name="email" type="email" placeholder="jane@example.com">
+  <label for="pw">Password</label><input id="pw" name="password" type="password" placeholder="••••••">
+  <label for="num">Number</label><input id="num" name="seats" type="number" min="1" max="500" value="10">
+  <label for="tel">Phone</label><input id="tel" name="phone" type="tel" placeholder="+1 555 0100">
+  <label for="url">URL</label><input id="url" name="website" type="url" placeholder="https://">
+  <label for="search">Search</label><input id="search" name="q" type="search" placeholder="Search…">
+  <label for="ro">Read-only</label><input id="ro" value="Can't edit me" readonly>
+  <label for="dis">Disabled</label><input id="dis" value="Disabled" disabled>
+</section>
+
+<section>
+  <h2>Long text and rich text</h2>
+  <label for="bio">Textarea</label><textarea id="bio" name="bio" rows="4" placeholder="Tell us about your team"></textarea>
+  <label>Contenteditable</label>
+  <div class="editable" contenteditable="true" id="rich">Edit <b>this</b> rich text.</div>
+</section>
+
+<section>
+  <h2>Sliders</h2>
+  <label for="r1">Range <output id="r1o">50</output></label>
+  <input id="r1" name="volume" type="range" min="0" max="100" value="50" oninput="r1o.value=this.value">
+  <label for="r2">Stepped range (0–10, step 2) <output id="r2o">4</output></label>
+  <input id="r2" name="level" type="range" min="0" max="10" step="2" value="4" list="ticks" oninput="r2o.value=this.value">
+  <datalist id="ticks"><option value="0"><option value="2"><option value="4"><option value="6"><option value="8"><option value="10"></datalist>
+  <label>Custom ARIA slider (div-based) <span class="val" id="cso">30</span></label>
+  <div class="aria-slider" id="cs"><div class="fill"></div>
+    <div class="thumb" role="slider" tabindex="0" aria-valuemin="0" aria-valuemax="100" aria-valuenow="30" aria-label="Budget"></div>
+  </div>
+</section>
+
+<section>
+  <h2>Checkboxes and switches</h2>
+  <div class="inline">
+    <label><input type="checkbox" name="news" checked> Newsletter</label>
+    <label><input type="checkbox" name="terms"> Accept terms</label>
+    <label><input type="checkbox" id="indet"> Indeterminate</label>
+  </div>
+  <label>Toggle switch (styled checkbox)</label>
+  <label class="switch"><input type="checkbox" name="darkmode"><span></span></label>
+  <label>ARIA switch (button)</label>
+  <button type="button" role="switch" aria-checked="false" id="ariaSwitch">Off</button>
+</section>
+
+<section>
+  <h2>Radios and choice groups</h2>
+  <div class="inline">
+    <label><input type="radio" name="plan" value="free" checked> Free</label>
+    <label><input type="radio" name="plan" value="pro"> Pro</label>
+    <label><input type="radio" name="plan" value="ent"> Enterprise</label>
+  </div>
+  <label>Segmented control</label>
+  <div class="seg" id="seg">
+    <button type="button" aria-pressed="true">Day</button><button type="button" aria-pressed="false">Week</button><button type="button" aria-pressed="false">Month</button>
+  </div>
+  <label>Star rating</label>
+  <div class="stars" role="radiogroup" aria-label="Rating" id="stars">
+    <button type="button" role="radio" aria-checked="true">★</button><button type="button" role="radio" aria-checked="true">★</button><button type="button" role="radio" aria-checked="true">★</button><button type="button" role="radio" aria-checked="false">★</button><button type="button" role="radio" aria-checked="false">★</button>
+  </div>
+</section>
+
+<section>
+  <h2>Selects and pickers</h2>
+  <label for="sel">Native select</label>
+  <select id="sel" name="country"><option>United States</option><option>Canada</option><option>Germany</option><option>India</option></select>
+  <label for="grp">Select with groups</label>
+  <select id="grp" name="tz"><optgroup label="Americas"><option>New York</option><option>Toronto</option></optgroup><optgroup label="Europe"><option>Berlin</option><option>London</option></optgroup></select>
+  <label for="multi">Multi-select (Cmd/Ctrl-click)</label>
+  <select id="multi" name="tools" multiple size="4"><option>Slack</option><option>HubSpot</option><option>Salesforce</option><option>Zapier</option></select>
+  <label for="dl">Datalist autocomplete</label>
+  <input id="dl" name="role" list="roles" placeholder="Start typing a role"><datalist id="roles"><option>Engineer</option><option>Designer</option><option>Product manager</option><option>Sales</option></datalist>
+</section>
+
+<section>
+  <h2>Custom dropdowns</h2>
+  <label for="comboIn">Custom combobox (div list)</label>
+  <div class="combo" id="combo">
+    <input id="comboIn" role="combobox" aria-expanded="false" aria-controls="comboList" placeholder="Pick a fruit" autocomplete="off">
+    <ul id="comboList" role="listbox" hidden><li role="option">Apple</li><li role="option">Banana</li><li role="option">Cherry</li><li role="option">Mango</li></ul>
+  </div>
+  <label for="chipIn">Tag input (Enter to add)</label>
+  <div class="chips" id="chips"><span>demo</span><input id="chipIn" placeholder="Add tag"></div>
+</section>
+
+<section>
+  <h2>Date, time and color</h2>
+  <label for="d">Date</label><input id="d" name="date" type="date">
+  <label for="t">Time</label><input id="t" name="time" type="time">
+  <label for="dt">Date and time</label><input id="dt" name="when" type="datetime-local">
+  <label for="m">Month</label><input id="m" name="month" type="month">
+  <label for="w">Week</label><input id="w" name="week" type="week">
+  <label for="c">Color <span class="val" id="co">#5b5bd6</span></label><input id="c" name="color" type="color" value="#5b5bd6" oninput="co.textContent=this.value">
+</section>
+
+<section>
+  <h2>Files</h2>
+  <label for="f">File input</label><input id="f" name="file" type="file" multiple>
+  <label>Drop zone</label>
+  <div class="drop" id="drop">Drag files here</div>
+</section>
+
+<section class="tabs">
+  <h2>Tabs, accordion, dialog</h2>
+  <div role="tablist" id="tabs">
+    <button type="button" role="tab" aria-selected="true">Profile</button><button type="button" role="tab" aria-selected="false">Billing</button><button type="button" role="tab" aria-selected="false">Team</button>
+  </div>
+  <div role="tabpanel">Profile settings content.</div>
+  <div role="tabpanel" hidden>Billing settings content.</div>
+  <div role="tabpanel" hidden>Team settings content.</div>
+  <details><summary>Accordion (details/summary)</summary><p>Hidden content revealed on click.</p></details>
+  <p><button type="button" onclick="document.getElementById('dlg').showModal()">Open dialog</button></p>
+  <dialog id="dlg"><p>Native modal dialog.</p><button type="button" onclick="this.closest('dialog').close()">Close</button></dialog>
+</section>
+
+<section>
+  <h2>Drag to reorder</h2>
+  <ul class="dnd" id="dnd">
+    <li draggable="true">1. Discovery call</li><li draggable="true">2. Product demo</li><li draggable="true">3. Proposal</li><li draggable="true">4. Close</li>
+  </ul>
+  <h2 style="margin-top:16px">Progress and meter</h2>
+  <progress id="prog" max="100" value="40" style="width:100%"></progress>
+  <meter min="0" max="100" low="30" high="80" optimum="90" value="65" style="width:100%"></meter>
+</section>
+
+<section>
+  <h2>Hover menus</h2>
+  <label>CSS :hover menu with submenu</label>
+  <ul class="menubar css-hover">
+    <li><a href="#">Product</a>
+      <ul>
+        <li><a href="#" data-pick>Demos</a></li>
+        <li class="has-sub"><a href="#">Integrations</a>
+          <ul><li><a href="#" data-pick>HubSpot</a></li><li><a href="#" data-pick>Salesforce</a></li><li><a href="#" data-pick>Slack</a></li></ul>
+        </li>
+        <li><a href="#" data-pick>Analytics</a></li>
+      </ul>
+    </li>
+    <li><a href="#">Resources</a>
+      <ul><li><a href="#" data-pick>Docs</a></li><li><a href="#" data-pick>Blog</a></li></ul>
+    </li>
+  </ul>
+  <label>JS mouseenter menu (class toggled by script)</label>
+  <ul class="menubar js-hover" id="jsMenu">
+    <li><a href="#">Account</a>
+      <ul>
+        <li><a href="#" data-pick>Profile</a></li>
+        <li class="has-sub"><a href="#">Workspace</a>
+          <ul><li><a href="#" data-pick>Members</a></li><li><a href="#" data-pick>Billing</a></li></ul>
+        </li>
+        <li><a href="#" data-pick>Sign out</a></li>
+      </ul>
+    </li>
+  </ul>
+  <label>Tooltip on hover</label>
+  <span class="tip">Hover me<span>Tooltip text</span></span>
+</section>
+
+<section>
+  <h2>Click dropdowns</h2>
+  <label>Button menu (JS toggles hidden)</label>
+  <div class="dd" id="ddJs">
+    <button type="button" aria-haspopup="menu" aria-expanded="false">Actions ▾</button>
+    <ul class="dd-menu" role="menu" hidden>
+      <li><button type="button" role="menuitem" data-pick>Edit</button></li>
+      <li><button type="button" role="menuitem" data-pick>Duplicate</button></li>
+      <li><button type="button" role="menuitem" data-pick>Share</button></li>
+      <li><hr></li>
+      <li><button type="button" role="menuitem" data-pick>Delete</button></li>
+    </ul>
+  </div>
+  <label>Native details dropdown</label>
+  <details class="dd">
+    <summary>Sort by ▾</summary>
+    <ul class="dd-menu">
+      <li><button type="button" data-pick>Newest</button></li>
+      <li><button type="button" data-pick>Oldest</button></li>
+      <li><button type="button" data-pick>Most viewed</button></li>
+    </ul>
+  </details>
+  <label>Popover API dropdown (top layer)</label>
+  <button type="button" popovertarget="pop" id="popBtn">Filters ▾</button>
+  <div class="dd-menu" id="pop" popover>
+    <label style="margin:4px 8px"><input type="checkbox" name="filterPublished"> Published</label>
+    <label style="margin:4px 8px"><input type="checkbox" name="filterDraft"> Draft</label>
+    <button type="button" data-pick>Apply filters</button>
+  </div>
+</section>
+
+<section>
+  <h2>Buttons</h2>
+  <p style="display:flex;gap:8px;flex-wrap:wrap">
+    <button type="submit" class="primary">Submit</button>
+    <button type="reset">Reset</button>
+    <button type="button" disabled>Disabled</button>
+    <input type="button" value="Input button">
+  </p>
+  <dialog id="done"><p>Form submitted (nothing sent).</p><button type="button" onclick="this.closest('dialog').close()">OK</button></dialog>
+</section>
+
+<section id="state">
+  <h2>Live state (what the page holds right now)</h2>
+  <pre id="out"></pre>
+</section>
+
+</main>
+</form>
+
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+$('#indet').indeterminate = true;
+
+const sw = $('#ariaSwitch');
+sw.onclick = () => { const on = sw.getAttribute('aria-checked') !== 'true'; sw.setAttribute('aria-checked', on); sw.textContent = on ? 'On' : 'Off'; render(); };
+
+$$('#seg button').forEach(b => b.onclick = () => { $$('#seg button').forEach(x => x.setAttribute('aria-pressed', x === b)); render(); });
+
+const stars = $$('#stars button');
+stars.forEach((b, i) => b.onclick = () => { stars.forEach((x, j) => x.setAttribute('aria-checked', j <= i)); render(); });
+
+const track = $('#cs'), thumb = $('.thumb', track), fill = $('.fill', track);
+const setSlider = v => { v = Math.max(0, Math.min(100, Math.round(v))); thumb.setAttribute('aria-valuenow', v); thumb.style.left = fill.style.width = v + '%'; $('#cso').textContent = v; render(); };
+const fromX = x => { const r = track.getBoundingClientRect(); setSlider((x - r.left) / r.width * 100); };
+track.addEventListener('pointerdown', e => { fromX(e.clientX); const move = ev => fromX(ev.clientX); addEventListener('pointermove', move); addEventListener('pointerup', () => removeEventListener('pointermove', move), { once: true }); });
+thumb.addEventListener('keydown', e => { const v = +thumb.getAttribute('aria-valuenow'); if (e.key === 'ArrowRight') setSlider(v + 5); if (e.key === 'ArrowLeft') setSlider(v - 5); });
+
+const ci = $('#comboIn'), cl = $('#comboList');
+const openCombo = open => { cl.hidden = !open; ci.setAttribute('aria-expanded', open); };
+ci.onfocus = () => openCombo(true);
+ci.oninput = () => { $$('li', cl).forEach(li => li.hidden = !li.textContent.toLowerCase().includes(ci.value.toLowerCase())); openCombo(true); };
+$$('li', cl).forEach(li => li.onmousedown = e => { e.preventDefault(); ci.value = li.textContent; $$('li', cl).forEach(x => x.setAttribute('aria-selected', x === li)); openCombo(false); render(); });
+ci.onblur = () => openCombo(false);
+
+$('#chipIn').onkeydown = e => { if (e.key === 'Enter' && e.target.value.trim()) { e.preventDefault(); const s = document.createElement('span'); s.textContent = e.target.value.trim(); e.target.before(s); e.target.value = ''; render(); } };
+
+const tabs = $$('#tabs [role=tab]'), panels = $$('.tabs [role=tabpanel]');
+tabs.forEach((t, i) => t.onclick = () => { tabs.forEach((x, j) => { x.setAttribute('aria-selected', i === j); panels[j].hidden = i !== j; }); render(); });
+
+const drop = $('#drop');
+drop.ondragover = e => { e.preventDefault(); drop.style.borderColor = 'var(--accent)'; };
+drop.ondragleave = () => drop.style.borderColor = '';
+drop.ondrop = e => { e.preventDefault(); drop.style.borderColor = ''; drop.textContent = [...e.dataTransfer.files].map(f => f.name).join(', ') || 'Drag files here'; render(); };
+
+let dragged;
+$$('#dnd li').forEach(li => {
+  li.ondragstart = () => dragged = li;
+  li.ondragover = e => { e.preventDefault(); const r = li.getBoundingClientRect(); li.parentNode.insertBefore(dragged, e.clientY < r.top + r.height / 2 ? li : li.nextSibling); };
+  li.ondragend = render;
+});
+
+$$('#jsMenu li').forEach(li => {
+  li.onmouseenter = () => li.classList.add('open');
+  li.onmouseleave = () => li.classList.remove('open');
+});
+let menuPick = '';
+$$('[data-pick]').forEach(a => a.onclick = e => {
+  e.preventDefault(); menuPick = a.textContent;
+  a.closest('details')?.removeAttribute('open');
+  a.closest('[popover]')?.hidePopover();
+  if (a.closest('#ddJs')) toggleDd(false);
+  render();
+});
+
+const ddBtn = $('#ddJs > button'), ddMenu = $('#ddJs > ul');
+const toggleDd = open => { ddMenu.hidden = !open; ddBtn.setAttribute('aria-expanded', open); };
+ddBtn.onclick = () => toggleDd(ddMenu.hidden);
+document.addEventListener('click', e => { if (!e.target.closest('#ddJs')) toggleDd(false); });
+
+const popBtn = $('#popBtn'), pop = $('#pop');
+pop.addEventListener('toggle', e => { if (e.newState === 'open') { const r = popBtn.getBoundingClientRect(); pop.style.top = r.bottom + 'px'; pop.style.left = r.left + 'px'; } });
+
+function render() {
+  const fd = new FormData($('#lab'));
+  const data = {};
+  for (const [k, v] of fd) { const val = v instanceof File ? v.name : v; data[k] = k in data ? [].concat(data[k], val) : val; }
+  Object.assign(data, {
+    indeterminate: $('#indet').indeterminate ? 'indeterminate' : $('#indet').checked,
+    ariaSwitch: sw.getAttribute('aria-checked'),
+    segment: $('#seg [aria-pressed=true]').textContent,
+    rating: $$('#stars [aria-checked=true]').length,
+    customSlider: thumb.getAttribute('aria-valuenow'),
+    combobox: ci.value,
+    tags: $$('#chips span').map(s => s.textContent),
+    tab: $('#tabs [aria-selected=true]').textContent,
+    order: $$('#dnd li').map(li => li.textContent),
+    rich: $('#rich').innerText,
+    menuPick,
+  });
+  $('#out').textContent = JSON.stringify(data, null, 2);
+}
+$('#lab').addEventListener('input', render);
+$('#lab').addEventListener('change', render);
+$('#lab').addEventListener('reset', () => setTimeout(render));
+setSlider(30);
+</script>
+</body>
+</html>
