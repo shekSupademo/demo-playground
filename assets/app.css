@@ -152,3 +152,19 @@ dialog::backdrop { background: rgb(0 0 0 / 0.3); }
 @media (max-width: 800px) {
   .members-grid { grid-template-columns: 1fr; }
 }
+
+.back-link { display: inline-block; margin-bottom: 16px; color: var(--muted); text-decoration: none; }
+.back-link:hover { color: var(--text); }
+
+.stepper { display: flex; gap: 8px; list-style: none; padding: 0; margin: 0 0 16px; }
+.step { padding: 6px 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); font-weight: 600; }
+.step.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+.role-picker { border: none; padding: 0; margin: 0 0 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.role-picker legend { font-weight: 600; margin-bottom: 6px; }
+.role-option { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; }
+.role-option:has(input:checked) { border-color: var(--primary); background: #eef2ff; }
+
+.review-list { display: grid; grid-template-columns: 120px 1fr; gap: 8px; margin: 0 0 16px; }
+.review-list dt { color: var(--muted); }
+.review-list dd { margin: 0; font-weight: 600; }

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Invite people · Settings</title>
+  <link rel="stylesheet" href="../../../assets/app.css">
+</head>
+<body data-page="members" data-root="../../../">
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">Acme Workspace</div>
+      <ul class="nav" id="nav"></ul>
+    </aside>
+    <main class="main">
+      <a href="../" class="back-link" id="back-to-members">← Back to members</a>
+      <div class="page-header">
+        <div>
+          <h1>Invite people</h1>
+          <p>Add teammates in two steps: choose who and their role, then review the invitation.</p>
+        </div>
+      </div>
+
+      <ol class="stepper" aria-label="Invite steps">
+        <li class="step active" id="step-1-label">1. Who and role</li>
+        <li class="step" id="step-2-label">2. Review and send</li>
+      </ol>
+
+      <section class="card" id="step-1">
+        <form id="who-form">
+          <div class="field">
+            <label for="invite-emails">Work emails</label>
+            <input type="text" id="invite-emails" name="emails" placeholder="name@acme.com, another@acme.com" required>
+            <span class="muted">Separate several emails with commas.</span>
+          </div>
+          <fieldset class="role-picker">
+            <legend>Role</legend>
+            <label class="role-option"><input type="radio" name="role" value="Member" checked> <span><strong>Member</strong><br><span class="muted">Create and edit demos</span></span></label>
+            <label class="role-option"><input type="radio" name="role" value="Admin"> <span><strong>Admin</strong><br><span class="muted">Also manage members and settings</span></span></label>
+          </fieldset>
+          <button type="submit" class="btn btn-primary" id="continue-button">Continue</button>
+        </form>
+      </section>
+
+      <section class="card" id="step-2" hidden>
+        <h2>Review</h2>
+        <dl class="review-list">
+          <dt>Inviting</dt><dd id="review-emails"></dd>
+          <dt>Role</dt><dd id="review-role"></dd>
+        </dl>
+        <div class="field">
+          <label for="invite-message">Personal message (optional)</label>
+          <input type="text" id="invite-message" placeholder="Welcome to the team!">
+        </div>
+        <div class="dialog-actions" style="justify-content: flex-start;">
+          <button type="button" class="btn btn-secondary" id="edit-button">Back</button>
+          <button type="button" class="btn btn-primary" id="send-invitation">Send invitation</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../../../assets/app.js"></script>
+  <script>
+    const DEFAULT_MEMBERS = [
+      { email: 'jane@acme.com', role: 'Owner' },
+      { email: 'sam@acme.com', role: 'Member' },
+    ];
+    let pending = { emails: [], role: 'Member' };
+
+    function showStep(step) {
+      document.getElementById('step-1').hidden = step !== 1;
+      document.getElementById('step-2').hidden = step !== 2;
+      document.getElementById('step-1-label').classList.toggle('active', step === 1);
+      document.getElementById('step-2-label').classList.toggle('active', step === 2);
+    }
+
+    document.getElementById('who-form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const emails = event.target.emails.value.split(',').map((e) => e.trim()).filter(Boolean);
+      if (emails.length === 0) return;
+      pending = { emails, role: event.target.role.value };
+      document.getElementById('review-emails').textContent = emails.join(', ');
+      document.getElementById('review-role').textContent = pending.role;
+      showStep(2);
+    });
+
+    document.getElementById('edit-button').addEventListener('click', () => showStep(1));
+
+    document.getElementById('send-invitation').addEventListener('click', () => {
+      const members = readList('members', DEFAULT_MEMBERS);
+      const added = pending.emails.map((email) => ({ email, role: pending.role, status: 'Invited' }));
+      writeList('members', [...members, ...added]);
+      window.location.href = `../?invited=${encodeURIComponent(pending.emails.join(', '))}`;
+    });
+  </script>
+</body>
+</html>
