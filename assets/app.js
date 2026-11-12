@@ -7,7 +7,7 @@ const ICONS = {
 const NAV_ITEMS = [
   { key: 'profile', label: 'Profile', href: 'settings/profile/', icon: 'user' },
   { key: 'tags', label: 'Tags', href: 'settings/tags/', icon: 'tag' },
-  { key: 'members', label: 'Members', href: 'settings/members/', icon: 'users' },
+  { key: 'members', label: 'Team', href: 'settings/members/', icon: 'users' },
 ];
 
 function siteRoot() {
