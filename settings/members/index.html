@@ -12,19 +12,41 @@
       <div class="brand">Acme Workspace</div>
       <ul class="nav" id="nav"></ul>
     </aside>
-    <main class="main">
+    <main class="main main-wide">
       <div class="page-header">
         <div>
           <h1>Members</h1>
           <p>Invite teammates and manage who has access to this workspace.</p>
         </div>
-        <button type="button" class="btn btn-primary" id="invite-button">Invite member</button>
       </div>
 
-      <section class="card">
-        <h2>Workspace members</h2>
-        <ul class="list" id="member-list"></ul>
-      </section>
+      <div class="members-grid">
+        <section class="card members-table-card">
+          <div class="card-toolbar">
+            <h2>Workspace members</h2>
+            <input type="text" id="member-search" placeholder="Search by email" aria-label="Search members">
+          </div>
+          <table class="members-table">
+            <thead>
+              <tr><th>Member</th><th>Role</th><th>Status</th></tr>
+            </thead>
+            <tbody id="member-list"></tbody>
+          </table>
+        </section>
+
+        <aside class="members-side">
+          <section class="card">
+            <h2>Seats</h2>
+            <p class="seat-count"><strong id="seat-used">0</strong> of 5 seats used</p>
+            <div class="seat-bar"><div class="seat-bar-fill" id="seat-bar-fill"></div></div>
+            <button type="button" class="btn btn-primary btn-block" id="invite-button">Invite member</button>
+          </section>
+          <section class="card">
+            <h2>Roles</h2>
+            <p class="muted">Owners manage billing and settings. Members can create and edit demos.</p>
+          </section>
+        </aside>
+      </div>
     </main>
   </div>
 
@@ -48,15 +70,32 @@
       { email: 'jane@acme.com', role: 'Owner' },
       { email: 'sam@acme.com', role: 'Member' },
     ];
+    const SEAT_LIMIT = 5;
     let members = readList('members', DEFAULT_MEMBERS);
     const dialog = document.getElementById('invite-dialog');
+    const search = document.getElementById('member-search');
 
-    function renderMembers() {
-      document.getElementById('member-list').innerHTML = members
-        .map((m) => `<li><span>${escapeHtml(m.email)}</span><span class="muted">${escapeHtml(m.role)}</span></li>`)
-        .join('');
+    function memberStatus(member) {
+      return member.role === 'Invited' ? 'Pending' : 'Active';
     }
 
+    function renderMembers() {
+      const query = search.value.trim().toLowerCase();
+      document.getElementById('member-list').innerHTML = members
+        .filter((m) => m.email.toLowerCase().includes(query))
+        .map(
+          (m) => `<tr>
+            <td><span class="avatar">${escapeHtml(m.email[0].toUpperCase())}</span>${escapeHtml(m.email)}</td>
+            <td>${escapeHtml(m.role === 'Invited' ? 'Member' : m.role)}</td>
+            <td><span class="status status-${memberStatus(m).toLowerCase()}">${memberStatus(m)}</span></td>
+          </tr>`,
+        )
+        .join('');
+      document.getElementById('seat-used').textContent = String(members.length);
+      document.getElementById('seat-bar-fill').style.width = `${Math.min(100, (members.length / SEAT_LIMIT) * 100)}%`;
+    }
+
+    search.addEventListener('input', renderMembers);
     document.getElementById('invite-button').addEventListener('click', () => dialog.showModal());
     document.getElementById('invite-cancel').addEventListener('click', () => dialog.close());
     document.getElementById('invite-form').addEventListener('submit', (event) => {
