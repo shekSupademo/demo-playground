@@ -1,4 +1,4 @@
-import { ArrowLeftRight, BarChart3, ChevronDown, CreditCard, FileText, Home, List, Menu, Moon, Search, Send, Settings, Sun } from "lucide-react";
+import { ArrowLeftRight, BarChart3, ClipboardList, ChevronDown, CreditCard, FileText, Home, List, Menu, Moon, Search, Send, Settings, Sun } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { cx, money } from "../lib/format";
@@ -11,6 +11,7 @@ const nav = [
   { to: "/", label: "Home", icon: Home, end: true },
   { to: "/transactions", label: "Transactions", icon: List },
   { to: "/payments", label: "Payments", icon: Send },
+  { to: "/bills", label: "Bills", icon: ClipboardList },
   { to: "/cards", label: "Cards", icon: CreditCard },
   { to: "/invoices", label: "Invoices", icon: FileText },
   { to: "/insights", label: "Insights", icon: BarChart3 },

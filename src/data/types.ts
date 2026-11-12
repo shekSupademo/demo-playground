@@ -107,6 +107,24 @@ export interface Settings {
   largeTransactionThreshold: number; // cents
 }
 
+export type BillStatus = "inbox" | "approved" | "scheduled" | "paid";
+export const BILL_COLUMNS: { id: BillStatus; label: string; help: string }[] = [
+  { id: "inbox", label: "Inbox", help: "New bills to review" },
+  { id: "approved", label: "Approved", help: "Ready to schedule" },
+  { id: "scheduled", label: "Scheduled", help: "Payment is queued" },
+  { id: "paid", label: "Paid", help: "Settled this month" },
+];
+
+export interface Bill {
+  id: string;
+  vendor: string;
+  amount: number; // cents
+  dueDate: string;
+  category: Category;
+  status: BillStatus;
+  invoiceRef: string;
+}
+
 export interface AppState {
   accounts: Account[];
   transactions: Transaction[];
@@ -114,5 +132,6 @@ export interface AppState {
   recipients: Recipient[];
   invoices: Invoice[];
   members: Member[];
+  bills: Bill[];
   settings: Settings;
 }

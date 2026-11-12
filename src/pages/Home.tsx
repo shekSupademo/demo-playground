@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowDownLeft, ArrowLeftRight, ArrowUpRight, FileText, Paperclip, Send, Snowflake } from "lucide-react";
+import { AlertTriangle, ClipboardList, ArrowDownLeft, ArrowLeftRight, ArrowUpRight, FileText, Paperclip, Send, Snowflake } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -28,6 +28,7 @@ export function Home() {
   const attention = [
     { n: state.transactions.filter((t) => t.category === "Uncategorized").length, label: "uncategorized", noun: "transaction", to: "/transactions?category=Uncategorized", icon: AlertTriangle },
     { n: state.transactions.filter((t) => t.method === "card" && !t.receipt && t.amount < 0).length, label: "missing receipts", noun: "card charge", to: "/transactions", icon: Paperclip },
+    { n: (state.bills ?? []).filter((b) => b.status === "inbox").length, label: "awaiting approval", noun: "bill", to: "/bills", icon: ClipboardList },
     { n: state.invoices.filter((i) => i.status === "overdue").length, label: "overdue", noun: "invoice", to: "/invoices", icon: FileText },
     { n: state.cards.filter((c) => c.frozen).length, label: "frozen", noun: "card", to: "/cards", icon: Snowflake },
   ].filter((a) => a.n > 0);
@@ -119,7 +120,7 @@ export function Home() {
                     <Link to={to} className="flex items-center gap-3 text-sm hover:text-indigo-600">
                       <Icon className="size-4 text-amber-500" />
                       <span>
-                        <span className="font-semibold">{n}</span> {label === "missing receipts" ? `${noun}${n === 1 ? "" : "s"} missing receipts` : `${label} ${noun}${n === 1 ? "" : "s"}`}
+                        <span className="font-semibold">{n}</span> {label === "missing receipts" ? `${noun}${n === 1 ? "" : "s"} missing receipts` : label === "awaiting approval" ? `${noun}${n === 1 ? "" : "s"} awaiting approval` : `${label} ${noun}${n === 1 ? "" : "s"}`}
                       </span>
                     </Link>
                   </li>

@@ -1,11 +1,20 @@
-import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Download, Paperclip, X } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Copy, Download, Eye, Paperclip, Tag, UploadCloud, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { CATEGORIES, type Category, type Transaction, type TxStatus } from "../data/types";
-import { cx, downloadCsv, longDate, money, parseDollars, shortDate, signedMoney } from "../lib/format";
+import { cx, downloadCsv, longDate, money, moneyCompact, shortDate, signedMoney } from "../lib/format";
 import { useDispatch, useStore } from "../state/store";
 import { useToast } from "../state/toast";
+import { CATEGORY_COLORS } from "../lib/analytics";
+import { Dropdown, type DropdownOption } from "./Dropdown";
+import { HoverMenu } from "./HoverMenu";
+import { RangeSlider } from "./Slider";
 import { Badge, Button, Drawer, Empty, Field, Input, Select } from "./ui";
+
+const dot = (c: Category) => <span className="size-2 shrink-0 rounded-full" style={{ background: CATEGORY_COLORS[c] }} />;
+export const categoryOptions: DropdownOption<Category>[] = CATEGORIES.map((c) => ({ value: c, label: c, icon: dot(c) }));
+const filterOptions: DropdownOption<Category | "all">[] = [{ value: "all", label: "All categories" }, ...categoryOptions];
+const AMOUNT_MAX = 5_000_000; // $50,000 in cents; the top of the slider means "and above"
 
 type SortKey = "date" | "amount" | "counterparty";
 const PAGE = 25;
@@ -25,7 +34,7 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
   const [acct, setAcct] = useState(accountId ?? "all");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
-  const [minText, setMinText] = useState("");
+  const [amountRange, setAmountRange] = useState<[number, number]>([0, AMOUNT_MAX]);
   const [missingReceipt, setMissingReceipt] = useState(false);
   const [sort, setSort] = useState<{ key: SortKey; dir: "asc" | "desc" }>({ key: "date", dir: "desc" });
   const [page, setPage] = useState(0);
@@ -33,9 +42,9 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
   const openId = params.get("tx");
 
   useEffect(() => setAcct(accountId ?? "all"), [accountId]);
-  useEffect(() => setPage(0), [q, category, status, direction, acct, from, to, minText, missingReceipt]);
+  useEffect(() => setPage(0), [q, category, status, direction, acct, from, to, amountRange, missingReceipt]);
 
-  const min = parseDollars(minText);
+  const [minAmt, maxAmt] = amountRange;
   const rows = useMemo(() => {
     const term = q.trim().toLowerCase();
     const list = transactions.filter(
@@ -46,19 +55,20 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
         (direction === "all" || (direction === "in" ? t.amount > 0 : t.amount < 0)) &&
         (!from || t.date >= from) &&
         (!to || t.date <= to) &&
-        (!min || Math.abs(t.amount) >= min) &&
+        Math.abs(t.amount) >= minAmt &&
+        (maxAmt >= AMOUNT_MAX || Math.abs(t.amount) <= maxAmt) &&
         (!missingReceipt || (t.method === "card" && !t.receipt)) &&
         (!term || t.counterparty.toLowerCase().includes(term) || t.description.toLowerCase().includes(term) || (t.note ?? "").toLowerCase().includes(term)),
     );
     const mul = sort.dir === "asc" ? 1 : -1;
     return [...list].sort((a, b) => mul * (sort.key === "amount" ? a.amount - b.amount : sort.key === "date" ? a.date.localeCompare(b.date) : a.counterparty.localeCompare(b.counterparty)));
-  }, [transactions, q, category, status, direction, acct, from, to, min, missingReceipt, sort]);
+  }, [transactions, q, category, status, direction, acct, from, to, minAmt, maxAmt, missingReceipt, sort]);
 
   const pageRows = compact ? rows.slice(0, 10) : rows.slice(page * PAGE, page * PAGE + PAGE);
   const pages = Math.max(1, Math.ceil(rows.length / PAGE));
   const totalIn = rows.filter((r) => r.amount > 0 && r.status !== "failed").reduce((s, r) => s + r.amount, 0);
   const totalOut = rows.filter((r) => r.amount < 0 && r.status !== "failed").reduce((s, r) => s - r.amount, 0);
-  const filtersActive = q || category !== "all" || status !== "all" || direction !== "all" || (!accountId && acct !== "all") || from || to || minText || missingReceipt;
+  const filtersActive = q || category !== "all" || status !== "all" || direction !== "all" || (!accountId && acct !== "all") || from || to || minAmt > 0 || maxAmt < AMOUNT_MAX || missingReceipt;
   const allOnPage = pageRows.length > 0 && pageRows.every((r) => selected.has(r.id));
 
   const toggleSort = (key: SortKey) => setSort((s) => (s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: key === "counterparty" ? "asc" : "desc" }));
@@ -70,7 +80,7 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
     if (!accountId) setAcct("all");
     setFrom("");
     setTo("");
-    setMinText("");
+    setAmountRange([0, AMOUNT_MAX]);
     setMissingReceipt(false);
   };
   const openTx = (id: string | null) => {
@@ -111,12 +121,7 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
                 ))}
               </Select>
             )}
-            <Select className="w-44" value={category} onChange={(e) => setCategory(e.target.value as Category | "all")} aria-label="Category" data-testid="tx-category-filter">
-              <option value="all">All categories</option>
-              {CATEGORIES.map((c) => (
-                <option key={c}>{c}</option>
-              ))}
-            </Select>
+            <Dropdown className="w-48" label="Category filter" value={category} options={filterOptions} onChange={setCategory} testId="tx-category-filter" />
             <Select className="w-36" value={status} onChange={(e) => setStatus(e.target.value as TxStatus | "all")} aria-label="Status">
               <option value="all">Any status</option>
               <option value="posted">Posted</option>
@@ -133,7 +138,9 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
             <Input type="date" className="w-40" value={from} onChange={(e) => setFrom(e.target.value)} aria-label="From date" />
             <span className="text-zinc-400">to</span>
             <Input type="date" className="w-40" value={to} onChange={(e) => setTo(e.target.value)} aria-label="To date" />
-            <Input className="w-32" placeholder="Min $" value={minText} onChange={(e) => setMinText(e.target.value)} aria-label="Minimum amount" />
+            <div className="w-64 px-1">
+              <RangeSlider label="Amount" min={0} max={AMOUNT_MAX} step={25_000} low={minAmt} high={maxAmt} onChange={(l, h) => setAmountRange([l, h])} format={(v) => moneyCompact(v)} testId="amount-range" />
+            </div>
             <label className="ml-1 inline-flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
               <input type="checkbox" checked={missingReceipt} onChange={(e) => setMissingReceipt(e.target.checked)} className="accent-indigo-600" />
               Missing receipt
@@ -164,25 +171,19 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
       {selected.size > 0 && (
         <div className="flex flex-wrap items-center gap-3 rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm dark:border-indigo-900 dark:bg-indigo-950" data-testid="bulk-bar">
           <span className="font-medium">{selected.size} selected</span>
-          <Select
-            className="h-8 w-44"
-            defaultValue=""
-            aria-label="Set category for selected"
-            onChange={(e) => {
-              const c = e.target.value as Category;
-              if (!c) return;
+          <Dropdown
+            className="w-48"
+            label="Set category for selected"
+            placeholder="Set category…"
+            value=""
+            options={categoryOptions}
+            testId="bulk-category"
+            onChange={(c) => {
               dispatch({ type: "tx/bulkCategorize", ids: [...selected], category: c });
               toast(`Categorized ${selected.size} transactions as ${c}`);
               setSelected(new Set());
             }}
-          >
-            <option value="" disabled>
-              Set category…
-            </option>
-            {CATEGORIES.map((c) => (
-              <option key={c}>{c}</option>
-            ))}
-          </Select>
+          />
           <Button size="sm" onClick={() => exportCsv(transactions.filter((t) => selected.has(t.id)))}>
             <Download className="size-3.5" /> Export
           </Button>
@@ -219,13 +220,14 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
                 <th className="px-4 py-2.5 font-medium">Category</th>
                 <th className="px-4 py-2.5 font-medium">Account</th>
                 <SortHead k="amount" label="Amount" right />
+                {!compact && <th className="w-10 px-2 py-2.5"><span className="sr-only">Actions</span></th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
               {pageRows.map((t) => {
                 const card = cards.find((c) => c.id === t.cardId);
                 return (
-                  <tr key={t.id} className={cx("cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50", selected.has(t.id) && "bg-indigo-50/50 dark:bg-indigo-950/30")} onClick={() => openTx(t.id)} data-testid="tx-row">
+                  <tr key={t.id} className={cx("group cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50", selected.has(t.id) && "bg-indigo-50/50 dark:bg-indigo-950/30")} onClick={() => openTx(t.id)} data-testid="tx-row">
                     {!compact && (
                       <td className="px-4 py-2.5" onClick={(e) => e.stopPropagation()}>
                         <input
@@ -256,6 +258,40 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
                     </td>
                     <td className="px-4 py-2.5 text-zinc-500">{accounts.find((a) => a.id === t.accountId)?.name}</td>
                     <td className={cx("tabular whitespace-nowrap px-4 py-2.5 text-right font-medium", t.amount > 0 && "text-emerald-600", t.status === "failed" && "text-zinc-400 line-through")}>{signedMoney(t.amount)}</td>
+                    {!compact && (
+                      <td className="px-2 py-2.5 text-right">
+                        <HoverMenu
+                          label={`Actions for ${t.counterparty}`}
+                          testId="row-menu"
+                          className="opacity-60 group-hover:opacity-100"
+                          items={[
+                            { label: "View details", icon: <Eye className="size-3.5" />, onSelect: () => openTx(t.id) },
+                            {
+                              label: "Categorize",
+                              icon: <Tag className="size-3.5" />,
+                              submenu: CATEGORIES.map((c) => ({
+                                label: c,
+                                icon: dot(c),
+                                active: t.category === c,
+                                onSelect: () => {
+                                  dispatch({ type: "tx/update", id: t.id, patch: { category: c } });
+                                  toast(`${t.counterparty} categorized as ${c}`);
+                                },
+                              })),
+                            },
+                            {
+                              label: "Copy reference",
+                              icon: <Copy className="size-3.5" />,
+                              onSelect: () => {
+                                navigator.clipboard?.writeText(t.id).catch(() => {});
+                                toast(`Copied ${t.id}`);
+                              },
+                            },
+                            { label: "Export row", icon: <Download className="size-3.5" />, onSelect: () => exportCsv([t]) },
+                          ]}
+                        />
+                      </td>
+                    )}
                   </tr>
                 );
               })}
@@ -293,6 +329,7 @@ function TransactionDrawer({ tx, onClose }: { tx?: Transaction; onClose: () => v
   const dispatch = useDispatch();
   const toast = useToast();
   const [note, setNote] = useState(tx?.note ?? "");
+  const [dragging, setDragging] = useState(false);
   useEffect(() => setNote(tx?.note ?? ""), [tx?.id, tx?.note]);
   if (!tx) return null;
   const card = cards.find((c) => c.id === tx.cardId);
@@ -319,20 +356,19 @@ function TransactionDrawer({ tx, onClose }: { tx?: Transaction; onClose: () => v
             </div>
           ))}
         </dl>
-        <Field label="Category">
-          <Select
+        <div>
+          <p className="mb-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">Category</p>
+          <Dropdown
+            label="Category"
             value={tx.category}
-            data-testid="drawer-category"
-            onChange={(e) => {
-              dispatch({ type: "tx/update", id: tx.id, patch: { category: e.target.value as Category } });
-              toast(`Category set to ${e.target.value}`);
+            options={categoryOptions}
+            testId="drawer-category"
+            onChange={(c) => {
+              dispatch({ type: "tx/update", id: tx.id, patch: { category: c } });
+              toast(`Category set to ${c}`);
             }}
-          >
-            {CATEGORIES.map((c) => (
-              <option key={c}>{c}</option>
-            ))}
-          </Select>
-        </Field>
+          />
+        </div>
         <Field label="Note">
           <textarea
             value={note}
@@ -355,9 +391,25 @@ function TransactionDrawer({ tx, onClose }: { tx?: Transaction; onClose: () => v
               </Button>
             </div>
           ) : (
-            <label className="flex cursor-pointer flex-col items-center gap-1 rounded-lg border border-dashed border-zinc-300 px-3 py-6 text-sm text-zinc-500 hover:border-indigo-400 dark:border-zinc-700">
-              <Paperclip className="size-4" />
-              Upload a receipt
+            <label
+              data-testid="receipt-dropzone"
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragging(true);
+              }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragging(false);
+                const f = e.dataTransfer.files?.[0];
+                if (!f) return;
+                dispatch({ type: "tx/update", id: tx.id, patch: { receipt: f.name } });
+                toast("Receipt attached");
+              }}
+              className={cx("flex cursor-pointer flex-col items-center gap-1 rounded-lg border border-dashed px-3 py-6 text-sm text-zinc-500 hover:border-indigo-400", dragging ? "border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950" : "border-zinc-300 dark:border-zinc-700")}
+            >
+              <UploadCloud className="size-5" />
+              {dragging ? "Drop to attach" : "Drag a receipt here, or click to upload"}
               <input
                 type="file"
                 className="sr-only"

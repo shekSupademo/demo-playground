@@ -1,6 +1,7 @@
 import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import { AccountDetail } from "./pages/AccountDetail";
+import { Bills } from "./pages/Bills";
 import { Cards } from "./pages/Cards";
 import { Home } from "./pages/Home";
 import { Insights } from "./pages/Insights";
@@ -25,6 +26,7 @@ export function App() {
                 <Route path="transactions" element={<Transactions />} />
                 <Route path="accounts/:id" element={<AccountDetail />} />
                 <Route path="payments" element={<Payments />} />
+                <Route path="bills" element={<Bills />} />
                 <Route path="cards" element={<Cards />} />
                 <Route path="invoices" element={<Invoices />} />
                 <Route path="insights" element={<Insights />} />

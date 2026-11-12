@@ -28,6 +28,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
       { id: "home", label: "Go to Home", group: "Navigate", run: go("/") },
       { id: "tx", label: "Go to Transactions", group: "Navigate", run: go("/transactions") },
       { id: "pay", label: "Go to Payments", group: "Navigate", run: go("/payments") },
+      { id: "bills", label: "Go to Bills", group: "Navigate", run: go("/bills") },
       { id: "cards", label: "Go to Cards", group: "Navigate", run: go("/cards") },
       { id: "inv", label: "Go to Invoices", group: "Navigate", run: go("/invoices") },
       { id: "ins", label: "Go to Insights", group: "Navigate", run: go("/insights") },

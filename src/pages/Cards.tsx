@@ -1,11 +1,48 @@
 import { Plus, Snowflake } from "lucide-react";
 import { useState } from "react";
-import { Badge, Button, Field, Input, Modal, PageHeader, Select } from "../components/ui";
+import { Dropdown } from "../components/Dropdown";
+import { Slider } from "../components/Slider";
+import { Badge, Button, Field, Input, Modal, PageHeader } from "../components/ui";
 import type { Card } from "../data/types";
 import { cardSpendThisMonth } from "../lib/analytics";
-import { cx, money, parseDollars, uid } from "../lib/format";
+import { cx, money, moneyCompact, parseDollars, uid } from "../lib/format";
 import { useDispatch, useStore } from "../state/store";
 import { useToast } from "../state/toast";
+
+const LIMIT_MAX = 10_000_000; // $100,000
+const LIMIT_STEP = 50_000; // $500
+const LIMIT_MARKS = [0, 2_500_000, 5_000_000, 7_500_000, 10_000_000];
+
+function LimitControl({ cents, onChange, spent }: { cents: number; onChange: (c: number) => void; spent?: number }) {
+  const [text, setText] = useState(String(cents / 100));
+  const [lastCents, setLastCents] = useState(cents);
+  if (cents !== lastCents) {
+    setLastCents(cents);
+    setText(String(cents / 100));
+  }
+  const over = spent !== undefined && cents < spent;
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">Monthly limit</span>
+        <Input
+          aria-label="Monthly limit amount"
+          data-testid="limit-input"
+          className="w-32 text-right"
+          inputMode="decimal"
+          value={text}
+          onChange={(e) => {
+            setText(e.target.value);
+            const p = parseDollars(e.target.value);
+            if (p !== null) onChange(Math.min(p, LIMIT_MAX));
+          }}
+        />
+      </div>
+      <Slider label="Monthly limit" min={0} max={LIMIT_MAX} step={LIMIT_STEP} value={Math.min(cents, LIMIT_MAX)} onChange={onChange} format={moneyCompact} marks={LIMIT_MARKS} testId="limit-slider" />
+      {over && <p className="text-xs text-amber-600">This is below the {money(spent)} already spent this month. New charges will be declined.</p>}
+    </div>
+  );
+}
 
 const COLORS = ["from-indigo-500 to-violet-600", "from-sky-500 to-cyan-600", "from-emerald-500 to-teal-600", "from-amber-500 to-orange-600", "from-rose-500 to-pink-600", "from-zinc-600 to-zinc-800"];
 
@@ -14,18 +51,16 @@ export function Cards() {
   const dispatch = useDispatch();
   const toast = useToast();
   const [editing, setEditing] = useState<Card | null>(null);
-  const [limitText, setLimitText] = useState("");
+  const [limit, setLimit] = useState(0);
   const [nameText, setNameText] = useState("");
   const [creating, setCreating] = useState(false);
-  const [draft, setDraft] = useState({ name: "", holder: members[0]?.name ?? "", limit: "", kind: "virtual" as Card["kind"] });
+  const [draft, setDraft] = useState({ name: "", holder: members[0]?.name ?? "", limit: 500_000, kind: "virtual" as Card["kind"] });
 
   const startEdit = (c: Card) => {
     setEditing(c);
-    setLimitText(String(c.monthlyLimit / 100));
+    setLimit(c.monthlyLimit);
     setNameText(c.name);
   };
-  const newLimit = parseDollars(limitText);
-  const draftLimit = parseDollars(draft.limit);
 
   return (
     <div className="space-y-6">
@@ -100,10 +135,10 @@ export function Cards() {
             </Button>
             <Button
               variant="primary"
-              disabled={!newLimit || newLimit <= 0 || !nameText.trim()}
+              disabled={limit <= 0 || !nameText.trim()}
               onClick={() => {
-                if (!editing || !newLimit) return;
-                dispatch({ type: "card/update", id: editing.id, patch: { monthlyLimit: newLimit, name: nameText.trim() } });
+                if (!editing) return;
+                dispatch({ type: "card/update", id: editing.id, patch: { monthlyLimit: limit, name: nameText.trim() } });
                 toast("Card updated");
                 setEditing(null);
               }}
@@ -116,9 +151,7 @@ export function Cards() {
         <Field label="Card name">
           <Input value={nameText} onChange={(e) => setNameText(e.target.value)} />
         </Field>
-        <Field label="Monthly limit" error={limitText && (!newLimit || newLimit <= 0) ? "Enter a valid amount" : undefined}>
-          <Input inputMode="decimal" value={limitText} onChange={(e) => setLimitText(e.target.value)} />
-        </Field>
+        <LimitControl cents={limit} onChange={setLimit} spent={editing ? cardSpendThisMonth(transactions, editing.id) : undefined} />
       </Modal>
 
       <Modal
@@ -133,16 +166,15 @@ export function Cards() {
             </Button>
             <Button
               variant="primary"
-              disabled={!draft.name.trim() || !draftLimit}
+              disabled={!draft.name.trim() || draft.limit <= 0}
               onClick={() => {
-                if (!draftLimit) return;
                 dispatch({
                   type: "card/create",
-                  card: { id: uid("card"), name: draft.name.trim(), holder: draft.holder, kind: draft.kind, monthlyLimit: draftLimit, frozen: false, accountId: "acc_ops", last4: String(Math.floor(1000 + Math.random() * 9000)), color: COLORS[cards.length % COLORS.length] },
+                  card: { id: uid("card"), name: draft.name.trim(), holder: draft.holder, kind: draft.kind, monthlyLimit: draft.limit, frozen: false, accountId: "acc_ops", last4: String(Math.floor(1000 + Math.random() * 9000)), color: COLORS[cards.length % COLORS.length] },
                 });
                 toast(`${draft.kind === "virtual" ? "Virtual" : "Physical"} card created`);
                 setCreating(false);
-                setDraft({ name: "", holder: members[0]?.name ?? "", limit: "", kind: "virtual" });
+                setDraft({ name: "", holder: members[0]?.name ?? "", limit: 500_000, kind: "virtual" });
               }}
             >
               Create card
@@ -153,24 +185,33 @@ export function Cards() {
         <Field label="Card name">
           <Input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} placeholder="e.g. Conference travel" />
         </Field>
-        <Field label="Cardholder">
-          <Select value={draft.holder} onChange={(e) => setDraft({ ...draft, holder: e.target.value })}>
-            {members.filter((m) => m.status === "active").map((m) => (
-              <option key={m.id}>{m.name}</option>
-            ))}
-          </Select>
-        </Field>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Type">
-            <Select value={draft.kind} onChange={(e) => setDraft({ ...draft, kind: e.target.value as Card["kind"] })}>
-              <option value="virtual">Virtual</option>
-              <option value="physical">Physical</option>
-            </Select>
-          </Field>
-          <Field label="Monthly limit">
-            <Input inputMode="decimal" placeholder="$5,000" value={draft.limit} onChange={(e) => setDraft({ ...draft, limit: e.target.value })} />
-          </Field>
+          <div>
+            <p className="mb-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">Cardholder</p>
+            <Dropdown
+              label="Cardholder"
+              value={draft.holder}
+              testId="cardholder"
+              options={members.filter((m) => m.status === "active").map((m) => ({ value: m.name, label: m.name, hint: m.role }))}
+              onChange={(v) => setDraft({ ...draft, holder: v })}
+            />
+          </div>
+          <div>
+            <p className="mb-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">Type</p>
+            <Dropdown
+              label="Card type"
+              searchable={false}
+              value={draft.kind}
+              testId="card-type"
+              options={[
+                { value: "virtual", label: "Virtual", hint: "Instant" },
+                { value: "physical", label: "Physical", hint: "Ships in 5 days" },
+              ]}
+              onChange={(v) => setDraft({ ...draft, kind: v })}
+            />
+          </div>
         </div>
+        <LimitControl cents={draft.limit} onChange={(c) => setDraft({ ...draft, limit: c })} />
       </Modal>
     </div>
   );

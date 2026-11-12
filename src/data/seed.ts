@@ -1,4 +1,4 @@
-import type { Account, AppState, Card, Category, Invoice, Member, Recipient, Transaction, TxMethod } from "./types";
+import type { Account, AppState, Bill, Card, Category, Invoice, Member, Recipient, Transaction, TxMethod } from "./types";
 
 // Small deterministic PRNG so every fresh load shows the same demo data.
 function mulberry32(seed: number) {
@@ -157,6 +157,30 @@ const members: Member[] = [
   { id: "mem_5", name: "Leo Martins", email: "leo@northbeam.example", role: "employee", status: "invited" },
 ];
 
+export function seedBills(): Bill[] {
+  const rows: [string, number, number, Category, Bill["status"]][] = [
+    ["Brightline Studio", 640_000, 6, "Contractors", "inbox"],
+    ["Kestrel Legal LLP", 1_275_000, 12, "Contractors", "inbox"],
+    ["Volt Energy", 41_230, 3, "Utilities", "inbox"],
+    ["Desk Depot", 238_900, 18, "Office", "inbox"],
+    ["Pixel Forge Inc.", 980_000, 9, "Contractors", "approved"],
+    ["Cloudstack", 152_000, 14, "Software", "approved"],
+    ["Northwind Realty", 1_150_000, 19, "Rent", "scheduled"],
+    ["FiberLink", 9_900, 2, "Utilities", "scheduled"],
+    ["Searchly Ads", 312_500, -4, "Advertising", "paid"],
+    ["Maya Okafor", 450_000, -8, "Contractors", "paid"],
+  ];
+  return rows.map(([vendor, amount, due, category, status], i) => ({
+    id: `bill_${i + 1}`,
+    vendor,
+    amount,
+    dueDate: daysAgo(-due),
+    category,
+    status,
+    invoiceRef: `#${4100 + i * 7}`,
+  }));
+}
+
 export function createSeed(): AppState {
   const transactions = buildTransactions();
   const accs = accounts.map((a) => ({
@@ -170,6 +194,7 @@ export function createSeed(): AppState {
     recipients,
     invoices: invoices(),
     members,
+    bills: seedBills(),
     settings: {
       companyName: "Northbeam Labs",
       userName: "Avery Chen",

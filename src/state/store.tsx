@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useReducer, type Dispatch, type ReactNode } from "react";
-import { createSeed, isoDay } from "../data/seed";
-import type { AppState, Card, Category, Invoice, InvoiceStatus, Member, Recipient, Role, Settings, Transaction } from "../data/types";
+import { createSeed, isoDay, seedBills } from "../data/seed";
+import type { AppState, BillStatus, Card, Category, Invoice, InvoiceStatus, Member, Recipient, Role, Settings, Transaction } from "../data/types";
 import { uid } from "../lib/format";
 
 const STORAGE_KEY = "northbeam:v1";
@@ -21,6 +21,7 @@ export type Action =
   | { type: "member/setRole"; id: string; role: Role }
   | { type: "member/remove"; id: string }
   | { type: "settings/update"; patch: Partial<Settings> }
+  | { type: "bill/move"; id: string; status: BillStatus; beforeId?: string }
   | { type: "reset" };
 
 const adjust = (state: AppState, accountId: string, delta: number) =>
@@ -102,6 +103,27 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, members: state.members.filter((m) => m.id !== action.id) };
     case "settings/update":
       return { ...state, settings: { ...state.settings, ...action.patch } };
+    case "bill/move": {
+      const bill = state.bills.find((b) => b.id === action.id);
+      if (!bill) return state;
+      const moved = { ...bill, status: action.status };
+      const rest = state.bills.filter((b) => b.id !== action.id);
+      const at = action.beforeId ? rest.findIndex((b) => b.id === action.beforeId) : -1;
+      const bills = at === -1 ? [...rest, moved] : [...rest.slice(0, at), moved, ...rest.slice(at)];
+      if (action.status !== "paid" || bill.status === "paid") return { ...state, bills };
+      const tx: Transaction = {
+        id: uid("tx"),
+        date: isoDay(new Date()),
+        counterparty: bill.vendor,
+        description: `Bill ${bill.invoiceRef} paid`,
+        amount: -bill.amount,
+        accountId: "acc_ops",
+        category: bill.category,
+        status: "pending",
+        method: "ach",
+      };
+      return { ...state, bills, transactions: [tx, ...state.transactions], accounts: adjust(state, "acc_ops", -bill.amount) };
+    }
     case "reset":
       return createSeed();
   }
@@ -110,7 +132,11 @@ function reducer(state: AppState, action: Action): AppState {
 function load(): AppState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as AppState;
+    if (raw) {
+      const saved = JSON.parse(raw) as AppState;
+      // Older saved data predates bills; add the sample bills instead of resetting.
+      return saved.bills ? saved : { ...saved, bills: seedBills() };
+    }
   } catch {
     // Storage can be blocked; fall back to fresh demo data.
   }
