@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tags · Settings</title>
+  <link rel="stylesheet" href="../../assets/app.css">
+</head>
+<body data-page="tags" data-root="../../">
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">Acme Workspace</div>
+      <ul class="nav" id="nav"></ul>
+    </aside>
+    <main class="main">
+      <div class="page-header">
+        <div>
+          <h1>Tags</h1>
+          <p id="tags-description">Tags help your team organize demos. Create a tag here, then add it to any demo from the demo's settings so people can filter by it.</p>
+        </div>
+      </div>
+
+      <section class="card">
+        <h2>New tag</h2>
+        <form id="tag-form" class="inline-form">
+          <div class="field">
+            <label for="tag-name">Tag name</label>
+            <input type="text" id="tag-name" name="tagName" placeholder="e.g. Onboarding" required>
+          </div>
+          <button type="submit" class="btn btn-primary" id="create-tag">Create tag</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>All tags</h2>
+        <ul class="list" id="tag-list"></ul>
+      </section>
+    </main>
+  </div>
+  <script src="../../assets/app.js"></script>
+  <script>
+    const DEFAULT_TAGS = ['Sales', 'Product tour'];
+    let tags = readList('tags', DEFAULT_TAGS);
+
+    function renderTags() {
+      document.getElementById('tag-list').innerHTML = tags
+        .map((tag) => `<li><span class="tag-chip">${escapeHtml(tag)}</span><span class="muted">0 demos</span></li>`)
+        .join('');
+    }
+
+    function addTag(name) {
+      tags = [...tags, name];
+      writeList('tags', tags);
+      renderTags();
+      showToast(`Tag "${name}" created`);
+    }
+
+    document.getElementById('tag-form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const input = event.target.tagName;
+      const name = input.value.trim();
+      if (!name) return;
+      addTag(name);
+      input.value = '';
+    });
+
+    renderTags();
+  </script>
+</body>
+</html>
