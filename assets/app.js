@@ -4,7 +4,7 @@ const ICONS = {
   users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-5.5 7-5.5s7 2 7 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c3 0 5 1.5 5 4.5"/></svg>',
 };
 
-const NAV_ITEMS = [
+const SETTINGS_NAV_ITEMS = [
   { key: 'profile', label: 'Profile', href: 'settings/profile/', icon: 'user' },
   { key: 'tags', label: 'Tags', href: 'settings/tags/', icon: 'tag' },
   { key: 'members', label: 'Members', href: 'settings/members/', icon: 'users' },
@@ -14,10 +14,10 @@ function siteRoot() {
   return document.body.dataset.root || './';
 }
 
-function renderNav() {
+function renderSidebarNav() {
   const active = document.body.dataset.page;
   const nav = document.getElementById('nav');
-  nav.innerHTML = NAV_ITEMS.map(
+  nav.innerHTML = SETTINGS_NAV_ITEMS.map(
     (item) =>
       `<li><a href="${siteRoot()}${item.href}" class="${item.key === active ? 'active' : ''}" data-nav="${item.key}">${ICONS[item.icon]}<span>${item.label}</span></a></li>`,
   ).join('');
@@ -55,4 +55,4 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-renderNav();
+renderSidebarNav();
