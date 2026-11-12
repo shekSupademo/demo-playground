@@ -50,20 +50,6 @@
     </main>
   </div>
 
-  <dialog id="invite-dialog">
-    <form method="dialog" id="invite-form">
-      <h2>Invite a member</h2>
-      <div class="field">
-        <label for="invite-email">Email address</label>
-        <input type="email" id="invite-email" name="inviteEmail" placeholder="teammate@acme.com">
-      </div>
-      <div class="dialog-actions">
-        <button type="button" class="btn btn-secondary" id="invite-cancel">Cancel</button>
-        <button type="submit" class="btn btn-primary" id="send-invite">Send invite</button>
-      </div>
-    </form>
-  </dialog>
-
   <script src="../../assets/app.js"></script>
   <script>
     const DEFAULT_MEMBERS = [
@@ -72,11 +58,10 @@
     ];
     const SEAT_LIMIT = 5;
     let members = readList('members', DEFAULT_MEMBERS);
-    const dialog = document.getElementById('invite-dialog');
     const search = document.getElementById('member-search');
 
     function memberStatus(member) {
-      return member.role === 'Invited' ? 'Pending' : 'Active';
+      return member.role === 'Invited' || member.status === 'Invited' ? 'Pending' : 'Active';
     }
 
     function renderMembers() {
@@ -96,20 +81,15 @@
     }
 
     search.addEventListener('input', renderMembers);
-    document.getElementById('invite-button').addEventListener('click', () => dialog.showModal());
-    document.getElementById('invite-cancel').addEventListener('click', () => dialog.close());
-    document.getElementById('invite-form').addEventListener('submit', (event) => {
-      const email = event.target.inviteEmail.value.trim();
-      if (!email) {
-        event.preventDefault();
-        return;
-      }
-      members = [...members, { email, role: 'Invited' }];
-      writeList('members', members);
-      renderMembers();
-      event.target.reset();
-      showToast(`Invite sent to ${email}`);
+    document.getElementById('invite-button').addEventListener('click', () => {
+      window.location.href = 'invite/';
     });
+
+    const invited = new URLSearchParams(window.location.search).get('invited');
+    if (invited) {
+      showToast(`Invitation sent to ${invited}`);
+      history.replaceState(null, '', window.location.pathname);
+    }
 
     renderMembers();
   </script>
