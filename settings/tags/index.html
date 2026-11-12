@@ -18,18 +18,8 @@
           <h1>Tags</h1>
           <p id="tags-description">Tags help your team organize demos. Create a tag here, then add it to any demo from the demo's settings so people can filter by it.</p>
         </div>
+        <button type="button" class="btn btn-primary" id="new-tag-button">New tag</button>
       </div>
-
-      <section class="card">
-        <h2>New tag</h2>
-        <form id="tag-form" class="inline-form">
-          <div class="field">
-            <label for="tag-name">Tag name</label>
-            <input type="text" id="tag-name" name="tagName" placeholder="e.g. Onboarding" required>
-          </div>
-          <button type="submit" class="btn btn-primary" id="create-tag">Create tag</button>
-        </form>
-      </section>
 
       <section class="card">
         <h2>All tags</h2>
@@ -37,6 +27,19 @@
       </section>
     </main>
   </div>
+  <dialog id="tag-dialog">
+    <form id="tag-form" method="dialog">
+      <h2>New tag</h2>
+      <div class="field">
+        <label for="tag-name">Tag name</label>
+        <input type="text" id="tag-name" name="tagName" placeholder="e.g. Onboarding" required>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-secondary" id="tag-cancel">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="create-tag">Create tag</button>
+      </div>
+    </form>
+  </dialog>
   <script src="../../assets/app.js"></script>
   <script>
     const DEFAULT_TAGS = ['Sales', 'Product tour'];
@@ -55,8 +58,12 @@
       showToast(`Tag "${name}" created`);
     }
 
+    const tagDialog = document.getElementById('tag-dialog');
+    document.getElementById('new-tag-button').addEventListener('click', () => tagDialog.showModal());
+    document.getElementById('tag-cancel').addEventListener('click', () => tagDialog.close());
     document.getElementById('tag-form').addEventListener('submit', (event) => {
       event.preventDefault();
+      tagDialog.close();
       const input = event.target.tagName;
       const name = input.value.trim();
       if (!name) return;
