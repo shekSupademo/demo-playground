@@ -62,6 +62,11 @@ body {
 
 .card h2 { margin: 0 0 12px; font-size: 16px; }
 
+.profile-card { padding: 32px; }
+.profile-card h2 { font-size: 20px; margin-bottom: 20px; }
+.profile-card .field { margin-bottom: 22px; }
+.profile-card input { font-size: 15px; padding: 11px 12px; }
+
 .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
 .field label { font-weight: 600; }
 
