@@ -6,7 +6,7 @@ const ICONS = {
 
 const NAV_ITEMS = [
   { key: 'profile', label: 'Profile', href: 'settings/profile/', icon: 'user' },
-  { key: 'tags', label: 'Tags', href: 'settings/tags/', icon: 'tag' },
+  { key: 'tags', label: 'Tags', href: 'settings/workspace/tags/', icon: 'tag' },
   { key: 'members', label: 'Members', href: 'settings/members/', icon: 'users' },
 ];
 
