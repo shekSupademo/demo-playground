@@ -37,6 +37,16 @@
       </section>
     </main>
   </div>
+  <dialog id="confirm-dialog">
+    <form method="dialog">
+      <h2>Create this tag?</h2>
+      <p class="muted" id="confirm-text"></p>
+      <div class="dialog-actions">
+        <button value="cancel" class="btn btn-secondary">Cancel</button>
+        <button value="ok" class="btn btn-primary" id="confirm-create">Yes, create it</button>
+      </div>
+    </form>
+  </dialog>
   <script src="../../assets/app.js"></script>
   <script>
     const DEFAULT_TAGS = ['Sales', 'Product tour'];
@@ -60,8 +70,14 @@
       const input = event.target.tagName;
       const name = input.value.trim();
       if (!name) return;
-      addTag(name);
-      input.value = '';
+      const confirmDialog = document.getElementById('confirm-dialog');
+      document.getElementById('confirm-text').textContent = `"${name}" will be visible to everyone in the workspace.`;
+      confirmDialog.onclose = () => {
+        if (confirmDialog.returnValue !== 'ok') return;
+        addTag(name);
+        input.value = '';
+      };
+      confirmDialog.showModal();
     });
 
     renderTags();
