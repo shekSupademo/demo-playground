@@ -119,7 +119,7 @@ export function Layout() {
               {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
             </button>
             <div className="relative" ref={menuRef}>
-              <button onClick={() => setMoveMenu((m) => !m)} data-testid="move-money" aria-expanded={moveMenu} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-indigo-600 px-3.5 text-sm font-medium text-white hover:bg-indigo-500">
+              <button onClick={() => setMoveMenu((m) => !m)} aria-expanded={moveMenu} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-indigo-600 px-3.5 text-sm font-medium text-white hover:bg-indigo-500">
                 Move money <ChevronDown className="size-4" />
               </button>
               {moveMenu && (
