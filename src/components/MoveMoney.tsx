@@ -206,7 +206,7 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
               <ArrowLeft className="size-4" /> Edit
             </Button>
             <Button variant="primary" onClick={submit} data-testid="confirm-send">
-              Send {money(amount)}
+              Confirm and send
             </Button>
           </div>
         </div>
