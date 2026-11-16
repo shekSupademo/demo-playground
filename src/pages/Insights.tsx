@@ -19,7 +19,7 @@ export function Insights() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Insights" subtitle="Where your money goes, and how it's trending." actions={<Tabs value={range} onChange={setRange} options={[{ value: "30", label: "30 days" }, { value: "90", label: "90 days" }, { value: "180", label: "6 months" }]} />} />
+      <PageHeader title="Insights" subtitle="See where money goes and how spending changes over time." actions={<Tabs value={range} onChange={setRange} options={[{ value: "30", label: "30 days" }, { value: "90", label: "90 days" }, { value: "180", label: "6 months" }]} />} />
       <div className="grid gap-6 lg:grid-cols-2">
         <Panel title="Spend by category" data-testid="category-chart">
           <div className="flex flex-col items-center gap-6 sm:flex-row">

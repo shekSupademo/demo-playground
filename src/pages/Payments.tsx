@@ -35,7 +35,7 @@ export function Payments() {
     <div className="space-y-6">
       <PageHeader
         title="Payments"
-        subtitle="Pay vendors and contractors by ACH or wire."
+        subtitle="Send ACH and wire payments to vendors and contractors."
         actions={
           <Button variant="primary" onClick={() => ui.openSend()} data-testid="payments-send">
             <Send className="size-4" /> Send money

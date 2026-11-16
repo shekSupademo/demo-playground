@@ -51,13 +51,13 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
   const submit = () => {
     if (!recipient || !amount) return;
     dispatch({ type: "payment/send", recipientId: recipient.id, accountId, amount, date, memo });
-    toast(`${money(amount)} to ${recipient.name} ${date === today ? "is on its way" : `scheduled for ${longDate(date)}`}`);
+    toast(`${recipient.name} will receive ${money(amount)} ${date === today ? "soon" : `on ${longDate(date)}`}`);
     setStep("done");
   };
 
   const steps: Step[] = ["recipient", "amount", "review"];
   return (
-    <Modal open={open} onClose={close} title="Send money" testId="send-money-modal">
+    <Modal open={open} onClose={close} title="Pay a recipient" testId="send-money-modal">
       {step !== "done" && (
         <ol className="flex items-center gap-2 text-xs text-zinc-500" aria-label="Progress">
           {steps.map((s, i) => (
@@ -217,7 +217,7 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
           <span className="flex size-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-950">
             <Check className="size-6" />
           </span>
-          <p className="font-medium">Payment submitted</p>
+          <p className="font-medium">Your payment is on its way</p>
           <p className="text-sm text-zinc-500">It shows as pending in Transactions until it settles.</p>
           <Button variant="primary" onClick={close}>
             Done
@@ -244,7 +244,7 @@ export function TransferModal({ open, onClose }: { open: boolean; onClose: () =>
     <Modal
       open={open}
       onClose={onClose}
-      title="Transfer between accounts"
+      title="Move funds between accounts"
       testId="transfer-modal"
       footer={
         <>
@@ -257,7 +257,7 @@ export function TransferModal({ open, onClose }: { open: boolean; onClose: () =>
             onClick={() => {
               if (!amount) return;
               dispatch({ type: "transfer", fromId, toId, amount });
-              toast(`Moved ${money(amount)} to ${accounts.find((a) => a.id === toId)?.name}`);
+              toast(`${money(amount)} transferred to ${accounts.find((a) => a.id === toId)?.name}`);
               setAmountText("");
               onClose();
             }}

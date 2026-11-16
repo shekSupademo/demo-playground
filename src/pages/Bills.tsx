@@ -42,7 +42,7 @@ export function Bills() {
     <div className="space-y-6">
       <PageHeader
         title="Bills"
-        subtitle="Drag bills across the board to approve, schedule and pay them. Paying a bill debits Operating."
+        subtitle="Move bills from inbox to paid by dragging them across the board. Paid bills come out of Operating."
         actions={
           <Dropdown
             className="w-56"
