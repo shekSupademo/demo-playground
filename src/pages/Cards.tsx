@@ -1,8 +1,9 @@
 import { Plus, Snowflake } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Dropdown } from "../components/Dropdown";
 import { Slider } from "../components/Slider";
-import { Badge, Button, Field, Input, Modal, PageHeader } from "../components/ui";
+import { Badge, Button, Field, Input, Modal, PageHeader, Panel } from "../components/ui";
 import type { Card } from "../data/types";
 import { cardSpendThisMonth } from "../lib/analytics";
 import { cx, money, moneyCompact, parseDollars, uid } from "../lib/format";
@@ -47,14 +48,13 @@ function LimitControl({ cents, onChange, spent }: { cents: number; onChange: (c:
 const COLORS = ["from-indigo-500 to-violet-600", "from-sky-500 to-cyan-600", "from-emerald-500 to-teal-600", "from-amber-500 to-orange-600", "from-rose-500 to-pink-600", "from-zinc-600 to-zinc-800"];
 
 export function Cards() {
-  const { cards, transactions, members } = useStore();
+  const { cards, transactions } = useStore();
   const dispatch = useDispatch();
   const toast = useToast();
   const [editing, setEditing] = useState<Card | null>(null);
   const [limit, setLimit] = useState(0);
   const [nameText, setNameText] = useState("");
-  const [creating, setCreating] = useState(false);
-  const [draft, setDraft] = useState({ name: "", holder: members[0]?.name ?? "", limit: 500_000, kind: "virtual" as Card["kind"] });
+  const navigate = useNavigate();
 
   const startEdit = (c: Card) => {
     setEditing(c);
@@ -68,7 +68,7 @@ export function Cards() {
         title="Cards"
         subtitle="Issue cards, set monthly limits and freeze them instantly."
         actions={
-          <Button variant="primary" onClick={() => setCreating(true)} data-testid="new-card">
+          <Button variant="primary" onClick={() => navigate("/cards/new")} data-testid="new-card">
             <Plus className="size-4" /> New card
           </Button>
         }
@@ -154,65 +154,73 @@ export function Cards() {
         <LimitControl cents={limit} onChange={setLimit} spent={editing ? cardSpendThisMonth(transactions, editing.id) : undefined} />
       </Modal>
 
-      <Modal
-        open={creating}
-        onClose={() => setCreating(false)}
-        title="Issue a new card"
-        testId="new-card-modal"
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setCreating(false)}>
-              Cancel
-            </Button>
-            <Button
-              variant="primary"
-              disabled={!draft.name.trim() || draft.limit <= 0}
-              onClick={() => {
-                dispatch({
-                  type: "card/create",
-                  card: { id: uid("card"), name: draft.name.trim(), holder: draft.holder, kind: draft.kind, monthlyLimit: draft.limit, frozen: false, accountId: "acc_ops", last4: String(Math.floor(1000 + Math.random() * 9000)), color: COLORS[cards.length % COLORS.length] },
-                });
-                toast(`${draft.kind === "virtual" ? "Virtual" : "Physical"} card created`);
-                setCreating(false);
-                setDraft({ name: "", holder: members[0]?.name ?? "", limit: 500_000, kind: "virtual" });
-              }}
-            >
-              Create card
-            </Button>
-          </>
-        }
-      >
-        <Field label="Card name">
-          <Input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} placeholder="e.g. Conference travel" />
-        </Field>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <p className="mb-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">Cardholder</p>
-            <Dropdown
-              label="Cardholder"
-              value={draft.holder}
-              testId="cardholder"
-              options={members.filter((m) => m.status === "active").map((m) => ({ value: m.name, label: m.name, hint: m.role }))}
-              onChange={(v) => setDraft({ ...draft, holder: v })}
-            />
+    </div>
+  );
+}
+
+export function NewCard() {
+  const { cards, members } = useStore();
+  const dispatch = useDispatch();
+  const toast = useToast();
+  const navigate = useNavigate();
+  const [draft, setDraft] = useState({ name: "", holder: members[0]?.name ?? "", limit: 500_000, kind: "virtual" as Card["kind"] });
+
+  return (
+    <div className="mx-auto max-w-xl" data-testid="new-card-page">
+      <PageHeader title="Issue a new card" />
+      <Panel>
+        <div className="space-y-4">
+          <Field label="Card name">
+            <Input autoFocus value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} placeholder="e.g. Conference travel" />
+          </Field>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <p className="mb-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">Cardholder</p>
+              <Dropdown
+                label="Cardholder"
+                value={draft.holder}
+                testId="cardholder"
+                options={members.filter((m) => m.status === "active").map((m) => ({ value: m.name, label: m.name, hint: m.role }))}
+                onChange={(v) => setDraft({ ...draft, holder: v })}
+              />
+            </div>
+            <div>
+              <p className="mb-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">Type</p>
+              <Dropdown
+                label="Card type"
+                searchable={false}
+                value={draft.kind}
+                testId="card-type"
+                options={[
+                  { value: "virtual", label: "Virtual", hint: "Instant" },
+                  { value: "physical", label: "Physical", hint: "Ships in 5 days" },
+                ]}
+                onChange={(v) => setDraft({ ...draft, kind: v })}
+              />
+            </div>
           </div>
-          <div>
-            <p className="mb-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">Type</p>
-            <Dropdown
-              label="Card type"
-              searchable={false}
-              value={draft.kind}
-              testId="card-type"
-              options={[
-                { value: "virtual", label: "Virtual", hint: "Instant" },
-                { value: "physical", label: "Physical", hint: "Ships in 5 days" },
-              ]}
-              onChange={(v) => setDraft({ ...draft, kind: v })}
-            />
-          </div>
+          <LimitControl cents={draft.limit} onChange={(c) => setDraft({ ...draft, limit: c })} />
         </div>
-        <LimitControl cents={draft.limit} onChange={(c) => setDraft({ ...draft, limit: c })} />
-      </Modal>
+        <div className="mt-5 flex justify-end gap-2 border-t border-zinc-100 pt-4 dark:border-zinc-800">
+          <Button variant="ghost" onClick={() => navigate("/cards")}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            disabled={!draft.name.trim() || draft.limit <= 0}
+            onClick={() => {
+              dispatch({
+                type: "card/create",
+                card: { id: uid("card"), name: draft.name.trim(), holder: draft.holder, kind: draft.kind, monthlyLimit: draft.limit, frozen: false, accountId: "acc_ops", last4: String(Math.floor(1000 + Math.random() * 9000)), color: COLORS[cards.length % COLORS.length] },
+              });
+              toast(`${draft.kind === "virtual" ? "Virtual" : "Physical"} card created`);
+              navigate("/cards");
+            }}
+          >
+            Create card
+          </Button>
+        </div>
+      </Panel>
     </div>
   );
 }

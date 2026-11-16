@@ -2,7 +2,7 @@ import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import { AccountDetail } from "./pages/AccountDetail";
 import { Bills } from "./pages/Bills";
-import { Cards } from "./pages/Cards";
+import { Cards, NewCard } from "./pages/Cards";
 import { Home } from "./pages/Home";
 import { Insights } from "./pages/Insights";
 import { Invoices } from "./pages/Invoices";
@@ -28,6 +28,7 @@ export function App() {
                 <Route path="payments" element={<Payments />} />
                 <Route path="bills" element={<Bills />} />
                 <Route path="cards" element={<Cards />} />
+                <Route path="cards/new" element={<NewCard />} />
                 <Route path="invoices" element={<Invoices />} />
                 <Route path="insights" element={<Insights />} />
                 <Route path="settings" element={<Settings />} />
