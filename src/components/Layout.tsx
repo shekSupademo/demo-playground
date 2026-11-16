@@ -98,15 +98,15 @@ export function Layout() {
 
   return (
     <div className="flex h-full">
-      <aside className="hidden w-60 shrink-0 border-r border-zinc-200 bg-zinc-50 lg:block dark:border-zinc-800 dark:bg-zinc-950">{sidebar}</aside>
+      <aside className="hidden w-60 shrink-0 border-r border-zinc-200 bg-zinc-50 2xl:block dark:border-zinc-800 dark:bg-zinc-950">{sidebar}</aside>
       {mobileNav && (
-        <div className="fixed inset-0 z-40 bg-zinc-950/40 lg:hidden" onMouseDown={(e) => e.target === e.currentTarget && setMobileNav(false)}>
+        <div className="fixed inset-0 z-40 bg-zinc-950/40 2xl:hidden" onMouseDown={(e) => e.target === e.currentTarget && setMobileNav(false)}>
           <aside className="h-full w-64 bg-zinc-50 dark:bg-zinc-950">{sidebar}</aside>
         </div>
       )}
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-zinc-200 bg-white/80 px-4 backdrop-blur lg:px-8 dark:border-zinc-800 dark:bg-zinc-950/80">
-          <button className="rounded p-1.5 lg:hidden" aria-label="Open navigation" onClick={() => setMobileNav(true)}>
+          <button className="rounded p-1.5 2xl:hidden" aria-label="Open navigation" onClick={() => setMobileNav(true)}>
             <Menu className="size-5" />
           </button>
           <button onClick={() => setPalette(true)} data-testid="open-search" className="flex h-9 max-w-sm flex-1 items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 text-sm text-zinc-400 hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900">
