@@ -67,9 +67,9 @@
     const button = document.createElement("button");
     button.type = "button";
     if (s === "disconnected") {
-      button.textContent = "Connect";
+      button.textContent = "Link account";
       button.className = "primary";
-      button.dataset.testid = `connect-${item.id}`;
+      button.dataset.testid = `link-${item.id}`;
       button.addEventListener("click", () => set(item.id, "connected"));
     } else {
       button.textContent = "Sync now";
