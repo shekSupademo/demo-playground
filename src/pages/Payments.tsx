@@ -34,16 +34,16 @@ export function Payments() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Payments"
+        title="Payouts"
         subtitle="Pay vendors and contractors by ACH or wire."
         actions={
           <Button variant="primary" onClick={() => ui.openSend()} data-testid="payments-send">
-            <Send className="size-4" /> Send money
+            <Send className="size-4" /> Pay someone
           </Button>
         }
       />
       <div className="grid gap-6 lg:grid-cols-3">
-        <Panel title="Payments" className="lg:col-span-2" padded={false} action={<Tabs value={tab} onChange={setTab} options={[{ value: "upcoming", label: "Upcoming", count: upcoming.length }, { value: "recent", label: "Recent" }]} />}>
+        <Panel title="Payouts" className="lg:col-span-2" padded={false} action={<Tabs value={tab} onChange={setTab} options={[{ value: "upcoming", label: "Upcoming", count: upcoming.length }, { value: "recent", label: "Recent" }]} />}>
           {list.length === 0 ? (
             <Empty title={tab === "upcoming" ? "No upcoming payments" : "No payments yet"} body="Payments you send or schedule show up here." action={<Button onClick={() => ui.openSend()}>Send money</Button>} />
           ) : (

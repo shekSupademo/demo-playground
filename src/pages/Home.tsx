@@ -1,4 +1,4 @@
-import { AlertTriangle, ClipboardList, ArrowDownLeft, ArrowLeftRight, ArrowUpRight, FileText, Paperclip, Send, Snowflake } from "lucide-react";
+import { AlertTriangle, ClipboardList, ArrowDownLeft, ArrowLeftRight, ArrowUpRight, FileText, Paperclip, Send, Lock } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -30,7 +30,7 @@ export function Home() {
     { n: state.transactions.filter((t) => t.method === "card" && !t.receipt && t.amount < 0).length, label: "missing receipts", noun: "card charge", to: "/transactions", icon: Paperclip },
     { n: (state.bills ?? []).filter((b) => b.status === "inbox").length, label: "awaiting approval", noun: "bill", to: "/bills", icon: ClipboardList },
     { n: state.invoices.filter((i) => i.status === "overdue").length, label: "overdue", noun: "invoice", to: "/invoices", icon: FileText },
-    { n: state.cards.filter((c) => c.frozen).length, label: "frozen", noun: "card", to: "/cards", icon: Snowflake },
+    { n: state.cards.filter((c) => c.frozen).length, label: "locked", noun: "card", to: "/cards", icon: Lock },
   ].filter((a) => a.n > 0);
 
   return (
@@ -38,14 +38,14 @@ export function Home() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-sm text-zinc-500">Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"}, {state.settings.userName.split(" ")[0]}</p>
-          <h1 className="text-2xl font-semibold tracking-tight">Home</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
         </div>
         <div className="flex gap-2">
           <button onClick={() => ui.openSend()} className="inline-flex h-9 items-center gap-2 rounded-lg bg-indigo-600 px-3.5 text-sm font-medium text-white hover:bg-indigo-500" data-testid="home-send">
-            <Send className="size-4" /> Send
+            <Send className="size-4" /> Pay
           </button>
           <button onClick={() => ui.openTransfer()} className="inline-flex h-9 items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3.5 text-sm font-medium hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
-            <ArrowLeftRight className="size-4" /> Transfer
+            <ArrowLeftRight className="size-4" /> Move
           </button>
         </div>
       </div>

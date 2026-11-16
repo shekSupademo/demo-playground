@@ -1,4 +1,4 @@
-import { Plus, Snowflake } from "lucide-react";
+import { Lock, Plus } from "lucide-react";
 import { useState } from "react";
 import { Dropdown } from "../components/Dropdown";
 import { Slider } from "../components/Slider";
@@ -65,11 +65,11 @@ export function Cards() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Cards"
-        subtitle="Issue cards, set monthly limits and freeze them instantly."
+        title="Company cards"
+        subtitle="Hand out cards, cap monthly spend and lock them in one click."
         actions={
           <Button variant="primary" onClick={() => setCreating(true)} data-testid="new-card">
-            <Plus className="size-4" /> New card
+            <Plus className="size-4" /> Add card
           </Button>
         }
       />
@@ -84,7 +84,7 @@ export function Cards() {
                   <span>{c.name}</span>
                   <span className="text-xs uppercase opacity-80">{c.kind}</span>
                 </div>
-                {c.frozen && <Snowflake className="absolute left-1/2 top-1/2 size-10 -translate-x-1/2 -translate-y-1/2" />}
+                {c.frozen && <Lock className="absolute left-1/2 top-1/2 size-10 -translate-x-1/2 -translate-y-1/2" />}
                 <div>
                   <p className="tabular tracking-widest">•••• •••• •••• {c.last4}</p>
                   <p className="mt-1 text-xs opacity-80">{c.holder}</p>
@@ -101,7 +101,7 @@ export function Cards() {
                   <div className={cx("h-full rounded-full", pct > 90 ? "bg-rose-500" : pct > 70 ? "bg-amber-500" : "bg-indigo-500")} style={{ width: `${pct}%` }} />
                 </div>
                 <div className="flex items-center justify-between pt-2">
-                  {c.frozen ? <Badge tone="blue">Frozen</Badge> : <Badge tone="green">Active</Badge>}
+                  {c.frozen ? <Badge tone="blue">Locked</Badge> : <Badge tone="green">Active</Badge>}
                   <div className="flex gap-2">
                     <Button size="sm" variant="ghost" onClick={() => startEdit(c)}>
                       Edit
@@ -110,11 +110,11 @@ export function Cards() {
                       size="sm"
                       onClick={() => {
                         dispatch({ type: "card/toggleFreeze", id: c.id });
-                        toast(`${c.name} ${c.frozen ? "unfrozen" : "frozen"}`);
+                        toast(`${c.name} ${c.frozen ? "unlocked" : "locked"}`);
                       }}
                       data-testid="freeze-toggle"
                     >
-                      <Snowflake className="size-3.5" /> {c.frozen ? "Unfreeze" : "Freeze"}
+                      <Lock className="size-3.5" /> {c.frozen ? "Unlock" : "Lock"}
                     </Button>
                   </div>
                 </div>
@@ -148,7 +148,7 @@ export function Cards() {
           </>
         }
       >
-        <Field label="Card name">
+        <Field label="Nickname">
           <Input value={nameText} onChange={(e) => setNameText(e.target.value)} />
         </Field>
         <LimitControl cents={limit} onChange={setLimit} spent={editing ? cardSpendThisMonth(transactions, editing.id) : undefined} />
@@ -157,7 +157,7 @@ export function Cards() {
       <Modal
         open={creating}
         onClose={() => setCreating(false)}
-        title="Issue a new card"
+        title="New company card"
         testId="new-card-modal"
         footer={
           <>
@@ -177,19 +177,19 @@ export function Cards() {
                 setDraft({ name: "", holder: members[0]?.name ?? "", limit: 500_000, kind: "virtual" });
               }}
             >
-              Create card
+              Issue card
             </Button>
           </>
         }
       >
-        <Field label="Card name">
+        <Field label="Nickname">
           <Input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} placeholder="e.g. Conference travel" />
         </Field>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <p className="mb-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">Cardholder</p>
+            <p className="mb-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">Card owner</p>
             <Dropdown
-              label="Cardholder"
+              label="Card owner"
               value={draft.holder}
               testId="cardholder"
               options={members.filter((m) => m.status === "active").map((m) => ({ value: m.name, label: m.name, hint: m.role }))}
