@@ -1,4 +1,4 @@
-import { ArrowLeftRight, BarChart3, ClipboardList, ChevronDown, CreditCard, FileText, Home, List, Menu, Moon, Search, Send, Settings, Sun } from "lucide-react";
+import { ArrowLeftRight, BarChart3, ClipboardList, ChevronDown, CreditCard, FileText, Home, List, Menu, Moon, Search, Send, Settings, Sun, Users } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { cx, money } from "../lib/format";
@@ -15,6 +15,7 @@ const nav = [
   { to: "/cards", label: "Cards", icon: CreditCard },
   { to: "/invoices", label: "Invoices", icon: FileText },
   { to: "/insights", label: "Insights", icon: BarChart3 },
+  { to: "/team", label: "Team", icon: Users },
 ];
 
 export function Layout() {

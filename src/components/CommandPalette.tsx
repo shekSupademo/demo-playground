@@ -32,6 +32,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
       { id: "cards", label: "Go to Cards", group: "Navigate", run: go("/cards") },
       { id: "inv", label: "Go to Invoices", group: "Navigate", run: go("/invoices") },
       { id: "ins", label: "Go to Insights", group: "Navigate", run: go("/insights") },
+      { id: "team", label: "Go to Team", group: "Navigate", run: go("/team") },
       { id: "set", label: "Go to Settings", group: "Navigate", run: go("/settings") },
       { id: "send", label: "Send money", group: "Actions", run: () => ui.openSend() },
       { id: "transfer", label: "Transfer between accounts", group: "Actions", run: () => ui.openTransfer() },

@@ -8,6 +8,7 @@ import { Insights } from "./pages/Insights";
 import { Invoices } from "./pages/Invoices";
 import { Payments } from "./pages/Payments";
 import { Settings } from "./pages/Settings";
+import { Team } from "./pages/Team";
 import { Transactions } from "./pages/Transactions";
 import { StoreProvider } from "./state/store";
 import { ToastProvider } from "./state/toast";
@@ -30,6 +31,7 @@ export function App() {
                 <Route path="cards" element={<Cards />} />
                 <Route path="invoices" element={<Invoices />} />
                 <Route path="insights" element={<Insights />} />
+                <Route path="team" element={<Team />} />
                 <Route path="settings" element={<Settings />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Route>
