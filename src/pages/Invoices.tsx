@@ -38,7 +38,7 @@ export function Invoices() {
     <div className="space-y-6">
       <PageHeader
         title="Invoices"
-        subtitle="Bill customers and track what you're owed."
+        subtitle="Invoice customers and keep track of what comes in."
         actions={
           <Button variant="primary" onClick={() => setCreating(true)} data-testid="new-invoice">
             <Plus className="size-4" /> New invoice

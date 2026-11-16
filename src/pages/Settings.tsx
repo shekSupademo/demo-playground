@@ -39,7 +39,7 @@ function CompanyTab() {
             e.preventDefault();
             if (!company.trim() || !user.trim()) return;
             dispatch({ type: "settings/update", patch: { companyName: company.trim(), userName: user.trim() } });
-            toast("Settings saved");
+            toast("Profile updated");
           }}
         >
           <Field label="Company name" error={!company.trim() ? "Required" : undefined}>
@@ -169,7 +169,7 @@ function TeamTab() {
       <Modal
         open={inviting}
         onClose={() => setInviting(false)}
-        title="Invite a teammate"
+        title="Add someone to your team"
         testId="invite-modal"
         footer={
           <>
@@ -181,7 +181,7 @@ function TeamTab() {
               disabled={!name.trim() || !emailOk || dupe}
               onClick={() => {
                 dispatch({ type: "member/invite", member: { id: uid("mem"), name: name.trim(), email, role, status: "invited" } });
-                toast(`Invite sent to ${email}`);
+                toast(`${email} has been invited`);
                 setName("");
                 setEmail("");
                 setRole("employee");

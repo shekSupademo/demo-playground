@@ -66,7 +66,7 @@ export function Cards() {
     <div className="space-y-6">
       <PageHeader
         title="Cards"
-        subtitle="Issue cards, set monthly limits and freeze them instantly."
+        subtitle="Give your team cards, cap their monthly spend and lock any card in one click."
         actions={
           <Button variant="primary" onClick={() => setCreating(true)} data-testid="new-card">
             <Plus className="size-4" /> New card
@@ -110,7 +110,7 @@ export function Cards() {
                       size="sm"
                       onClick={() => {
                         dispatch({ type: "card/toggleFreeze", id: c.id });
-                        toast(`${c.name} ${c.frozen ? "unfrozen" : "frozen"}`);
+                        toast(`${c.name} card is ${c.frozen ? "active again" : "now frozen"}`);
                       }}
                       data-testid="freeze-toggle"
                     >
@@ -139,7 +139,7 @@ export function Cards() {
               onClick={() => {
                 if (!editing) return;
                 dispatch({ type: "card/update", id: editing.id, patch: { monthlyLimit: limit, name: nameText.trim() } });
-                toast("Card updated");
+                toast("Card changes saved");
                 setEditing(null);
               }}
             >
@@ -157,7 +157,7 @@ export function Cards() {
       <Modal
         open={creating}
         onClose={() => setCreating(false)}
-        title="Issue a new card"
+        title="Create a card"
         testId="new-card-modal"
         footer={
           <>
@@ -172,7 +172,7 @@ export function Cards() {
                   type: "card/create",
                   card: { id: uid("card"), name: draft.name.trim(), holder: draft.holder, kind: draft.kind, monthlyLimit: draft.limit, frozen: false, accountId: "acc_ops", last4: String(Math.floor(1000 + Math.random() * 9000)), color: COLORS[cards.length % COLORS.length] },
                 });
-                toast(`${draft.kind === "virtual" ? "Virtual" : "Physical"} card created`);
+                toast(`New ${draft.kind === "virtual" ? "virtual" : "physical"} card is ready`);
                 setCreating(false);
                 setDraft({ name: "", holder: members[0]?.name ?? "", limit: 500_000, kind: "virtual" });
               }}
