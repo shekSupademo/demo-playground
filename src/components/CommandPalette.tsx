@@ -25,16 +25,16 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
   const items = useMemo<Item[]>(() => {
     const go = (path: string) => () => navigate(path);
     const base: Item[] = [
-      { id: "home", label: "Go to Home", group: "Navigate", run: go("/") },
-      { id: "tx", label: "Go to Transactions", group: "Navigate", run: go("/transactions") },
-      { id: "pay", label: "Go to Payments", group: "Navigate", run: go("/payments") },
-      { id: "bills", label: "Go to Bills", group: "Navigate", run: go("/bills") },
-      { id: "cards", label: "Go to Cards", group: "Navigate", run: go("/cards") },
-      { id: "inv", label: "Go to Invoices", group: "Navigate", run: go("/invoices") },
-      { id: "ins", label: "Go to Insights", group: "Navigate", run: go("/insights") },
-      { id: "set", label: "Go to Settings", group: "Navigate", run: go("/settings") },
-      { id: "send", label: "Send money", group: "Actions", run: () => ui.openSend() },
-      { id: "transfer", label: "Transfer between accounts", group: "Actions", run: () => ui.openTransfer() },
+      { id: "home", label: "Go to Overview", group: "Navigate", run: go("/") },
+      { id: "tx", label: "Go to Activity", group: "Navigate", run: go("/transactions") },
+      { id: "pay", label: "Go to Payouts", group: "Navigate", run: go("/payments") },
+      { id: "bills", label: "Go to Payables", group: "Navigate", run: go("/bills") },
+      { id: "cards", label: "Go to Company cards", group: "Navigate", run: go("/cards") },
+      { id: "inv", label: "Go to Receivables", group: "Navigate", run: go("/invoices") },
+      { id: "ins", label: "Go to Reports", group: "Navigate", run: go("/insights") },
+      { id: "set", label: "Go to Admin", group: "Navigate", run: go("/settings") },
+      { id: "send", label: "Pay someone", group: "Actions", run: () => ui.openSend() },
+      { id: "transfer", label: "Move between accounts", group: "Actions", run: () => ui.openTransfer() },
       { id: "newinv", label: "Create invoice", group: "Actions", run: go("/invoices?new=1") },
       { id: "theme", label: `Switch to ${document.documentElement.classList.contains("dark") ? "light" : "dark"} mode`, group: "Actions", run: () => dispatch({ type: "settings/update", patch: { theme: document.documentElement.classList.contains("dark") ? "light" : "dark" } }) },
     ];

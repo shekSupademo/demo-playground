@@ -41,7 +41,7 @@
 
   // State lives only in this page, so every visit starts disconnected.
   const state = Object.fromEntries(INTEGRATIONS.map((i) => [i.id, "disconnected"]));
-  const STATUS = { disconnected: "Not connected", connected: "Connected", synced: "Synced just now" };
+  const STATUS = { disconnected: "Not linked", connected: "Linked", synced: "Refreshed just now" };
 
   const list = document.getElementById("integrations");
 
@@ -67,12 +67,12 @@
     const button = document.createElement("button");
     button.type = "button";
     if (s === "disconnected") {
-      button.textContent = "Connect";
+      button.textContent = "Link";
       button.className = "primary";
       button.dataset.testid = `connect-${item.id}`;
       button.addEventListener("click", () => set(item.id, "connected"));
     } else {
-      button.textContent = "Sync now";
+      button.textContent = "Refresh";
       button.dataset.testid = `sync-${item.id}`;
       button.addEventListener("click", () => set(item.id, "synced"));
     }

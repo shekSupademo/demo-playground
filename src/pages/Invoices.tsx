@@ -37,7 +37,7 @@ export function Invoices() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Invoices"
+        title="Receivables"
         subtitle="Bill customers and track what you're owed."
         actions={
           <Button variant="primary" onClick={() => setCreating(true)} data-testid="new-invoice">

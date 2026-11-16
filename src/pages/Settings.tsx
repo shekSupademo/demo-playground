@@ -13,7 +13,7 @@ export function Settings() {
   const [tab, setTab] = useState<Tab>("company");
   return (
     <div className="space-y-6">
-      <PageHeader title="Settings" actions={<Tabs value={tab} onChange={setTab} options={[{ value: "company", label: "Company" }, { value: "team", label: "Team" }, { value: "notifications", label: "Notifications" }, { value: "integrations", label: "Integrations" }]} />} />
+      <PageHeader title="Admin" actions={<Tabs value={tab} onChange={setTab} options={[{ value: "company", label: "Organization" }, { value: "team", label: "People" }, { value: "notifications", label: "Alerts" }, { value: "integrations", label: "Apps" }]} />} />
       {tab === "company" && <CompanyTab />}
       {tab === "team" && <TeamTab />}
       {tab === "notifications" && <NotificationsTab />}
@@ -114,11 +114,11 @@ function TeamTab() {
 
   return (
     <Panel
-      title={`Team members (${members.length})`}
+      title={`People (${members.length})`}
       padded={false}
       action={
         <Button size="sm" variant="primary" onClick={() => setInviting(true)} data-testid="invite-member">
-          <UserPlus className="size-3.5" /> Invite
+          <UserPlus className="size-3.5" /> Add person
         </Button>
       }
     >
@@ -169,7 +169,7 @@ function TeamTab() {
       <Modal
         open={inviting}
         onClose={() => setInviting(false)}
-        title="Invite a teammate"
+        title="Add a person"
         testId="invite-modal"
         footer={
           <>
@@ -181,22 +181,22 @@ function TeamTab() {
               disabled={!name.trim() || !emailOk || dupe}
               onClick={() => {
                 dispatch({ type: "member/invite", member: { id: uid("mem"), name: name.trim(), email, role, status: "invited" } });
-                toast(`Invite sent to ${email}`);
+                toast(`Invitation sent to ${email}`);
                 setName("");
                 setEmail("");
                 setRole("employee");
                 setInviting(false);
               }}
             >
-              Send invite
+              Send invitation
             </Button>
           </>
         }
       >
-        <Field label="Full name">
+        <Field label="Name">
           <Input value={name} onChange={(e) => setName(e.target.value)} />
         </Field>
-        <Field label="Work email" error={email && !emailOk ? "Enter a valid email" : dupe ? "Already on the team" : undefined}>
+        <Field label="Email" error={email && !emailOk ? "Enter a valid email" : dupe ? "Already on the team" : undefined}>
           <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </Field>
         <Field label="Role" hint={roleHelp[role]}>
@@ -284,7 +284,7 @@ function IntegrationsTab() {
   };
 
   return (
-    <Panel title="Integrations" padded={false}>
+    <Panel title="Apps" padded={false}>
       {ready ? (
         <iframe
           ref={frame}
@@ -299,7 +299,7 @@ function IntegrationsTab() {
         />
       ) : (
         <p className="px-5 py-14 text-center text-sm text-zinc-500" data-testid="integrations-loading">
-          Loading integrations…
+          Loading apps…
         </p>
       )}
     </Panel>

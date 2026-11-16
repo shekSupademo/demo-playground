@@ -57,13 +57,13 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
 
   const steps: Step[] = ["recipient", "amount", "review"];
   return (
-    <Modal open={open} onClose={close} title="Send money" testId="send-money-modal">
+    <Modal open={open} onClose={close} title="Pay someone" testId="send-money-modal">
       {step !== "done" && (
         <ol className="flex items-center gap-2 text-xs text-zinc-500" aria-label="Progress">
           {steps.map((s, i) => (
             <li key={s} className={cx("flex items-center gap-2", steps.indexOf(step) >= i && "font-medium text-indigo-600 dark:text-indigo-400")}>
               <span className={cx("flex size-5 items-center justify-center rounded-full border text-[10px]", steps.indexOf(step) >= i ? "border-indigo-600 bg-indigo-600 text-white" : "border-zinc-300")}>{i + 1}</span>
-              {s === "recipient" ? "Recipient" : s === "amount" ? "Amount" : "Review"}
+              {s === "recipient" ? "Payee" : s === "amount" ? "Amount" : "Confirm"}
               {i < 2 && <span className="mx-1 h-px w-6 bg-zinc-200 dark:bg-zinc-700" />}
             </li>
           ))}
@@ -178,7 +178,7 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
                 if (amount && amount > 0 && account && amount <= account.balance && !dateError) setStep("review");
               }}
             >
-              Review
+              Continue
             </Button>
           </div>
         </div>
@@ -206,7 +206,7 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
               <ArrowLeft className="size-4" /> Edit
             </Button>
             <Button variant="primary" onClick={submit} data-testid="confirm-send">
-              Send {money(amount)}
+              Pay {money(amount)}
             </Button>
           </div>
         </div>
@@ -217,10 +217,10 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
           <span className="flex size-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-950">
             <Check className="size-6" />
           </span>
-          <p className="font-medium">Payment submitted</p>
+          <p className="font-medium">Payment on its way</p>
           <p className="text-sm text-zinc-500">It shows as pending in Transactions until it settles.</p>
           <Button variant="primary" onClick={close}>
-            Done
+            Finish
           </Button>
         </div>
       )}
@@ -244,7 +244,7 @@ export function TransferModal({ open, onClose }: { open: boolean; onClose: () =>
     <Modal
       open={open}
       onClose={onClose}
-      title="Transfer between accounts"
+      title="Move between accounts"
       testId="transfer-modal"
       footer={
         <>
