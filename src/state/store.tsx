@@ -3,7 +3,7 @@ import { createSeed, isoDay, seedBills } from "../data/seed";
 import type { AppState, BillStatus, Card, Category, Invoice, InvoiceStatus, Member, Recipient, Role, Settings, Transaction } from "../data/types";
 import { uid } from "../lib/format";
 
-const STORAGE_KEY = "northbeam:v1";
+const STORAGE_KEY = "northbeam:v2";
 
 export type Action =
   | { type: "tx/update"; id: string; patch: Partial<Pick<Transaction, "category" | "note" | "receipt">> }
