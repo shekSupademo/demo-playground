@@ -70,7 +70,7 @@ export function HoverMenu({ items, label, testId, className }: { items: MenuItem
               {it.submenu && sub === i && (
                 <div role="menu" aria-label={it.label} className="absolute right-full top-0 z-50 mr-1 max-h-72 w-48 overflow-y-auto rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-900">
                   {it.submenu.map((s) => (
-                    <button key={s.label} type="button" role="menuitemradio" aria-checked={!!s.active} onClick={() => run(s.onSelect)} className={cx("flex w-full items-center gap-2 px-3 py-1.5 text-left hover:bg-zinc-50 dark:hover:bg-zinc-800", s.active && "font-medium text-indigo-600")}>
+                    <button key={s.label} type="button" role="menuitemradio" aria-checked={!!s.active} onClick={() => run(s.onSelect)} className={cx("flex w-full items-center gap-2 px-3 py-1.5 text-left hover:bg-zinc-50 dark:hover:bg-zinc-800", s.active && "font-medium text-emerald-600")}>
                       {s.icon}
                       {s.label}
                     </button>

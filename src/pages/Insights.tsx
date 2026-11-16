@@ -18,9 +18,9 @@ export function Insights() {
   const totalSpend = cats.reduce((s, c) => s + c.amount, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader title="Insights" subtitle="Where your money goes, and how it's trending." actions={<Tabs value={range} onChange={setRange} options={[{ value: "30", label: "30 days" }, { value: "90", label: "90 days" }, { value: "180", label: "6 months" }]} />} />
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-8 lg:grid-cols-2">
         <Panel title="Spend by category" data-testid="category-chart">
           <div className="flex flex-col items-center gap-6 sm:flex-row">
             <div className="h-56 w-56 shrink-0">
@@ -59,7 +59,7 @@ export function Insights() {
                 <XAxis type="number" tickFormatter={(v: number) => moneyCompact(v)} tick={{ fontSize: 10, fill: "#a1a1aa" }} axisLine={false} tickLine={false} />
                 <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 11, fill: "#71717a" }} axisLine={false} tickLine={false} />
                 <Tooltip formatter={(v: number) => money(v)} contentStyle={{ borderRadius: 8, fontSize: 12 }} />
-                <Bar isAnimationActive={false} dataKey="amount" name="Spend" fill="#6366f1" radius={[0, 4, 4, 0]} />
+                <Bar isAnimationActive={false} dataKey="amount" name="Spend" fill="#10b981" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -76,7 +76,7 @@ export function Insights() {
               <Legend wrapperStyle={{ fontSize: 12 }} />
               <Line isAnimationActive={false} type="monotone" dataKey="moneyIn" name="Money in" stroke="#10b981" strokeWidth={2} dot={false} />
               <Line isAnimationActive={false} type="monotone" dataKey="moneyOut" name="Money out" stroke="#f43f5e" strokeWidth={2} dot={false} />
-              <Line isAnimationActive={false} type="monotone" dataKey="net" name="Net" stroke="#6366f1" strokeWidth={2} strokeDasharray="4 3" />
+              <Line isAnimationActive={false} type="monotone" dataKey="net" name="Net" stroke="#10b981" strokeWidth={2} strokeDasharray="4 3" />
             </LineChart>
           </ResponsiveContainer>
         </div>

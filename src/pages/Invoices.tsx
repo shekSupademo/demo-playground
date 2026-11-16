@@ -35,7 +35,7 @@ export function Invoices() {
   const count = (s: InvoiceStatus) => invoices.filter((i) => i.status === s).length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader
         title="Invoices"
         subtitle="Bill customers and track what you're owed."
