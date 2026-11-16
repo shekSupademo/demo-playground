@@ -7,7 +7,13 @@ import { useDispatch, useStore } from "../state/store";
 import { useToast } from "../state/toast";
 import { Button, Field, Input, Modal, Select } from "./ui";
 
-type Step = "recipient" | "amount" | "review" | "done";
+type Step = "type" | "recipient" | "amount" | "review" | "done";
+type Method = Recipient["method"];
+
+const PAYMENT_TYPES: { value: Method; label: string; hint: string }[] = [
+  { value: "ach", label: "ACH", hint: "1–2 business days, free" },
+  { value: "wire", label: "Wire", hint: "Domestic wire, same day" },
+];
 
 export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: boolean; onClose: () => void; initialRecipientId?: string }) {
   const { recipients, accounts } = useStore();
@@ -15,8 +21,10 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
   const toast = useToast();
   const checking = accounts.filter((a) => a.type === "checking");
 
-  const [step, setStep] = useState<Step>(initialRecipientId ? "amount" : "recipient");
+  const initialStep: Step = initialRecipientId ? "amount" : "type";
+  const [step, setStep] = useState<Step>(initialStep);
   const [recipientId, setRecipientId] = useState(initialRecipientId ?? "");
+  const [method, setMethod] = useState<Method | null>(null);
   const [query, setQuery] = useState("");
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState<Omit<Recipient, "id">>({ name: "", email: "", bank: "", last4: "", method: "ach" });
@@ -27,6 +35,7 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
   const [touched, setTouched] = useState(false);
 
   const recipient = recipients.find((r) => r.id === recipientId);
+  const payMethod = method ?? recipient?.method ?? "ach";
   const account = accounts.find((a) => a.id === accountId);
   const amount = parseDollars(amountText);
   const today = isoDay(new Date());
@@ -40,7 +49,8 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
   const close = () => {
     onClose();
     setTimeout(() => {
-      setStep(initialRecipientId ? "amount" : "recipient");
+      setStep(initialStep);
+      setMethod(null);
       setAmountText("");
       setMemo("");
       setTouched(false);
@@ -50,12 +60,12 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
 
   const submit = () => {
     if (!recipient || !amount) return;
-    dispatch({ type: "payment/send", recipientId: recipient.id, accountId, amount, date, memo });
+    dispatch({ type: "payment/send", recipientId: recipient.id, accountId, amount, date, memo, method: payMethod });
     toast(`${money(amount)} to ${recipient.name} ${date === today ? "is on its way" : `scheduled for ${longDate(date)}`}`);
     setStep("done");
   };
 
-  const steps: Step[] = ["recipient", "amount", "review"];
+  const steps: Step[] = ["type", "recipient", "amount", "review"];
   return (
     <Modal open={open} onClose={close} title="Send money" testId="send-money-modal">
       {step !== "done" && (
@@ -63,11 +73,37 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
           {steps.map((s, i) => (
             <li key={s} className={cx("flex items-center gap-2", steps.indexOf(step) >= i && "font-medium text-indigo-600 dark:text-indigo-400")}>
               <span className={cx("flex size-5 items-center justify-center rounded-full border text-[10px]", steps.indexOf(step) >= i ? "border-indigo-600 bg-indigo-600 text-white" : "border-zinc-300")}>{i + 1}</span>
-              {s === "recipient" ? "Recipient" : s === "amount" ? "Amount" : "Review"}
-              {i < 2 && <span className="mx-1 h-px w-6 bg-zinc-200 dark:bg-zinc-700" />}
+              {s === "type" ? "Payment type" : s === "recipient" ? "Recipient" : s === "amount" ? "Amount" : "Review"}
+              {i < steps.length - 1 && <span className="mx-1 h-px w-6 bg-zinc-200 dark:bg-zinc-700" />}
             </li>
           ))}
         </ol>
+      )}
+
+      {step === "type" && (
+        <div className="space-y-3">
+          <p className="text-sm text-zinc-500">How should this payment be sent?</p>
+          <ul className="divide-y divide-zinc-100 rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800" data-testid="payment-type-list">
+            {PAYMENT_TYPES.map((t) => (
+              <li key={t.value}>
+                <button
+                  aria-label={t.label}
+                  onClick={() => {
+                    setMethod(t.value);
+                    setStep("recipient");
+                  }}
+                  className="flex w-full items-center justify-between px-3 py-2.5 text-left text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                  data-testid={`payment-type-${t.value}`}
+                >
+                  <span>
+                    <span className="block font-medium">{t.label}</span>
+                    <span className="text-xs text-zinc-500">{t.hint}</span>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       {step === "recipient" && !adding && (
@@ -147,7 +183,7 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
       {step === "amount" && recipient && (
         <div className="space-y-4">
           <div className="rounded-lg bg-zinc-50 px-3 py-2.5 text-sm dark:bg-zinc-800">
-            To <span className="font-medium">{recipient.name}</span> · {recipient.method.toUpperCase()} ••{recipient.last4}
+            To <span className="font-medium">{recipient.name}</span> · {payMethod.toUpperCase()} ••{recipient.last4}
           </div>
           <Field label="Amount" error={amountError}>
             <Input autoFocus inputMode="decimal" placeholder="$0.00" value={amountText} onChange={(e) => setAmountText(e.target.value)} onBlur={() => setTouched(true)} data-testid="amount-input" />
@@ -191,7 +227,7 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
               ["Amount", money(amount)],
               ["To", `${recipient.name} (${recipient.bank} ••${recipient.last4})`],
               ["From", `${account.name} ••${account.last4}`],
-              ["Method", recipient.method === "wire" ? "Domestic wire" : "ACH"],
+              ["Method", payMethod === "wire" ? "Domestic wire" : "ACH"],
               ["Date", date === today ? "Today" : longDate(date)],
               ["Memo", memo || "—"],
             ].map(([k, v]) => (
