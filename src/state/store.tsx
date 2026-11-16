@@ -11,7 +11,6 @@ export type Action =
   | { type: "payment/send"; recipientId: string; accountId: string; amount: number; date: string; memo: string }
   | { type: "transfer"; fromId: string; toId: string; amount: number }
   | { type: "recipient/add"; recipient: Recipient }
-  | { type: "card/toggleFreeze"; id: string }
   | { type: "card/update"; id: string; patch: Partial<Pick<Card, "name" | "monthlyLimit">> }
   | { type: "card/create"; card: Card }
   | { type: "invoice/create"; invoice: Invoice }
@@ -66,8 +65,6 @@ function reducer(state: AppState, action: Action): AppState {
     }
     case "recipient/add":
       return { ...state, recipients: [...state.recipients, action.recipient] };
-    case "card/toggleFreeze":
-      return { ...state, cards: state.cards.map((c) => (c.id === action.id ? { ...c, frozen: !c.frozen } : c)) };
     case "card/update":
       return { ...state, cards: state.cards.map((c) => (c.id === action.id ? { ...c, ...action.patch } : c)) };
     case "card/create":

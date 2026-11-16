@@ -13,7 +13,7 @@ There's no backend. All data is generated sample data and is kept in the browser
 | `#/accounts/:id` | Per-account balance chart, routing and account numbers with copy buttons, that account's transactions |
 | `#/payments` | Upcoming and recent payments, recipients with search and a "Pay" button |
 | `#/bills` | **Drag-and-drop** approval board (Inbox → Approved → Scheduled → Paid). Drag across columns or reorder within one. Dropping on Paid posts a pending transaction and debits Operating. Each card also has a **hover menu** with "Move to…" as a keyboard-friendly alternative. A searchable vendor **dropdown** filters the board |
-| `#/cards` | Freeze and unfreeze, edit name and monthly limit, issue new virtual or physical cards, spend-vs-limit bars |
+| `#/cards` | Edit name and monthly limit, issue new virtual or physical cards, spend-vs-limit bars |
 | `#/invoices` | Status tabs, an invoice editor with line items and validation, send, mark paid (which posts a revenue transaction), view, delete |
 | `#/insights` | Spend by category (click through to filtered transactions), top vendors, net cash flow by month |
 | `#/settings` | Company profile and theme, team invites with roles (the last admin can't be removed), notification toggles and threshold, reset data, and an **Integrations** tab whose list (QuickBooks, Slack, Gusto with Connect, then Sync now) is a same-origin **iframe** loading `public/integrations/index.html`. `src/lib/integrations.ts` sets its src, title, name and load delay |
