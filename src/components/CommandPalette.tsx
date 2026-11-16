@@ -55,7 +55,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
   let lastGroup = "";
   return (
     <div className="fixed inset-0 z-50 flex justify-center bg-zinc-950/40 p-4 pt-[12vh] backdrop-blur-sm" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div role="dialog" aria-label="Command palette" data-testid="command-palette" className="h-fit w-full max-w-lg overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-900">
+      <div role="dialog" aria-label="Command palette" data-testid="command-palette" className="h-fit w-full max-w-lg overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-900">
         <div className="flex items-center gap-2 border-b border-zinc-100 px-4 dark:border-zinc-800">
           <Search className="size-4 text-zinc-400" />
           <input
@@ -89,7 +89,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
             return (
               <li key={it.id}>
                 {header && <p className="px-2 pb-1 pt-2 text-[11px] font-medium uppercase tracking-wide text-zinc-400">{header}</p>}
-                <button onMouseEnter={() => setActive(i)} onClick={() => runAt(i)} className={cx("flex w-full items-center justify-between rounded-md px-2 py-2 text-left text-sm", i === active && "bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300")}>
+                <button onMouseEnter={() => setActive(i)} onClick={() => runAt(i)} className={cx("flex w-full items-center justify-between rounded-md px-2 py-2 text-left text-sm", i === active && "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300")}>
                   <span>{it.label}</span>
                   <span className="flex items-center gap-2 text-xs text-zinc-400">
                     {it.hint}

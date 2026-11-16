@@ -61,8 +61,8 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
       {step !== "done" && (
         <ol className="flex items-center gap-2 text-xs text-zinc-500" aria-label="Progress">
           {steps.map((s, i) => (
-            <li key={s} className={cx("flex items-center gap-2", steps.indexOf(step) >= i && "font-medium text-indigo-600 dark:text-indigo-400")}>
-              <span className={cx("flex size-5 items-center justify-center rounded-full border text-[10px]", steps.indexOf(step) >= i ? "border-indigo-600 bg-indigo-600 text-white" : "border-zinc-300")}>{i + 1}</span>
+            <li key={s} className={cx("flex items-center gap-2", steps.indexOf(step) >= i && "font-medium text-emerald-600 dark:text-emerald-400")}>
+              <span className={cx("flex size-5 items-center justify-center rounded-full border text-[10px]", steps.indexOf(step) >= i ? "border-emerald-600 bg-emerald-600 text-white" : "border-zinc-300")}>{i + 1}</span>
               {s === "recipient" ? "Recipient" : s === "amount" ? "Amount" : "Review"}
               {i < 2 && <span className="mx-1 h-px w-6 bg-zinc-200 dark:bg-zinc-700" />}
             </li>

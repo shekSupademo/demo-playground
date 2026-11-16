@@ -79,7 +79,7 @@ export function Dropdown<T extends string>({
         aria-expanded={open}
         aria-controls={listId}
         onClick={() => setOpen((o) => !o)}
-        className="flex h-9 w-full items-center justify-between gap-2 rounded-lg border border-zinc-200 bg-white px-3 text-left text-sm outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/20 dark:border-zinc-700 dark:bg-zinc-900"
+        className="flex h-9 w-full items-center justify-between gap-2 rounded-lg border border-zinc-200 bg-white px-3 text-left text-sm outline-none focus-visible:border-emerald-500 focus-visible:ring-2 focus-visible:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-900"
       >
         <span className={cx("flex min-w-0 items-center gap-2 truncate", !selected && "text-zinc-400")}>
           {selected?.icon}
@@ -115,7 +115,7 @@ export function Dropdown<T extends string>({
                 onMouseEnter={() => setActive(i)}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => choose(o)}
-                className={cx("flex cursor-pointer items-center justify-between gap-2 rounded-md px-2 py-1.5 text-sm", i === active && "bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300")}
+                className={cx("flex cursor-pointer items-center justify-between gap-2 rounded-md px-2 py-1.5 text-sm", i === active && "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300")}
               >
                 <span className="flex items-center gap-2">
                   {o.icon}
@@ -123,7 +123,7 @@ export function Dropdown<T extends string>({
                 </span>
                 <span className="flex items-center gap-2 text-xs text-zinc-400">
                   {o.hint}
-                  {o.value === value && <Check className="size-3.5 text-indigo-600" />}
+                  {o.value === value && <Check className="size-3.5 text-emerald-600" />}
                 </span>
               </li>
             ))}

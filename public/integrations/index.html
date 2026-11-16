@@ -5,21 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Integrations</title>
 <style>
-  :root { --bg:#fff; --ink:#18181b; --muted:#71717a; --line:#e4e4e7; --soft:#f4f4f5; --accent:#4f46e5; --accent-hover:#6366f1; --ok-bg:#ecfdf5; --ok:#047857; color-scheme:light; }
+  :root { --bg:#fff; --ink:#18181b; --muted:#71717a; --line:#e4e4e7; --soft:#f4f4f5; --accent:#059669; --accent-hover:#10b981; --ok-bg:#ecfdf5; --ok:#047857; color-scheme:light; }
   :root.dark { --bg:#18181b; --ink:#f4f4f5; --muted:#a1a1aa; --line:#27272a; --soft:#27272a; --ok-bg:#022c22; --ok:#6ee7b7; color-scheme:dark; }
   * { box-sizing:border-box; }
   html, body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
   ul { list-style:none; margin:0; padding:0; }
-  li { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 20px; }
+  li { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:18px 24px; }
   li + li { border-top:1px solid var(--line); }
   .info { display:flex; align-items:center; gap:12px; min-width:0; }
-  .logo { flex:none; display:inline-flex; width:36px; height:36px; border-radius:8px; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:13px; }
+  .logo { flex:none; display:inline-flex; width:36px; height:36px; border-radius:12px; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:13px; }
   .name { margin:0; font-weight:600; }
   .desc { margin:0; color:var(--muted); font-size:12px; }
   .side { flex:none; display:flex; align-items:center; gap:12px; }
   .status { font-size:12px; color:var(--muted); }
   .status.connected, .status.synced { display:inline-flex; padding:2px 8px; border-radius:999px; background:var(--ok-bg); color:var(--ok); font-weight:500; }
-  button { font:inherit; font-size:12px; font-weight:500; height:32px; padding:0 12px; border-radius:8px; cursor:pointer; border:1px solid var(--line); background:var(--bg); color:var(--ink); }
+  button { font:inherit; font-size:12px; font-weight:500; height:32px; padding:0 14px; border-radius:10px; cursor:pointer; border:1px solid var(--line); background:var(--bg); color:var(--ink); }
   button:hover { background:var(--soft); }
   button.primary { border-color:var(--accent); background:var(--accent); color:#fff; }
   button.primary:hover { background:var(--accent-hover); }

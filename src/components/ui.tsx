@@ -4,7 +4,7 @@ import { cx } from "../lib/format";
 
 type Variant = "primary" | "secondary" | "ghost" | "danger";
 const variants: Record<Variant, string> = {
-  primary: "bg-indigo-600 text-white hover:bg-indigo-500 disabled:bg-indigo-300 dark:disabled:bg-indigo-900",
+  primary: "bg-emerald-600 text-white hover:bg-emerald-500 disabled:bg-emerald-300 dark:disabled:bg-emerald-900",
   secondary: "border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800",
   ghost: "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800",
   danger: "bg-rose-600 text-white hover:bg-rose-500",
@@ -15,7 +15,7 @@ export function Button({ variant = "secondary", size = "md", className, ...props
     <button
       {...props}
       className={cx(
-        "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 disabled:cursor-not-allowed",
+        "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 disabled:cursor-not-allowed",
         size === "sm" ? "h-8 px-3 text-xs" : "h-9 px-3.5 text-sm",
         variants[variant],
         className,
@@ -26,14 +26,14 @@ export function Button({ variant = "secondary", size = "md", className, ...props
 
 export function Panel({ title, action, children, className, padded = true, ...rest }: { title?: ReactNode; action?: ReactNode; children: ReactNode; className?: string; padded?: boolean; "data-testid"?: string }) {
   return (
-    <section {...rest} className={cx("rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900", className)}>
+    <section {...rest} className={cx("rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900", className)}>
       {(title || action) && (
         <header className="flex items-center justify-between gap-3 border-b border-zinc-100 px-5 py-3.5 dark:border-zinc-800">
           <h2 className="text-sm font-semibold">{title}</h2>
           {action}
         </header>
       )}
-      <div className={padded ? "p-5" : undefined}>{children}</div>
+      <div className={padded ? "p-6" : undefined}>{children}</div>
     </section>
   );
 }
@@ -43,7 +43,7 @@ const tones = {
   green: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
   amber: "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
   red: "bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300",
-  blue: "bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300",
+  blue: "bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-300",
 };
 export function Badge({ tone = "gray", children }: { tone?: keyof typeof tones; children: ReactNode }) {
   return <span className={cx("inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium", tones[tone])}>{children}</span>;
@@ -59,7 +59,7 @@ export function Field({ label, hint, error, children }: { label: string; hint?: 
   );
 }
 
-const control = "h-9 rounded-lg border border-zinc-200 bg-white px-3 text-sm outline-none placeholder:text-zinc-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-zinc-700 dark:bg-zinc-900";
+const control = "h-9 rounded-lg border border-zinc-200 bg-white px-3 text-sm outline-none placeholder:text-zinc-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-900";
 export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   return <input {...props} className={cx(control, !/\bw-/.test(props.className ?? "") && "w-full", props.className)} />;
 }
@@ -76,7 +76,7 @@ export function Toggle({ checked, onChange, label, testId }: { checked: boolean;
       aria-label={label}
       data-testid={testId}
       onClick={() => onChange(!checked)}
-      className={cx("relative h-5 w-9 shrink-0 rounded-full transition-colors", checked ? "bg-indigo-600" : "bg-zinc-300 dark:bg-zinc-700")}
+      className={cx("relative h-5 w-9 shrink-0 rounded-full transition-colors", checked ? "bg-emerald-600" : "bg-zinc-300 dark:bg-zinc-700")}
     >
       <span className={cx("absolute top-0.5 size-4 rounded-full bg-white shadow transition-all", checked ? "left-4.5" : "left-0.5")} />
     </button>
@@ -101,7 +101,7 @@ export function Modal({ open, onClose, title, children, footer, wide, testId }: 
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-zinc-950/40 p-4 pt-[10vh] backdrop-blur-sm" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div ref={ref} role="dialog" aria-modal="true" aria-label={title} data-testid={testId} className={cx("w-full rounded-xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-900", wide ? "max-w-2xl" : "max-w-md")}>
+      <div ref={ref} role="dialog" aria-modal="true" aria-label={title} data-testid={testId} className={cx("w-full rounded-2xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-900", wide ? "max-w-2xl" : "max-w-md")}>
         <header className="flex items-center justify-between border-b border-zinc-100 px-5 py-4 dark:border-zinc-800">
           <h2 className="font-semibold">{title}</h2>
           <button aria-label="Close" onClick={onClose} className="rounded p-1 text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800">
@@ -135,7 +135,7 @@ export function Drawer({ open, onClose, title, children, testId }: { open: boole
 
 export function PageHeader({ title, subtitle, actions }: { title: string; subtitle?: string; actions?: ReactNode }) {
   return (
-    <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
         {subtitle && <p className="mt-1 text-sm text-zinc-500">{subtitle}</p>}

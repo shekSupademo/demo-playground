@@ -39,7 +39,7 @@ export function Bills() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader
         title="Bills"
         subtitle="Drag bills across the board to approve, schedule and pay them. Paying a bill debits Operating."
@@ -74,7 +74,7 @@ export function Bills() {
                 e.preventDefault();
                 drop(col.id, over?.col === col.id ? over.beforeId : undefined);
               }}
-              className={cx("flex min-h-72 flex-col rounded-xl border bg-zinc-100/60 p-3 transition-colors dark:bg-zinc-900/60", isOver ? "border-indigo-400 bg-indigo-50/60 dark:bg-indigo-950/40" : "border-zinc-200 dark:border-zinc-800")}
+              className={cx("flex min-h-72 flex-col rounded-2xl border bg-zinc-100/60 p-3 transition-colors dark:bg-zinc-900/60", isOver ? "border-emerald-400 bg-emerald-50/60 dark:bg-emerald-950/40" : "border-zinc-200 dark:border-zinc-800")}
             >
               <header className="mb-3 flex items-baseline justify-between px-1">
                 <div>
@@ -119,7 +119,7 @@ export function Bills() {
                       className={cx(
                         "group cursor-grab rounded-lg border border-zinc-200 bg-white p-3 shadow-sm active:cursor-grabbing dark:border-zinc-700 dark:bg-zinc-900",
                         dragId === b.id && "opacity-40",
-                        over?.beforeId === b.id && "border-t-2 border-t-indigo-500",
+                        over?.beforeId === b.id && "border-t-2 border-t-emerald-500",
                       )}
                     >
                       <div className="flex items-start gap-2">

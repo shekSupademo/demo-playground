@@ -12,7 +12,7 @@ type Tab = "company" | "team" | "notifications" | "integrations";
 export function Settings() {
   const [tab, setTab] = useState<Tab>("company");
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader title="Settings" actions={<Tabs value={tab} onChange={setTab} options={[{ value: "company", label: "Company" }, { value: "team", label: "Team" }, { value: "notifications", label: "Notifications" }, { value: "integrations", label: "Integrations" }]} />} />
       {tab === "company" && <CompanyTab />}
       {tab === "team" && <TeamTab />}
@@ -31,7 +31,7 @@ function CompanyTab() {
   const [confirmReset, setConfirmReset] = useState(false);
   const dirty = company !== settings.companyName || user !== settings.userName;
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="grid gap-8 lg:grid-cols-2">
       <Panel title="Profile">
         <form
           className="space-y-4"

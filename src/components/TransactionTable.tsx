@@ -142,7 +142,7 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
               <RangeSlider label="Amount" min={0} max={AMOUNT_MAX} step={25_000} low={minAmt} high={maxAmt} onChange={(l, h) => setAmountRange([l, h])} format={(v) => moneyCompact(v)} testId="amount-range" />
             </div>
             <label className="ml-1 inline-flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
-              <input type="checkbox" checked={missingReceipt} onChange={(e) => setMissingReceipt(e.target.checked)} className="accent-indigo-600" />
+              <input type="checkbox" checked={missingReceipt} onChange={(e) => setMissingReceipt(e.target.checked)} className="accent-emerald-600" />
               Missing receipt
             </label>
             {filtersActive && (
@@ -169,7 +169,7 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
       )}
 
       {selected.size > 0 && (
-        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm dark:border-indigo-900 dark:bg-indigo-950" data-testid="bulk-bar">
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm dark:border-emerald-900 dark:bg-emerald-950" data-testid="bulk-bar">
           <span className="font-medium">{selected.size} selected</span>
           <Dropdown
             className="w-48"
@@ -193,7 +193,7 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
         {rows.length === 0 ? (
           <Empty title="No transactions match" body="Try removing a filter or widening the date range." action={<Button onClick={clear}>Clear filters</Button>} />
         ) : (
@@ -205,7 +205,7 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
                     <input
                       type="checkbox"
                       aria-label="Select page"
-                      className="accent-indigo-600"
+                      className="accent-emerald-600"
                       checked={allOnPage}
                       onChange={() => {
                         const next = new Set(selected);
@@ -227,13 +227,13 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
               {pageRows.map((t) => {
                 const card = cards.find((c) => c.id === t.cardId);
                 return (
-                  <tr key={t.id} className={cx("group cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50", selected.has(t.id) && "bg-indigo-50/50 dark:bg-indigo-950/30")} onClick={() => openTx(t.id)} data-testid="tx-row">
+                  <tr key={t.id} className={cx("group cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50", selected.has(t.id) && "bg-emerald-50/50 dark:bg-emerald-950/30")} onClick={() => openTx(t.id)} data-testid="tx-row">
                     {!compact && (
                       <td className="px-4 py-2.5" onClick={(e) => e.stopPropagation()}>
                         <input
                           type="checkbox"
                           aria-label={`Select ${t.counterparty}`}
-                          className="accent-indigo-600"
+                          className="accent-emerald-600"
                           checked={selected.has(t.id)}
                           onChange={() => {
                             const next = new Set(selected);
@@ -376,7 +376,7 @@ function TransactionDrawer({ tx, onClose }: { tx?: Transaction; onClose: () => v
             onBlur={() => note !== (tx.note ?? "") && dispatch({ type: "tx/update", id: tx.id, patch: { note } })}
             rows={3}
             placeholder="Add context for your accountant"
-            className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 dark:border-zinc-700 dark:bg-zinc-900"
+            className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-500 dark:border-zinc-700 dark:bg-zinc-900"
           />
         </Field>
         <div>
@@ -406,7 +406,7 @@ function TransactionDrawer({ tx, onClose }: { tx?: Transaction; onClose: () => v
                 dispatch({ type: "tx/update", id: tx.id, patch: { receipt: f.name } });
                 toast("Receipt attached");
               }}
-              className={cx("flex cursor-pointer flex-col items-center gap-1 rounded-lg border border-dashed px-3 py-6 text-sm text-zinc-500 hover:border-indigo-400", dragging ? "border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950" : "border-zinc-300 dark:border-zinc-700")}
+              className={cx("flex cursor-pointer flex-col items-center gap-1 rounded-lg border border-dashed px-3 py-6 text-sm text-zinc-500 hover:border-emerald-400", dragging ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-950" : "border-zinc-300 dark:border-zinc-700")}
             >
               <UploadCloud className="size-5" />
               {dragging ? "Drop to attach" : "Drag a receipt here, or click to upload"}
