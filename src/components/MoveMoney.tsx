@@ -3,11 +3,15 @@ import { useMemo, useState } from "react";
 import { isoDay } from "../data/seed";
 import type { Recipient } from "../data/types";
 import { cx, longDate, money, parseDollars, uid } from "../lib/format";
+import { Dropdown } from "./Dropdown";
 import { useDispatch, useStore } from "../state/store";
 import { useToast } from "../state/toast";
 import { Button, Field, Input, Modal, Select } from "./ui";
 
 type Step = "recipient" | "amount" | "review" | "done";
+
+const PURPOSES = ["Contractor payment", "Vendor invoice", "Rent", "Payroll", "Tax payment", "Refund", "Other"] as const;
+type Purpose = (typeof PURPOSES)[number];
 
 export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: boolean; onClose: () => void; initialRecipientId?: string }) {
   const { recipients, accounts } = useStore();
@@ -24,6 +28,7 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
   const [accountId, setAccountId] = useState(checking[0]?.id ?? "");
   const [date, setDate] = useState(isoDay(new Date()));
   const [memo, setMemo] = useState("");
+  const [purpose, setPurpose] = useState<Purpose | "">("");
   const [touched, setTouched] = useState(false);
 
   const recipient = recipients.find((r) => r.id === recipientId);
@@ -33,6 +38,7 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
 
   const amountError = !touched ? undefined : amount === null || amount <= 0 ? "Enter an amount greater than $0" : account && amount > account.balance ? `Exceeds available balance of ${money(account.balance)}` : undefined;
   const dateError = date < today ? "Date can't be in the past" : undefined;
+  const purposeError = touched && !purpose ? "Choose a purpose for this payment" : undefined;
   const draftValid = draft.name.trim() && /\S+@\S+\.\S+/.test(draft.email) && draft.bank.trim() && /^\d{4}$/.test(draft.last4);
 
   const filtered = useMemo(() => recipients.filter((r) => r.name.toLowerCase().includes(query.toLowerCase())), [recipients, query]);
@@ -43,6 +49,7 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
       setStep(initialRecipientId ? "amount" : "recipient");
       setAmountText("");
       setMemo("");
+      setPurpose("");
       setTouched(false);
       setAdding(false);
     }, 0);
@@ -161,6 +168,15 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
               ))}
             </Select>
           </Field>
+          <div>
+            <p className="mb-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">Purpose</p>
+            <Dropdown label="Purpose" value={purpose} placeholder="Select a purpose…" testId="payment-purpose" options={PURPOSES.map((p) => ({ value: p, label: p }))} onChange={setPurpose} />
+            {purposeError && (
+              <p className="mt-1 text-xs text-rose-600" role="alert" data-testid="purpose-error">
+                {purposeError}
+              </p>
+            )}
+          </div>
           <Field label="Send on" error={dateError}>
             <Input type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} />
           </Field>
@@ -175,7 +191,7 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
               variant="primary"
               onClick={() => {
                 setTouched(true);
-                if (amount && amount > 0 && account && amount <= account.balance && !dateError) setStep("review");
+                if (amount && amount > 0 && account && amount <= account.balance && !dateError && purpose) setStep("review");
               }}
             >
               Review
@@ -192,6 +208,7 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
               ["To", `${recipient.name} (${recipient.bank} ••${recipient.last4})`],
               ["From", `${account.name} ••${account.last4}`],
               ["Method", recipient.method === "wire" ? "Domestic wire" : "ACH"],
+              ["Purpose", purpose || "—"],
               ["Date", date === today ? "Today" : longDate(date)],
               ["Memo", memo || "—"],
             ].map(([k, v]) => (
