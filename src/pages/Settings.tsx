@@ -1,9 +1,9 @@
 import { UserPlus } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Badge, Button, Field, Input, Modal, PageHeader, Panel, Select, Tabs, Toggle } from "../components/ui";
 import type { Role, Settings as S } from "../data/types";
 import { money, parseDollars, uid } from "../lib/format";
-import { INTEGRATIONS_FRAME } from "../lib/integrations";
+import { INTEGRATIONS } from "../lib/integrations";
 import { useDispatch, useStore } from "../state/store";
 import { useToast } from "../state/toast";
 
@@ -259,49 +259,51 @@ function NotificationsTab() {
   );
 }
 
-// The integrations list is a separate static page embedded in a same-origin
-// iframe. INTEGRATIONS_FRAME sets its src, title, name and load delay.
+type IntegrationState = "disconnected" | "connected" | "synced";
+const INTEGRATION_STATUS: Record<IntegrationState, string> = { disconnected: "Not connected", connected: "Connected", synced: "Synced just now" };
+
+// State lives only in this tab, so every visit starts disconnected.
 function IntegrationsTab() {
-  const { settings } = useStore();
-  const frame = useRef<HTMLIFrameElement>(null);
-  const [ready, setReady] = useState(INTEGRATIONS_FRAME.loadDelayMs === 0);
-  const [height, setHeight] = useState(200);
-  const dark = settings.theme === "dark" || (settings.theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-
-  useEffect(() => {
-    if (ready) return;
-    const t = setTimeout(() => setReady(true), INTEGRATIONS_FRAME.loadDelayMs);
-    return () => clearTimeout(t);
-  }, [ready]);
-
-  // Same origin, so the frame's document can be measured to fit its content.
-  const fit = () => {
-    const doc = frame.current?.contentDocument;
-    if (!doc) return;
-    const measure = () => setHeight(Math.ceil(doc.body.getBoundingClientRect().height));
-    measure();
-    new ResizeObserver(measure).observe(doc.body);
-  };
+  const [state, setState] = useState<Record<string, IntegrationState>>(() => Object.fromEntries(INTEGRATIONS.map((i) => [i.id, "disconnected"])));
+  const set = (id: string, next: IntegrationState) => setState((s) => ({ ...s, [id]: next }));
 
   return (
     <Panel title="Integrations" padded={false}>
-      {ready ? (
-        <iframe
-          ref={frame}
-          key={dark ? "dark" : "light"}
-          src={`${INTEGRATIONS_FRAME.src}${dark ? "?theme=dark" : ""}`}
-          title={INTEGRATIONS_FRAME.title}
-          name={INTEGRATIONS_FRAME.name}
-          data-testid="integrations-frame"
-          onLoad={fit}
-          className="block w-full rounded-b-xl"
-          style={{ height, border: 0 }}
-        />
-      ) : (
-        <p className="px-5 py-14 text-center text-sm text-zinc-500" data-testid="integrations-loading">
-          Loading integrations…
-        </p>
-      )}
+      <ul className="divide-y divide-zinc-100 dark:divide-zinc-800" data-testid="integration-list">
+        {INTEGRATIONS.map((item) => {
+          const s = state[item.id];
+          return (
+            <li key={item.id} className="flex flex-wrap items-center justify-between gap-4 px-5 py-3.5 text-sm" data-testid={`integration-${item.id}`}>
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="flex size-9 flex-none items-center justify-center rounded-lg text-[13px] font-bold text-white" aria-hidden="true" style={{ background: item.color }}>
+                  {item.logo}
+                </span>
+                <div>
+                  <p className="font-semibold">{item.name}</p>
+                  <p className="text-xs text-zinc-500">{item.description}</p>
+                </div>
+              </div>
+              <div className="flex flex-none items-center gap-3">
+                <span
+                  className={s === "disconnected" ? "text-xs text-zinc-500" : "inline-flex rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"}
+                  data-testid={`status-${item.id}`}
+                >
+                  {INTEGRATION_STATUS[s]}
+                </span>
+                {s === "disconnected" ? (
+                  <Button key="connect" size="sm" variant="primary" onClick={() => set(item.id, "connected")} data-testid={`connect-${item.id}`}>
+                    Connect
+                  </Button>
+                ) : (
+                  <Button key="sync" size="sm" onClick={() => set(item.id, "synced")} data-testid={`sync-${item.id}`}>
+                    Sync now
+                  </Button>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
     </Panel>
   );
 }
