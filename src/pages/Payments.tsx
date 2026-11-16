@@ -32,7 +32,7 @@ export function Payments() {
   const filteredRecipients = recipients.filter((r) => r.name.toLowerCase().includes(q.toLowerCase()));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader
         title="Payments"
         subtitle="Pay vendors and contractors by ACH or wire."
@@ -42,7 +42,7 @@ export function Payments() {
           </Button>
         }
       />
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-8 lg:grid-cols-3">
         <Panel title="Payments" className="lg:col-span-2" padded={false} action={<Tabs value={tab} onChange={setTab} options={[{ value: "upcoming", label: "Upcoming", count: upcoming.length }, { value: "recent", label: "Recent" }]} />}>
           {list.length === 0 ? (
             <Empty title={tab === "upcoming" ? "No upcoming payments" : "No payments yet"} body="Payments you send or schedule show up here." action={<Button onClick={() => ui.openSend()}>Send money</Button>} />

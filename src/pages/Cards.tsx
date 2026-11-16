@@ -63,7 +63,7 @@ export function Cards() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader
         title="Cards"
         subtitle="Issue cards, set monthly limits and freeze them instantly."
@@ -73,13 +73,13 @@ export function Cards() {
           </Button>
         }
       />
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3" data-testid="card-grid">
+      <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3" data-testid="card-grid">
         {cards.map((c) => {
           const spent = cardSpendThisMonth(transactions, c.id);
           const pct = Math.min(100, (spent / c.monthlyLimit) * 100);
           return (
-            <article key={c.id} className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900" data-testid="card-item">
-              <div className={cx("relative flex aspect-[1.6] flex-col justify-between rounded-lg bg-gradient-to-br p-4 text-white", c.color, c.frozen && "opacity-50 grayscale")}>
+            <article key={c.id} className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900" data-testid="card-item">
+              <div className={cx("relative flex aspect-[1.6] flex-col justify-between rounded-xl bg-gradient-to-br p-4 text-white", c.color, c.frozen && "opacity-50 grayscale")}>
                 <div className="flex items-start justify-between text-sm font-medium">
                   <span>{c.name}</span>
                   <span className="text-xs uppercase opacity-80">{c.kind}</span>
@@ -98,7 +98,7 @@ export function Cards() {
                   </span>
                 </div>
                 <div className="h-1.5 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800" role="progressbar" aria-valuenow={Math.round(pct)} aria-label="Limit used">
-                  <div className={cx("h-full rounded-full", pct > 90 ? "bg-rose-500" : pct > 70 ? "bg-amber-500" : "bg-indigo-500")} style={{ width: `${pct}%` }} />
+                  <div className={cx("h-full rounded-full", pct > 90 ? "bg-rose-500" : pct > 70 ? "bg-amber-500" : "bg-emerald-500")} style={{ width: `${pct}%` }} />
                 </div>
                 <div className="flex items-center justify-between pt-2">
                   {c.frozen ? <Badge tone="blue">Frozen</Badge> : <Badge tone="green">Active</Badge>}

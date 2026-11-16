@@ -22,7 +22,7 @@ export function AccountDetail() {
   const accountNumber = `80055501${account.last4}`;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader
         title={account.name}
         subtitle={`${account.type[0].toUpperCase()}${account.type.slice(1)} ••${account.last4}${account.apy ? ` · earning ${account.apy}% APY` : ""}`}
@@ -32,7 +32,7 @@ export function AccountDetail() {
           </Button>
         }
       />
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-8 lg:grid-cols-3">
         <Panel className="lg:col-span-2">
           <p className="text-sm text-zinc-500">Available balance</p>
           <p className="tabular mt-1 text-3xl font-semibold" data-testid="account-balance">
@@ -44,7 +44,7 @@ export function AccountDetail() {
                 <XAxis dataKey="date" tickFormatter={shortDate} tick={{ fontSize: 11, fill: "#a1a1aa" }} axisLine={false} tickLine={false} minTickGap={40} />
                 <YAxis hide domain={["dataMin - 200000", "dataMax + 200000"]} />
                 <Tooltip formatter={(v: number) => money(v)} labelFormatter={(l: string) => shortDate(l)} contentStyle={{ borderRadius: 8, fontSize: 12 }} />
-                <Area isAnimationActive={false} type="monotone" dataKey="balance" stroke="#6366f1" strokeWidth={2} fill="#6366f122" />
+                <Area isAnimationActive={false} type="monotone" dataKey="balance" stroke="#10b981" strokeWidth={2} fill="#10b98122" />
               </AreaChart>
             </ResponsiveContainer>
           </div>

@@ -53,7 +53,7 @@ export function Layout() {
   const sidebar = (
     <nav className="flex h-full flex-col gap-6 p-4" aria-label="Main">
       <div className="flex items-center gap-2 px-2">
-        <span className="flex size-7 items-center justify-center rounded-lg bg-indigo-600 text-sm font-bold text-white">N</span>
+        <span className="flex size-7 items-center justify-center rounded-lg bg-emerald-600 text-sm font-bold text-white">N</span>
         <span className="font-semibold tracking-tight">{settings.companyName}</span>
       </div>
       <ul className="space-y-0.5">
@@ -119,7 +119,7 @@ export function Layout() {
               {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
             </button>
             <div className="relative" ref={menuRef}>
-              <button onClick={() => setMoveMenu((m) => !m)} data-testid="move-money" aria-expanded={moveMenu} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-indigo-600 px-3.5 text-sm font-medium text-white hover:bg-indigo-500">
+              <button onClick={() => setMoveMenu((m) => !m)} data-testid="move-money" aria-expanded={moveMenu} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 text-sm font-medium text-white hover:bg-emerald-500">
                 Move money <ChevronDown className="size-4" />
               </button>
               {moveMenu && (
