@@ -1,21 +1,23 @@
 import { UserPlus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Badge, Button, Field, Input, Modal, PageHeader, Panel, Select, Tabs, Toggle } from "../components/ui";
 import type { Role, Settings as S } from "../data/types";
 import { money, parseDollars, uid } from "../lib/format";
+import { INTEGRATIONS_FRAME } from "../lib/integrations";
 import { useDispatch, useStore } from "../state/store";
 import { useToast } from "../state/toast";
 
-type Tab = "company" | "team" | "notifications";
+type Tab = "company" | "team" | "notifications" | "integrations";
 
 export function Settings() {
   const [tab, setTab] = useState<Tab>("company");
   return (
     <div className="space-y-6">
-      <PageHeader title="Settings" actions={<Tabs value={tab} onChange={setTab} options={[{ value: "company", label: "Company" }, { value: "team", label: "Team" }, { value: "notifications", label: "Notifications" }]} />} />
+      <PageHeader title="Settings" actions={<Tabs value={tab} onChange={setTab} options={[{ value: "company", label: "Company" }, { value: "team", label: "Team" }, { value: "notifications", label: "Notifications" }, { value: "integrations", label: "Integrations" }]} />} />
       {tab === "company" && <CompanyTab />}
       {tab === "team" && <TeamTab />}
       {tab === "notifications" && <NotificationsTab />}
+      {tab === "integrations" && <IntegrationsTab />}
     </div>
   );
 }
@@ -253,6 +255,53 @@ function NotificationsTab() {
           Save
         </Button>
       </div>
+    </Panel>
+  );
+}
+
+// The integrations list is a separate static page embedded in a same-origin
+// iframe. INTEGRATIONS_FRAME sets its src, title, name and load delay.
+function IntegrationsTab() {
+  const { settings } = useStore();
+  const frame = useRef<HTMLIFrameElement>(null);
+  const [ready, setReady] = useState(INTEGRATIONS_FRAME.loadDelayMs === 0);
+  const [height, setHeight] = useState(200);
+  const dark = settings.theme === "dark" || (settings.theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+  useEffect(() => {
+    if (ready) return;
+    const t = setTimeout(() => setReady(true), INTEGRATIONS_FRAME.loadDelayMs);
+    return () => clearTimeout(t);
+  }, [ready]);
+
+  // Same origin, so the frame's document can be measured to fit its content.
+  const fit = () => {
+    const doc = frame.current?.contentDocument;
+    if (!doc) return;
+    const measure = () => setHeight(Math.ceil(doc.body.getBoundingClientRect().height));
+    measure();
+    new ResizeObserver(measure).observe(doc.body);
+  };
+
+  return (
+    <Panel title="Integrations" padded={false}>
+      {ready ? (
+        <iframe
+          ref={frame}
+          key={dark ? "dark" : "light"}
+          src={`${INTEGRATIONS_FRAME.src}${dark ? "?theme=dark" : ""}`}
+          title={INTEGRATIONS_FRAME.title}
+          name={INTEGRATIONS_FRAME.name}
+          data-testid="integrations-frame"
+          onLoad={fit}
+          className="block w-full rounded-b-xl"
+          style={{ height, border: 0 }}
+        />
+      ) : (
+        <p className="px-5 py-14 text-center text-sm text-zinc-500" data-testid="integrations-loading">
+          Loading integrations…
+        </p>
+      )}
     </Panel>
   );
 }
