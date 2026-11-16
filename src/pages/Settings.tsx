@@ -13,7 +13,7 @@ export function Settings() {
   const [tab, setTab] = useState<Tab>("company");
   return (
     <div className="space-y-8">
-      <PageHeader title="Settings" actions={<Tabs value={tab} onChange={setTab} options={[{ value: "company", label: "Company" }, { value: "team", label: "Team" }, { value: "notifications", label: "Notifications" }, { value: "integrations", label: "Integrations" }]} />} />
+      <PageHeader title="Settings" actions={<Tabs value={tab} onChange={setTab} options={[{ value: "company", label: "Company" }, { value: "team", label: "Members" }, { value: "notifications", label: "Notifications" }, { value: "integrations", label: "Integrations" }]} />} />
       {tab === "company" && <CompanyTab />}
       {tab === "team" && <TeamTab />}
       {tab === "notifications" && <NotificationsTab />}
