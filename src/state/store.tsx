@@ -8,7 +8,7 @@ const STORAGE_KEY = "northbeam:v1";
 export type Action =
   | { type: "tx/update"; id: string; patch: Partial<Pick<Transaction, "category" | "note" | "receipt">> }
   | { type: "tx/bulkCategorize"; ids: string[]; category: Category }
-  | { type: "payment/send"; recipientId: string; accountId: string; amount: number; date: string; memo: string }
+  | { type: "payment/send"; recipientId: string; accountId: string; amount: number; date: string; memo: string; method?: Recipient["method"] }
   | { type: "transfer"; fromId: string; toId: string; amount: number }
   | { type: "recipient/add"; recipient: Recipient }
   | { type: "card/toggleFreeze"; id: string }
@@ -40,16 +40,17 @@ function reducer(state: AppState, action: Action): AppState {
     case "payment/send": {
       const r = state.recipients.find((x) => x.id === action.recipientId);
       if (!r) return state;
+      const method = action.method ?? r.method;
       const tx: Transaction = {
         id: uid("tx"),
         date: action.date,
         counterparty: r.name,
-        description: action.memo || `${r.method.toUpperCase()} to ${r.name}`,
+        description: action.memo || `${method.toUpperCase()} to ${r.name}`,
         amount: -action.amount,
         accountId: action.accountId,
         category: "Contractors",
         status: "pending",
-        method: r.method,
+        method,
       };
       return { ...state, transactions: [tx, ...state.transactions], accounts: adjust(state, action.accountId, -action.amount) };
     }
