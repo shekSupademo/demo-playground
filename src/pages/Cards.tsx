@@ -1,6 +1,7 @@
 import { Plus, Snowflake } from "lucide-react";
 import { useState } from "react";
 import { Dropdown } from "../components/Dropdown";
+import { HoverMenu } from "../components/HoverMenu";
 import { Slider } from "../components/Slider";
 import { Badge, Button, Field, Input, Modal, PageHeader } from "../components/ui";
 import type { Card } from "../data/types";
@@ -102,20 +103,25 @@ export function Cards() {
                 </div>
                 <div className="flex items-center justify-between pt-2">
                   {c.frozen ? <Badge tone="blue">Frozen</Badge> : <Badge tone="green">Active</Badge>}
-                  <div className="flex gap-2">
+                  <div className="flex items-center gap-2">
                     <Button size="sm" variant="ghost" onClick={() => startEdit(c)}>
                       Edit
                     </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        dispatch({ type: "card/toggleFreeze", id: c.id });
-                        toast(`${c.name} ${c.frozen ? "unfrozen" : "frozen"}`);
-                      }}
-                      data-testid="freeze-toggle"
-                    >
-                      <Snowflake className="size-3.5" /> {c.frozen ? "Unfreeze" : "Freeze"}
-                    </Button>
+                    <HoverMenu
+                      label={`Actions for ${c.name} card`}
+                      testId="card-menu"
+                      items={[
+                        {
+                          label: c.frozen ? "Unfreeze" : "Freeze",
+                          icon: <Snowflake className="size-3.5" />,
+                          testId: "freeze-toggle",
+                          onSelect: () => {
+                            dispatch({ type: "card/toggleFreeze", id: c.id });
+                            toast(`${c.name} ${c.frozen ? "unfrozen" : "frozen"}`);
+                          },
+                        },
+                      ]}
+                    />
                   </div>
                 </div>
               </div>
