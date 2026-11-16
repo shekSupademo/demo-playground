@@ -39,10 +39,10 @@ const opening: Record<string, number> = {
 };
 
 const cards: Card[] = [
-  { id: "card_1", name: "Ops spend", holder: "Avery Chen", last4: "3011", kind: "physical", monthlyLimit: 2_500_000, frozen: false, accountId: "acc_ops", color: "from-indigo-500 to-violet-600" },
-  { id: "card_2", name: "Ads", holder: "Jordan Patel", last4: "7720", kind: "virtual", monthlyLimit: 4_000_000, frozen: false, accountId: "acc_ops", color: "from-sky-500 to-cyan-600" },
-  { id: "card_3", name: "Travel", holder: "Sam Rivera", last4: "5148", kind: "physical", monthlyLimit: 1_500_000, frozen: false, accountId: "acc_ops", color: "from-emerald-500 to-teal-600" },
-  { id: "card_4", name: "SaaS tools", holder: "Avery Chen", last4: "2296", kind: "virtual", monthlyLimit: 800_000, frozen: true, accountId: "acc_ops", color: "from-amber-500 to-orange-600" },
+  { id: "card_1", name: "Ops spend", holder: "Avery Chen", last4: "3011", kind: "physical", monthlyLimit: 2_500_000, accountId: "acc_ops", color: "from-indigo-500 to-violet-600" },
+  { id: "card_2", name: "Ads", holder: "Jordan Patel", last4: "7720", kind: "virtual", monthlyLimit: 4_000_000, accountId: "acc_ops", color: "from-sky-500 to-cyan-600" },
+  { id: "card_3", name: "Travel", holder: "Sam Rivera", last4: "5148", kind: "physical", monthlyLimit: 1_500_000, accountId: "acc_ops", color: "from-emerald-500 to-teal-600" },
+  { id: "card_4", name: "SaaS tools", holder: "Avery Chen", last4: "2296", kind: "virtual", monthlyLimit: 800_000, accountId: "acc_ops", color: "from-amber-500 to-orange-600" },
 ];
 
 const recipients: Recipient[] = [

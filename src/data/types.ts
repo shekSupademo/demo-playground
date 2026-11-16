@@ -51,7 +51,6 @@ export interface Card {
   last4: string;
   kind: "virtual" | "physical";
   monthlyLimit: number; // cents
-  frozen: boolean;
   accountId: string;
   color: string;
 }

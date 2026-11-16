@@ -1,4 +1,4 @@
-import { Plus, Snowflake } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useState } from "react";
 import { Dropdown } from "../components/Dropdown";
 import { Slider } from "../components/Slider";
@@ -66,7 +66,7 @@ export function Cards() {
     <div className="space-y-6">
       <PageHeader
         title="Cards"
-        subtitle="Issue cards, set monthly limits and freeze them instantly."
+        subtitle="Issue cards and set monthly limits."
         actions={
           <Button variant="primary" onClick={() => setCreating(true)} data-testid="new-card">
             <Plus className="size-4" /> New card
@@ -79,12 +79,11 @@ export function Cards() {
           const pct = Math.min(100, (spent / c.monthlyLimit) * 100);
           return (
             <article key={c.id} className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900" data-testid="card-item">
-              <div className={cx("relative flex aspect-[1.6] flex-col justify-between rounded-lg bg-gradient-to-br p-4 text-white", c.color, c.frozen && "opacity-50 grayscale")}>
+              <div className={cx("relative flex aspect-[1.6] flex-col justify-between rounded-lg bg-gradient-to-br p-4 text-white", c.color)}>
                 <div className="flex items-start justify-between text-sm font-medium">
                   <span>{c.name}</span>
                   <span className="text-xs uppercase opacity-80">{c.kind}</span>
                 </div>
-                {c.frozen && <Snowflake className="absolute left-1/2 top-1/2 size-10 -translate-x-1/2 -translate-y-1/2" />}
                 <div>
                   <p className="tabular tracking-widest">•••• •••• •••• {c.last4}</p>
                   <p className="mt-1 text-xs opacity-80">{c.holder}</p>
@@ -101,20 +100,10 @@ export function Cards() {
                   <div className={cx("h-full rounded-full", pct > 90 ? "bg-rose-500" : pct > 70 ? "bg-amber-500" : "bg-indigo-500")} style={{ width: `${pct}%` }} />
                 </div>
                 <div className="flex items-center justify-between pt-2">
-                  {c.frozen ? <Badge tone="blue">Frozen</Badge> : <Badge tone="green">Active</Badge>}
+                  <Badge tone="green">Active</Badge>
                   <div className="flex gap-2">
                     <Button size="sm" variant="ghost" onClick={() => startEdit(c)}>
                       Edit
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        dispatch({ type: "card/toggleFreeze", id: c.id });
-                        toast(`${c.name} ${c.frozen ? "unfrozen" : "frozen"}`);
-                      }}
-                      data-testid="freeze-toggle"
-                    >
-                      <Snowflake className="size-3.5" /> {c.frozen ? "Unfreeze" : "Freeze"}
                     </Button>
                   </div>
                 </div>
@@ -170,7 +159,7 @@ export function Cards() {
               onClick={() => {
                 dispatch({
                   type: "card/create",
-                  card: { id: uid("card"), name: draft.name.trim(), holder: draft.holder, kind: draft.kind, monthlyLimit: draft.limit, frozen: false, accountId: "acc_ops", last4: String(Math.floor(1000 + Math.random() * 9000)), color: COLORS[cards.length % COLORS.length] },
+                  card: { id: uid("card"), name: draft.name.trim(), holder: draft.holder, kind: draft.kind, monthlyLimit: draft.limit, accountId: "acc_ops", last4: String(Math.floor(1000 + Math.random() * 9000)), color: COLORS[cards.length % COLORS.length] },
                 });
                 toast(`${draft.kind === "virtual" ? "Virtual" : "Physical"} card created`);
                 setCreating(false);
