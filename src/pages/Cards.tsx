@@ -1,5 +1,5 @@
 import { Plus, Snowflake } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dropdown } from "../components/Dropdown";
 import { Slider } from "../components/Slider";
 import { Badge, Button, Field, Input, Modal, PageHeader } from "../components/ui";
@@ -44,6 +44,32 @@ function LimitControl({ cents, onChange, spent }: { cents: number; onChange: (c:
   );
 }
 
+// How long the Cards page shows its loading skeleton before the real grid renders.
+const CARDS_LOADING_MS = 3000;
+
+function CardGridSkeleton() {
+  return (
+    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3" data-testid="card-grid-skeleton" aria-busy="true" aria-label="Loading cards">
+      {[0, 1, 2, 3].map((i) => (
+        <div key={i} className="animate-pulse rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="aspect-[1.6] rounded-lg bg-zinc-200 dark:bg-zinc-800" />
+          <div className="mt-4 space-y-2">
+            <div className="flex justify-between">
+              <div className="h-4 w-28 rounded bg-zinc-200 dark:bg-zinc-800" />
+              <div className="h-4 w-36 rounded bg-zinc-200 dark:bg-zinc-800" />
+            </div>
+            <div className="h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800" />
+            <div className="flex items-center justify-between pt-2">
+              <div className="h-5 w-14 rounded-full bg-zinc-200 dark:bg-zinc-800" />
+              <div className="h-8 w-32 rounded-lg bg-zinc-200 dark:bg-zinc-800" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 const COLORS = ["from-indigo-500 to-violet-600", "from-sky-500 to-cyan-600", "from-emerald-500 to-teal-600", "from-amber-500 to-orange-600", "from-rose-500 to-pink-600", "from-zinc-600 to-zinc-800"];
 
 export function Cards() {
@@ -56,11 +82,26 @@ export function Cards() {
   const [creating, setCreating] = useState(false);
   const [draft, setDraft] = useState({ name: "", holder: members[0]?.name ?? "", limit: 500_000, kind: "virtual" as Card["kind"] });
 
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), CARDS_LOADING_MS);
+    return () => clearTimeout(t);
+  }, []);
+
   const startEdit = (c: Card) => {
     setEditing(c);
     setLimit(c.monthlyLimit);
     setNameText(c.name);
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <PageHeader title="Cards" subtitle="Issue cards, set monthly limits and freeze them instantly." actions={<div className="h-9 w-28 animate-pulse rounded-lg bg-zinc-200 dark:bg-zinc-800" aria-hidden="true" />} />
+        <CardGridSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
