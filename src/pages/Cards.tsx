@@ -68,7 +68,7 @@ export function Cards() {
         title="Cards"
         subtitle="Issue cards, set monthly limits and freeze them instantly."
         actions={
-          <Button variant="primary" onClick={() => setCreating(true)} data-testid="new-card">
+          <Button variant="primary" onClick={() => setCreating(true)}>
             <Plus className="size-4" /> New card
           </Button>
         }
