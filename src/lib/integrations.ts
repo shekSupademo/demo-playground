@@ -6,5 +6,5 @@ export const INTEGRATIONS_FRAME = {
   title: "Integrations",
   name: "integrations",
   // Milliseconds to wait before the frame is added to the page. 0 adds it at once.
-  loadDelayMs: 0,
+  loadDelayMs: 3000,
 };
