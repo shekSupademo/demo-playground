@@ -25,7 +25,7 @@ Complex controls, built for testing interactions:
 - **Hover menus:** the "⋯" on each transaction row opens on hover, and **Categorize ▸** opens a submenu flyout. Bill cards have the same kind of menu.
 
 Also available everywhere:
-- **Move money**: a three-step send-money wizard (recipient, amount, review) that can add a recipient and checks the balance and date, plus transfers between accounts.
+- **Send money** (the Send money button on Payments, also Home and ⌘K): a three-step send-money wizard (recipient, amount, review) that can add a recipient and checks the balance and date. Transfers between accounts start from Home, an account page or ⌘K.
 - **⌘K / Ctrl+K**: a command palette that searches pages, actions and transactions.
 - **Dark mode**.
 - **Mobile navigation**.

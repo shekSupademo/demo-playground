@@ -1,10 +1,9 @@
-import { ArrowLeftRight, BarChart3, ClipboardList, ChevronDown, CreditCard, FileText, Home, List, Menu, Moon, Search, Send, Settings, Sun } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { BarChart3, ClipboardList, CreditCard, FileText, Home, List, Menu, Moon, Search, Send, Settings, Sun } from "lucide-react";
+import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { cx, money } from "../lib/format";
 import { useApplyTheme } from "../lib/theme";
 import { useDispatch, useStore } from "../state/store";
-import { useUI } from "../state/ui";
 import { CommandPalette } from "./CommandPalette";
 
 const nav = [
@@ -20,11 +19,8 @@ const nav = [
 export function Layout() {
   const { accounts, settings, transactions } = useStore();
   const dispatch = useDispatch();
-  const ui = useUI();
   const [palette, setPalette] = useState(false);
   const [mobileNav, setMobileNav] = useState(false);
-  const [moveMenu, setMoveMenu] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   useApplyTheme(settings.theme);
 
@@ -39,12 +35,6 @@ export function Layout() {
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
   }, []);
-  useEffect(() => {
-    if (!moveMenu) return;
-    const h = (e: MouseEvent) => !menuRef.current?.contains(e.target as Node) && setMoveMenu(false);
-    document.addEventListener("mousedown", h);
-    return () => document.removeEventListener("mousedown", h);
-  }, [moveMenu]);
 
   const total = accounts.reduce((s, a) => s + a.balance, 0);
   const uncategorized = transactions.filter((t) => t.category === "Uncategorized").length;
@@ -118,21 +108,6 @@ export function Layout() {
             <button aria-label="Toggle dark mode" data-testid="theme-toggle" className="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-900" onClick={() => dispatch({ type: "settings/update", patch: { theme: dark ? "light" : "dark" } })}>
               {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
             </button>
-            <div className="relative" ref={menuRef}>
-              <button onClick={() => setMoveMenu((m) => !m)} data-testid="move-money" aria-expanded={moveMenu} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-indigo-600 px-3.5 text-sm font-medium text-white hover:bg-indigo-500">
-                Move money <ChevronDown className="size-4" />
-              </button>
-              {moveMenu && (
-                <div role="menu" className="absolute right-0 mt-2 w-56 overflow-hidden rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
-                  <button role="menuitem" className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800" onClick={() => { setMoveMenu(false); ui.openSend(); }}>
-                    <Send className="size-4" /> Send money
-                  </button>
-                  <button role="menuitem" className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800" onClick={() => { setMoveMenu(false); ui.openTransfer(); }}>
-                    <ArrowLeftRight className="size-4" /> Transfer between accounts
-                  </button>
-                </div>
-              )}
-            </div>
             <span className="ml-1 hidden size-8 items-center justify-center rounded-full bg-zinc-200 text-xs font-semibold sm:flex dark:bg-zinc-800" title={settings.userName}>
               {settings.userName.split(" ").map((p) => p[0]).join("")}
             </span>
