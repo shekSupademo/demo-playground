@@ -2,7 +2,7 @@ import { ChevronRight, MoreHorizontal } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { cx } from "../lib/format";
 
-export type MenuItem = { label: string; icon?: ReactNode; onSelect?: () => void; danger?: boolean; submenu?: { label: string; icon?: ReactNode; active?: boolean; onSelect: () => void }[] };
+export type MenuItem = { label: string; icon?: ReactNode; onSelect?: () => void; danger?: boolean; testId?: string; submenu?: { label: string; icon?: ReactNode; active?: boolean; onSelect: () => void }[] };
 
 /**
  * Menu that opens when the pointer hovers its trigger (and on click or Enter
@@ -58,6 +58,7 @@ export function HoverMenu({ items, label, testId, className }: { items: MenuItem
               <button
                 type="button"
                 role="menuitem"
+                data-testid={it.testId}
                 aria-haspopup={it.submenu ? "menu" : undefined}
                 aria-expanded={it.submenu ? sub === i : undefined}
                 onClick={() => (it.submenu ? setSub(sub === i ? null : i) : run(it.onSelect))}
