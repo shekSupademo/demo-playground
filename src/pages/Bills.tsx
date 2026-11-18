@@ -1,4 +1,4 @@
-import { ArrowRight, GripVertical, MoveRight } from "lucide-react";
+import { AlertTriangle, ArrowRight, CalendarClock, CheckCircle2, GripVertical, MoveRight, Wallet } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Dropdown } from "../components/Dropdown";
 import { HoverMenu } from "../components/HoverMenu";
@@ -11,6 +11,19 @@ import { useToast } from "../state/toast";
 
 const next: Record<BillStatus, BillStatus | null> = { inbox: "approved", approved: "scheduled", scheduled: "paid", paid: null };
 const columnLabel = (s: BillStatus) => BILL_COLUMNS.find((c) => c.id === s)?.label ?? s;
+const accent: Record<BillStatus, { bar: string; dot: string }> = {
+  inbox: { bar: "border-t-sky-500", dot: "bg-sky-500" },
+  approved: { bar: "border-t-violet-500", dot: "bg-violet-500" },
+  scheduled: { bar: "border-t-amber-500", dot: "bg-amber-500" },
+  paid: { bar: "border-t-emerald-500", dot: "bg-emerald-500" },
+};
+const initials = (name: string) =>
+  name
+    .split(" ")
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
 export function Bills() {
   const { bills } = useStore();
@@ -23,6 +36,17 @@ export function Bills() {
 
   const vendors = useMemo(() => [...new Set(bills.map((b) => b.vendor))].sort(), [bills]);
   const visible = bills.filter((b) => vendor === "all" || b.vendor === vendor);
+  const open = visible.filter((b) => b.status !== "paid");
+  const weekAhead = isoDay(new Date(Date.now() + 7 * 86_400_000));
+  const sum = (list: Bill[]) => list.reduce((s, b) => s + b.amount, 0);
+  const overdueBills = open.filter((b) => b.dueDate < today);
+  const dueSoon = open.filter((b) => b.dueDate >= today && b.dueDate <= weekAhead);
+  const stats = [
+    { label: "Outstanding", value: money(sum(open)), note: `${open.length} open bills`, icon: Wallet, tone: "text-indigo-600 bg-indigo-50 dark:bg-indigo-950 dark:text-indigo-300" },
+    { label: "Overdue", value: money(sum(overdueBills)), note: `${overdueBills.length} past due`, icon: AlertTriangle, tone: "text-rose-600 bg-rose-50 dark:bg-rose-950 dark:text-rose-300" },
+    { label: "Due in 7 days", value: money(sum(dueSoon)), note: `${dueSoon.length} coming up`, icon: CalendarClock, tone: "text-amber-600 bg-amber-50 dark:bg-amber-950 dark:text-amber-300" },
+    { label: "Paid", value: money(sum(visible.filter((b) => b.status === "paid"))), note: "Debited from Operating", icon: CheckCircle2, tone: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950 dark:text-emerald-300" },
+  ];
 
   const move = (bill: Bill, status: BillStatus, beforeId?: string) => {
     if (bill.status === status && !beforeId) return;
@@ -54,6 +78,20 @@ export function Bills() {
           />
         }
       />
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" data-testid="bill-stats">
+        {stats.map(({ label, value, note, icon: Icon, tone }) => (
+          <div key={label} className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <span className={cx("flex size-10 shrink-0 items-center justify-center rounded-lg", tone)}>
+              <Icon className="size-5" aria-hidden />
+            </span>
+            <div className="min-w-0">
+              <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">{label}</p>
+              <p className="tabular truncate text-lg font-semibold">{value}</p>
+              <p className="text-xs text-zinc-500">{note}</p>
+            </div>
+          </div>
+        ))}
+      </div>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4" data-testid="bill-board">
         {BILL_COLUMNS.map((col) => {
           const items = visible.filter((b) => b.status === col.id);
@@ -74,16 +112,18 @@ export function Bills() {
                 e.preventDefault();
                 drop(col.id, over?.col === col.id ? over.beforeId : undefined);
               }}
-              className={cx("flex min-h-72 flex-col rounded-xl border bg-zinc-100/60 p-3 transition-colors dark:bg-zinc-900/60", isOver ? "border-indigo-400 bg-indigo-50/60 dark:bg-indigo-950/40" : "border-zinc-200 dark:border-zinc-800")}
+              className={cx("flex min-h-72 flex-col rounded-xl border border-t-4 bg-zinc-50 p-3 transition-colors dark:bg-zinc-900/60", isOver ? "border-indigo-400 bg-indigo-50/60 dark:bg-indigo-950/40" : "border-zinc-200 dark:border-zinc-800", accent[col.id].bar)}
             >
               <header className="mb-3 flex items-baseline justify-between px-1">
                 <div>
-                  <h2 className="text-sm font-semibold">
-                    {col.label} <span className="ml-1 text-zinc-400">{items.length}</span>
+                  <h2 className="flex items-center gap-2 text-sm font-semibold">
+                    <span className={cx("size-2 rounded-full", accent[col.id].dot)} aria-hidden />
+                    {col.label}
+                    <span className="rounded-full bg-white px-1.5 text-xs font-medium text-zinc-500 shadow-sm dark:bg-zinc-800">{items.length}</span>
                   </h2>
                   <p className="text-xs text-zinc-500">{col.help}</p>
                 </div>
-                <span className="tabular text-xs font-medium text-zinc-500">{money(total)}</span>
+                <span className="tabular text-sm font-semibold text-zinc-700 dark:text-zinc-200">{money(total)}</span>
               </header>
               <ul className="flex flex-1 flex-col gap-2">
                 {items.map((b) => {
@@ -117,13 +157,17 @@ export function Bills() {
                         drop(col.id, b.id);
                       }}
                       className={cx(
-                        "group cursor-grab rounded-lg border border-zinc-200 bg-white p-3 shadow-sm active:cursor-grabbing dark:border-zinc-700 dark:bg-zinc-900",
+                        "group cursor-grab rounded-lg border border-zinc-200 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md active:cursor-grabbing dark:border-zinc-700 dark:bg-zinc-900",
+                        overdue && "border-l-4 border-l-rose-500",
                         dragId === b.id && "opacity-40",
                         over?.beforeId === b.id && "border-t-2 border-t-indigo-500",
                       )}
                     >
                       <div className="flex items-start gap-2">
-                        <GripVertical className="mt-0.5 size-4 shrink-0 text-zinc-300 group-hover:text-zinc-500" aria-hidden />
+                        <GripVertical className="mt-2 size-4 shrink-0 text-zinc-300 group-hover:text-zinc-500" aria-hidden />
+                        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300" aria-hidden>
+                          {initials(b.vendor)}
+                        </span>
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-medium">{b.vendor}</p>
                           <p className="text-xs text-zinc-500">
@@ -143,8 +187,8 @@ export function Bills() {
                           ]}
                         />
                       </div>
-                      <div className="mt-2 flex items-center justify-between pl-6">
-                        <span className="tabular text-sm font-semibold">{money(b.amount)}</span>
+                      <div className="mt-3 flex items-center justify-between gap-2 whitespace-nowrap pl-6">
+                        <span className="tabular text-base font-semibold">{money(b.amount)}</span>
                         {b.status === "paid" ? <Badge tone="green">Paid</Badge> : overdue ? <Badge tone="red">Overdue {shortDate(b.dueDate)}</Badge> : <Badge>Due {shortDate(b.dueDate)}</Badge>}
                       </div>
                     </li>

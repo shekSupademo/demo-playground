@@ -1,4 +1,4 @@
-import { AlertTriangle, ClipboardList, ArrowDownLeft, ArrowLeftRight, ArrowUpRight, FileText, Paperclip, Send, Snowflake } from "lucide-react";
+import { AlertTriangle, ChevronRight, ClipboardList, Landmark, ArrowDownLeft, ArrowLeftRight, ArrowUpRight, FileText, Paperclip, Send, Snowflake } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -54,8 +54,13 @@ export function Home() {
         <Panel className="lg:col-span-2" data-testid="balance-panel">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <p className="text-sm text-zinc-500">Total balance</p>
-              <p className="tabular mt-1 text-3xl font-semibold tracking-tight" data-testid="total-balance">
+              <p className="flex items-center gap-2 text-sm font-medium text-zinc-500">
+                <span className="flex size-7 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-300">
+                  <Landmark className="size-4" aria-hidden />
+                </span>
+                Total balance
+              </p>
+              <p className="tabular mt-2 text-4xl font-bold tracking-tight" data-testid="total-balance">
                 {money(total)}
               </p>
               <p className={`mt-1 text-sm ${change >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
@@ -110,18 +115,21 @@ export function Home() {
               </div>
             </div>
           </Panel>
-          <Panel title="Needs attention" data-testid="attention-panel">
+          <Panel title={<span className="flex items-center gap-2">Needs attention {attention.length > 0 && <span className="rounded-full bg-amber-100 px-1.5 text-xs font-medium text-amber-700 dark:bg-amber-950 dark:text-amber-300">{attention.length}</span>}</span>} data-testid="attention-panel">
             {attention.length === 0 ? (
               <p className="text-sm text-zinc-500">You're all caught up.</p>
             ) : (
-              <ul className="space-y-2.5">
+              <ul className="-mx-2 space-y-1">
                 {attention.map(({ n, label, noun, to, icon: Icon }) => (
                   <li key={label}>
-                    <Link to={to} className="flex items-center gap-3 text-sm hover:text-indigo-600">
-                      <Icon className="size-4 text-amber-500" />
+                    <Link to={to} className="group flex items-center gap-3 rounded-lg px-2 py-2 text-sm transition hover:bg-amber-50 hover:text-amber-800 dark:hover:bg-amber-950/40 dark:hover:text-amber-200">
+                      <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-300">
+                        <Icon className="size-4" />
+                      </span>
                       <span>
                         <span className="font-semibold">{n}</span> {label === "missing receipts" ? `${noun}${n === 1 ? "" : "s"} missing receipts` : label === "awaiting approval" ? `${noun}${n === 1 ? "" : "s"} awaiting approval` : `${label} ${noun}${n === 1 ? "" : "s"}`}
                       </span>
+                      <ChevronRight className="ml-auto size-4 text-zinc-300 transition group-hover:translate-x-0.5 group-hover:text-amber-600" aria-hidden />
                     </Link>
                   </li>
                 ))}
