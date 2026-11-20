@@ -79,19 +79,19 @@ export function Dropdown<T extends string>({
         aria-expanded={open}
         aria-controls={listId}
         onClick={() => setOpen((o) => !o)}
-        className="flex h-9 w-full items-center justify-between gap-2 rounded-lg border border-zinc-200 bg-white px-3 text-left text-sm outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/20 dark:border-zinc-700 dark:bg-zinc-900"
+        className="flex h-9 w-full items-center justify-between gap-2 rounded-lg border border-stone-200 bg-white px-3 text-left text-sm outline-none focus-visible:border-teal-500 focus-visible:ring-2 focus-visible:ring-teal-500/20 dark:border-stone-700 dark:bg-stone-900"
       >
-        <span className={cx("flex min-w-0 items-center gap-2 truncate", !selected && "text-zinc-400")}>
+        <span className={cx("flex min-w-0 items-center gap-2 truncate", !selected && "text-stone-400")}>
           {selected?.icon}
           {selected?.label ?? placeholder}
         </span>
-        <ChevronDown className={cx("size-4 shrink-0 text-zinc-400 transition-transform", open && "rotate-180")} />
+        <ChevronDown className={cx("size-4 shrink-0 text-stone-400 transition-transform", open && "rotate-180")} />
       </button>
       {open && (
-        <div className="absolute left-0 right-0 z-50 mt-1 min-w-48 overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-900">
+        <div className="absolute left-0 right-0 z-50 mt-1 min-w-48 overflow-hidden rounded-lg border border-stone-200 bg-white shadow-lg dark:border-stone-700 dark:bg-stone-900">
           {searchable && (
-            <div className="flex items-center gap-2 border-b border-zinc-100 px-3 dark:border-zinc-800">
-              <Search className="size-3.5 text-zinc-400" />
+            <div className="flex items-center gap-2 border-b border-stone-100 px-3 dark:border-stone-800">
+              <Search className="size-3.5 text-stone-400" />
               <input
                 autoFocus
                 value={q}
@@ -115,19 +115,19 @@ export function Dropdown<T extends string>({
                 onMouseEnter={() => setActive(i)}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => choose(o)}
-                className={cx("flex cursor-pointer items-center justify-between gap-2 rounded-md px-2 py-1.5 text-sm", i === active && "bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300")}
+                className={cx("flex cursor-pointer items-center justify-between gap-2 rounded-md px-2 py-1.5 text-sm", i === active && "bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-300")}
               >
                 <span className="flex items-center gap-2">
                   {o.icon}
                   {o.label}
                 </span>
-                <span className="flex items-center gap-2 text-xs text-zinc-400">
+                <span className="flex items-center gap-2 text-xs text-stone-400">
                   {o.hint}
-                  {o.value === value && <Check className="size-3.5 text-indigo-600" />}
+                  {o.value === value && <Check className="size-3.5 text-teal-600" />}
                 </span>
               </li>
             ))}
-            {filtered.length === 0 && <li className="px-2 py-4 text-center text-sm text-zinc-500">No matches</li>}
+            {filtered.length === 0 && <li className="px-2 py-4 text-center text-sm text-stone-500">No matches</li>}
           </ul>
         </div>
       )}

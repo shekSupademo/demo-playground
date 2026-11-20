@@ -16,7 +16,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       <div className="fixed bottom-4 right-4 z-[60] flex flex-col gap-2" role="status" aria-live="polite" data-testid="toasts">
         {toasts.map((t) => (
-          <div key={t.id} className="flex items-center gap-3 rounded-lg bg-zinc-900 px-4 py-3 text-sm text-white shadow-lg dark:bg-zinc-100 dark:text-zinc-900">
+          <div key={t.id} className="flex items-center gap-3 rounded-lg bg-stone-900 px-4 py-3 text-sm text-white shadow-lg dark:bg-stone-100 dark:text-stone-900">
             <CheckCircle2 className="size-4 text-emerald-400 dark:text-emerald-600" />
             <span>{t.message}</span>
             <button aria-label="Dismiss" onClick={() => setToasts((x) => x.filter((y) => y.id !== t.id))}>

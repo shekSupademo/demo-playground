@@ -34,17 +34,17 @@ export function AccountDetail() {
       />
       <div className="grid gap-6 lg:grid-cols-3">
         <Panel className="lg:col-span-2">
-          <p className="text-sm text-zinc-500">Available balance</p>
+          <p className="text-sm text-stone-500">Available balance</p>
           <p className="tabular mt-1 text-3xl font-semibold" data-testid="account-balance">
             {money(account.balance)}
           </p>
           <div className="mt-4 h-44">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={series}>
-                <XAxis dataKey="date" tickFormatter={shortDate} tick={{ fontSize: 11, fill: "#a1a1aa" }} axisLine={false} tickLine={false} minTickGap={40} />
+                <XAxis dataKey="date" tickFormatter={shortDate} tick={{ fontSize: 11, fill: "#a8a29e" }} axisLine={false} tickLine={false} minTickGap={40} />
                 <YAxis hide domain={["dataMin - 200000", "dataMax + 200000"]} />
                 <Tooltip formatter={(v: number) => money(v)} labelFormatter={(l: string) => shortDate(l)} contentStyle={{ borderRadius: 8, fontSize: 12 }} />
-                <Area isAnimationActive={false} type="monotone" dataKey="balance" stroke="#6366f1" strokeWidth={2} fill="#6366f122" />
+                <Area isAnimationActive={false} type="monotone" dataKey="balance" stroke="#0d9488" strokeWidth={2} fill="#0d948822" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -57,13 +57,13 @@ export function AccountDetail() {
               ["Bank", "Partner Bank, N.A."],
             ].map(([k, v]) => (
               <div key={k} className="flex items-center justify-between gap-2">
-                <dt className="text-zinc-500">{k}</dt>
+                <dt className="text-stone-500">{k}</dt>
                 <dd className="flex items-center gap-2 font-medium">
                   <span className="tabular">{v}</span>
                   {k !== "Bank" && (
                     <button
                       aria-label={`Copy ${k}`}
-                      className="text-zinc-400 hover:text-zinc-700"
+                      className="text-stone-400 hover:text-stone-700"
                       onClick={() => {
                         navigator.clipboard?.writeText(v).catch(() => {});
                         toast(`${k} copied`);

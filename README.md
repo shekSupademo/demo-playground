@@ -1,4 +1,4 @@
-# Northbeam
+# Orchard
 
 A frontend-only business banking dashboard. It's a realistic, interaction-heavy UI for testing tools that watch code changes and check their effect on the user-facing app.
 

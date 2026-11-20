@@ -59,12 +59,12 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
   return (
     <Modal open={open} onClose={close} title="Send money" testId="send-money-modal">
       {step !== "done" && (
-        <ol className="flex items-center gap-2 text-xs text-zinc-500" aria-label="Progress">
+        <ol className="flex items-center gap-2 text-xs text-stone-500" aria-label="Progress">
           {steps.map((s, i) => (
-            <li key={s} className={cx("flex items-center gap-2", steps.indexOf(step) >= i && "font-medium text-indigo-600 dark:text-indigo-400")}>
-              <span className={cx("flex size-5 items-center justify-center rounded-full border text-[10px]", steps.indexOf(step) >= i ? "border-indigo-600 bg-indigo-600 text-white" : "border-zinc-300")}>{i + 1}</span>
+            <li key={s} className={cx("flex items-center gap-2", steps.indexOf(step) >= i && "font-medium text-teal-600 dark:text-teal-400")}>
+              <span className={cx("flex size-5 items-center justify-center rounded-full border text-[10px]", steps.indexOf(step) >= i ? "border-teal-600 bg-teal-600 text-white" : "border-stone-300")}>{i + 1}</span>
               {s === "recipient" ? "Recipient" : s === "amount" ? "Amount" : "Review"}
-              {i < 2 && <span className="mx-1 h-px w-6 bg-zinc-200 dark:bg-zinc-700" />}
+              {i < 2 && <span className="mx-1 h-px w-6 bg-stone-200 dark:bg-stone-700" />}
             </li>
           ))}
         </ol>
@@ -73,7 +73,7 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
       {step === "recipient" && !adding && (
         <div className="space-y-3">
           <Input placeholder="Search recipients" value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Search recipients" />
-          <ul className="max-h-64 divide-y divide-zinc-100 overflow-y-auto rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800" data-testid="recipient-list">
+          <ul className="max-h-64 divide-y divide-stone-100 overflow-y-auto rounded-lg border border-stone-200 dark:divide-stone-800 dark:border-stone-800" data-testid="recipient-list">
             {filtered.map((r) => (
               <li key={r.id}>
                 <button
@@ -81,18 +81,18 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
                     setRecipientId(r.id);
                     setStep("amount");
                   }}
-                  className="flex w-full items-center justify-between px-3 py-2.5 text-left text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                  className="flex w-full items-center justify-between px-3 py-2.5 text-left text-sm hover:bg-stone-50 dark:hover:bg-stone-800"
                 >
                   <span>
                     <span className="block font-medium">{r.name}</span>
-                    <span className="text-xs text-zinc-500">
+                    <span className="text-xs text-stone-500">
                       {r.bank} ••{r.last4} · {r.method.toUpperCase()}
                     </span>
                   </span>
                 </button>
               </li>
             ))}
-            {filtered.length === 0 && <li className="px-3 py-6 text-center text-sm text-zinc-500">No recipients match “{query}”</li>}
+            {filtered.length === 0 && <li className="px-3 py-6 text-center text-sm text-stone-500">No recipients match “{query}”</li>}
           </ul>
           <Button variant="ghost" onClick={() => setAdding(true)}>
             <Plus className="size-4" /> Add new recipient
@@ -146,7 +146,7 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
 
       {step === "amount" && recipient && (
         <div className="space-y-4">
-          <div className="rounded-lg bg-zinc-50 px-3 py-2.5 text-sm dark:bg-zinc-800">
+          <div className="rounded-lg bg-stone-50 px-3 py-2.5 text-sm dark:bg-stone-800">
             To <span className="font-medium">{recipient.name}</span> · {recipient.method.toUpperCase()} ••{recipient.last4}
           </div>
           <Field label="Amount" error={amountError}>
@@ -186,7 +186,7 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
 
       {step === "review" && recipient && amount && account && (
         <div className="space-y-4">
-          <dl className="divide-y divide-zinc-100 rounded-lg border border-zinc-200 text-sm dark:divide-zinc-800 dark:border-zinc-800" data-testid="payment-review">
+          <dl className="divide-y divide-stone-100 rounded-lg border border-stone-200 text-sm dark:divide-stone-800 dark:border-stone-800" data-testid="payment-review">
             {[
               ["Amount", money(amount)],
               ["To", `${recipient.name} (${recipient.bank} ••${recipient.last4})`],
@@ -196,7 +196,7 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
               ["Memo", memo || "—"],
             ].map(([k, v]) => (
               <div key={k} className="flex justify-between gap-4 px-3 py-2.5">
-                <dt className="text-zinc-500">{k}</dt>
+                <dt className="text-stone-500">{k}</dt>
                 <dd className="text-right font-medium">{v}</dd>
               </div>
             ))}
@@ -218,7 +218,7 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
             <Check className="size-6" />
           </span>
           <p className="font-medium">Payment submitted</p>
-          <p className="text-sm text-zinc-500">It shows as pending in Transactions until it settles.</p>
+          <p className="text-sm text-stone-500">It shows as pending in Transactions until it settles.</p>
           <Button variant="primary" onClick={close}>
             Done
           </Button>

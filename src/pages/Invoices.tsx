@@ -52,7 +52,7 @@ export function Invoices() {
           ["Collected", paid],
         ].map(([k, v]) => (
           <Panel key={k as string}>
-            <p className="text-sm text-zinc-500">{k}</p>
+            <p className="text-sm text-stone-500">{k}</p>
             <p className="tabular mt-1 text-xl font-semibold">{money(v as number)}</p>
           </Panel>
         ))}
@@ -79,7 +79,7 @@ export function Invoices() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] text-sm" data-testid="invoice-table">
-              <thead className="border-b border-zinc-100 text-left text-xs text-zinc-500 dark:border-zinc-800">
+              <thead className="border-b border-stone-100 text-left text-xs text-stone-500 dark:border-stone-800">
                 <tr>
                   <th className="px-5 py-2.5 font-medium">Invoice</th>
                   <th className="px-5 py-2.5 font-medium">Customer</th>
@@ -89,12 +89,12 @@ export function Invoices() {
                   <th className="px-5 py-2.5" />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+              <tbody className="divide-y divide-stone-100 dark:divide-stone-800">
                 {list.map((inv) => (
-                  <tr key={inv.id} className="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50" onClick={() => setViewing(inv)}>
+                  <tr key={inv.id} className="cursor-pointer hover:bg-stone-50 dark:hover:bg-stone-800/50" onClick={() => setViewing(inv)}>
                     <td className="px-5 py-3 font-medium">{inv.number}</td>
                     <td className="px-5 py-3">{inv.customer}</td>
-                    <td className="px-5 py-3 text-zinc-500">{longDate(inv.dueDate)}</td>
+                    <td className="px-5 py-3 text-stone-500">{longDate(inv.dueDate)}</td>
                     <td className="px-5 py-3">
                       <Badge tone={tone[inv.status]}>{inv.status}</Badge>
                     </td>
@@ -127,15 +127,15 @@ export function Invoices() {
             <div className="flex justify-between">
               <div>
                 <p className="font-medium">{viewing.customer}</p>
-                <p className="text-zinc-500">{viewing.email}</p>
+                <p className="text-stone-500">{viewing.email}</p>
               </div>
-              <div className="text-right text-zinc-500">
+              <div className="text-right text-stone-500">
                 <p>Issued {longDate(viewing.issueDate)}</p>
                 <p>Due {longDate(viewing.dueDate)}</p>
               </div>
             </div>
             <table className="w-full">
-              <thead className="text-left text-xs text-zinc-500">
+              <thead className="text-left text-xs text-stone-500">
                 <tr>
                   <th className="py-1.5 font-medium">Item</th>
                   <th className="py-1.5 text-right font-medium">Qty</th>
@@ -143,7 +143,7 @@ export function Invoices() {
                   <th className="py-1.5 text-right font-medium">Total</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+              <tbody className="divide-y divide-stone-100 dark:divide-stone-800">
                 {viewing.items.map((it, i) => (
                   <tr key={i}>
                     <td className="py-2">{it.description}</td>
@@ -242,13 +242,13 @@ function InvoiceEditor({ open, onClose }: { open: boolean; onClose: () => void }
         </Field>
       </div>
       <div className="space-y-2">
-        <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">Line items</p>
+        <p className="text-xs font-medium text-stone-600 dark:text-stone-400">Line items</p>
         {items.map((it, i) => (
           <div key={i} className="grid grid-cols-[1fr_70px_110px_32px] gap-2">
             <Input aria-label="Description" placeholder="Description" value={it.description} onChange={(e) => setItems(items.map((x, j) => (j === i ? { ...x, description: e.target.value } : x)))} className={tried && !parsed[i] ? "border-rose-400" : ""} />
             <Input aria-label="Quantity" inputMode="numeric" value={it.quantity} onChange={(e) => setItems(items.map((x, j) => (j === i ? { ...x, quantity: e.target.value } : x)))} />
             <Input aria-label="Unit price" inputMode="decimal" placeholder="$0.00" value={it.unitPrice} onChange={(e) => setItems(items.map((x, j) => (j === i ? { ...x, unitPrice: e.target.value } : x)))} />
-            <button aria-label="Remove line" disabled={items.length === 1} className="text-zinc-400 hover:text-rose-600 disabled:opacity-30" onClick={() => setItems(items.filter((_, j) => j !== i))}>
+            <button aria-label="Remove line" disabled={items.length === 1} className="text-stone-400 hover:text-rose-600 disabled:opacity-30" onClick={() => setItems(items.filter((_, j) => j !== i))}>
               <Trash2 className="size-4" />
             </button>
           </div>

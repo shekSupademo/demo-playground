@@ -150,11 +150,11 @@ function invoices(): Invoice[] {
 }
 
 const members: Member[] = [
-  { id: "mem_1", name: "Avery Chen", email: "avery@northbeam.example", role: "admin", status: "active" },
-  { id: "mem_2", name: "Jordan Patel", email: "jordan@northbeam.example", role: "employee", status: "active" },
-  { id: "mem_3", name: "Sam Rivera", email: "sam@northbeam.example", role: "employee", status: "active" },
+  { id: "mem_1", name: "Avery Chen", email: "avery@orchard.example", role: "admin", status: "active" },
+  { id: "mem_2", name: "Jordan Patel", email: "jordan@orchard.example", role: "employee", status: "active" },
+  { id: "mem_3", name: "Sam Rivera", email: "sam@orchard.example", role: "employee", status: "active" },
   { id: "mem_4", name: "Priya Nair", email: "priya@ledgerworks.example", role: "bookkeeper", status: "active" },
-  { id: "mem_5", name: "Leo Martins", email: "leo@northbeam.example", role: "employee", status: "invited" },
+  { id: "mem_5", name: "Leo Martins", email: "leo@orchard.example", role: "employee", status: "invited" },
 ];
 
 export function seedBills(): Bill[] {
@@ -196,7 +196,7 @@ export function createSeed(): AppState {
     members,
     bills: seedBills(),
     settings: {
-      companyName: "Northbeam Labs",
+      companyName: "Orchard Labs",
       userName: "Avery Chen",
       theme: "system",
       notifications: { largeTransactions: true, weeklySummary: true, cardDeclines: true, invoicePaid: false },

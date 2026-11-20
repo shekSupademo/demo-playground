@@ -47,12 +47,12 @@ export function Payments() {
           {list.length === 0 ? (
             <Empty title={tab === "upcoming" ? "No upcoming payments" : "No payments yet"} body="Payments you send or schedule show up here." action={<Button onClick={() => ui.openSend()}>Send money</Button>} />
           ) : (
-            <ul className="divide-y divide-zinc-100 dark:divide-zinc-800" data-testid="payment-list">
+            <ul className="divide-y divide-stone-100 dark:divide-stone-800" data-testid="payment-list">
               {list.map((t) => (
                 <li key={t.id} className="flex items-center justify-between gap-4 px-5 py-3 text-sm">
                   <div>
                     <p className="font-medium">{t.counterparty}</p>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-stone-500">
                       {t.method.toUpperCase()} · from {accounts.find((a) => a.id === t.accountId)?.name} · {t.date > today ? `scheduled ${longDate(t.date)}` : longDate(t.date)}
                     </p>
                   </div>
@@ -69,14 +69,14 @@ export function Payments() {
           <div className="p-3">
             <Input placeholder="Search recipients" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search recipients" />
           </div>
-          <ul className="divide-y divide-zinc-100 dark:divide-zinc-800" data-testid="recipients">
+          <ul className="divide-y divide-stone-100 dark:divide-stone-800" data-testid="recipients">
             {filteredRecipients.map((r) => {
               const stats = paidTo.get(r.name);
               return (
                 <li key={r.id} className="flex items-center justify-between gap-3 px-5 py-3 text-sm">
                   <div className="min-w-0">
                     <p className="truncate font-medium">{r.name}</p>
-                    <p className="truncate text-xs text-zinc-500">
+                    <p className="truncate text-xs text-stone-500">
                       {r.bank} ••{r.last4} · {stats ? `${money(stats.total)} paid` : "Never paid"}
                     </p>
                   </div>

@@ -24,7 +24,7 @@ function LimitControl({ cents, onChange, spent }: { cents: number; onChange: (c:
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
-        <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">Monthly limit</span>
+        <span className="text-xs font-medium text-stone-600 dark:text-stone-400">Monthly limit</span>
         <Input
           aria-label="Monthly limit amount"
           data-testid="limit-input"
@@ -78,7 +78,7 @@ export function Cards() {
           const spent = cardSpendThisMonth(transactions, c.id);
           const pct = Math.min(100, (spent / c.monthlyLimit) * 100);
           return (
-            <article key={c.id} className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900" data-testid="card-item">
+            <article key={c.id} className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm dark:border-stone-800 dark:bg-stone-900" data-testid="card-item">
               <div className={cx("relative flex aspect-[1.6] flex-col justify-between rounded-lg bg-gradient-to-br p-4 text-white", c.color, c.frozen && "opacity-50 grayscale")}>
                 <div className="flex items-start justify-between text-sm font-medium">
                   <span>{c.name}</span>
@@ -92,13 +92,13 @@ export function Cards() {
               </div>
               <div className="mt-4 space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-zinc-500">Spent this month</span>
+                  <span className="text-stone-500">Spent this month</span>
                   <span className="tabular font-medium">
-                    {money(spent)} <span className="text-zinc-400">/ {money(c.monthlyLimit)}</span>
+                    {money(spent)} <span className="text-stone-400">/ {money(c.monthlyLimit)}</span>
                   </span>
                 </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800" role="progressbar" aria-valuenow={Math.round(pct)} aria-label="Limit used">
-                  <div className={cx("h-full rounded-full", pct > 90 ? "bg-rose-500" : pct > 70 ? "bg-amber-500" : "bg-indigo-500")} style={{ width: `${pct}%` }} />
+                <div className="h-1.5 overflow-hidden rounded-full bg-stone-100 dark:bg-stone-800" role="progressbar" aria-valuenow={Math.round(pct)} aria-label="Limit used">
+                  <div className={cx("h-full rounded-full", pct > 90 ? "bg-rose-500" : pct > 70 ? "bg-amber-500" : "bg-teal-500")} style={{ width: `${pct}%` }} />
                 </div>
                 <div className="flex items-center justify-between pt-2">
                   {c.frozen ? <Badge tone="blue">Frozen</Badge> : <Badge tone="green">Active</Badge>}
@@ -187,7 +187,7 @@ export function Cards() {
         </Field>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <p className="mb-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">Cardholder</p>
+            <p className="mb-1.5 text-xs font-medium text-stone-600 dark:text-stone-400">Cardholder</p>
             <Dropdown
               label="Cardholder"
               value={draft.holder}
@@ -197,7 +197,7 @@ export function Cards() {
             />
           </div>
           <div>
-            <p className="mb-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">Type</p>
+            <p className="mb-1.5 text-xs font-medium text-stone-600 dark:text-stone-400">Type</p>
             <Dropdown
               label="Card type"
               searchable={false}

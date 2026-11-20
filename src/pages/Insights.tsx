@@ -38,12 +38,12 @@ export function Insights() {
             <ul className="w-full space-y-1.5 text-sm">
               {cats.map((c) => (
                 <li key={c.category}>
-                  <Link to={`/transactions?category=${encodeURIComponent(c.category)}`} className="flex items-center justify-between gap-2 rounded px-1 hover:bg-zinc-50 dark:hover:bg-zinc-800">
+                  <Link to={`/transactions?category=${encodeURIComponent(c.category)}`} className="flex items-center justify-between gap-2 rounded px-1 hover:bg-stone-50 dark:hover:bg-stone-800">
                     <span className="flex items-center gap-2">
                       <span className="size-2.5 rounded-sm" style={{ background: CATEGORY_COLORS[c.category] }} />
                       {c.category}
                     </span>
-                    <span className="tabular text-zinc-500">
+                    <span className="tabular text-stone-500">
                       {money(c.amount)} · {((c.amount / totalSpend) * 100).toFixed(0)}%
                     </span>
                   </Link>
@@ -56,10 +56,10 @@ export function Insights() {
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={merchants} layout="vertical" margin={{ left: 24, right: 12 }}>
-                <XAxis type="number" tickFormatter={(v: number) => moneyCompact(v)} tick={{ fontSize: 10, fill: "#a1a1aa" }} axisLine={false} tickLine={false} />
-                <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 11, fill: "#71717a" }} axisLine={false} tickLine={false} />
+                <XAxis type="number" tickFormatter={(v: number) => moneyCompact(v)} tick={{ fontSize: 10, fill: "#a8a29e" }} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 11, fill: "#78716c" }} axisLine={false} tickLine={false} />
                 <Tooltip formatter={(v: number) => money(v)} contentStyle={{ borderRadius: 8, fontSize: 12 }} />
-                <Bar isAnimationActive={false} dataKey="amount" name="Spend" fill="#6366f1" radius={[0, 4, 4, 0]} />
+                <Bar isAnimationActive={false} dataKey="amount" name="Spend" fill="#0d9488" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -69,14 +69,14 @@ export function Insights() {
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={flows} margin={{ left: 0, right: 12 }}>
-              <CartesianGrid vertical={false} stroke="#e4e4e7" strokeOpacity={0.5} />
-              <XAxis dataKey="month" tickFormatter={monthLabel} tick={{ fontSize: 11, fill: "#a1a1aa" }} axisLine={false} tickLine={false} />
-              <YAxis tickFormatter={(v: number) => moneyCompact(v)} tick={{ fontSize: 10, fill: "#a1a1aa" }} axisLine={false} tickLine={false} width={64} />
+              <CartesianGrid vertical={false} stroke="#e7e5e4" strokeOpacity={0.5} />
+              <XAxis dataKey="month" tickFormatter={monthLabel} tick={{ fontSize: 11, fill: "#a8a29e" }} axisLine={false} tickLine={false} />
+              <YAxis tickFormatter={(v: number) => moneyCompact(v)} tick={{ fontSize: 10, fill: "#a8a29e" }} axisLine={false} tickLine={false} width={64} />
               <Tooltip formatter={(v: number) => money(v)} labelFormatter={(l: string) => monthLabel(l)} contentStyle={{ borderRadius: 8, fontSize: 12 }} />
               <Legend wrapperStyle={{ fontSize: 12 }} />
               <Line isAnimationActive={false} type="monotone" dataKey="moneyIn" name="Money in" stroke="#10b981" strokeWidth={2} dot={false} />
               <Line isAnimationActive={false} type="monotone" dataKey="moneyOut" name="Money out" stroke="#f43f5e" strokeWidth={2} dot={false} />
-              <Line isAnimationActive={false} type="monotone" dataKey="net" name="Net" stroke="#6366f1" strokeWidth={2} strokeDasharray="4 3" />
+              <Line isAnimationActive={false} type="monotone" dataKey="net" name="Net" stroke="#0d9488" strokeWidth={2} strokeDasharray="4 3" />
             </LineChart>
           </ResponsiveContainer>
         </div>

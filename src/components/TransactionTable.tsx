@@ -96,7 +96,7 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
 
   const SortHead = ({ k, label, right }: { k: SortKey; label: string; right?: boolean }) => (
     <th className={cx("px-4 py-2.5 font-medium", right && "text-right")}>
-      <button onClick={() => toggleSort(k)} className="inline-flex items-center gap-1 hover:text-zinc-900 dark:hover:text-white" aria-label={`Sort by ${label}`}>
+      <button onClick={() => toggleSort(k)} className="inline-flex items-center gap-1 hover:text-stone-900 dark:hover:text-white" aria-label={`Sort by ${label}`}>
         {label}
         {sort.key === k && (sort.dir === "asc" ? <ArrowUp className="size-3" /> : <ArrowDown className="size-3" />)}
       </button>
@@ -136,13 +136,13 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
           </div>
           <div className="flex flex-wrap items-center gap-2 text-sm">
             <Input type="date" className="w-40" value={from} onChange={(e) => setFrom(e.target.value)} aria-label="From date" />
-            <span className="text-zinc-400">to</span>
+            <span className="text-stone-400">to</span>
             <Input type="date" className="w-40" value={to} onChange={(e) => setTo(e.target.value)} aria-label="To date" />
             <div className="w-64 px-1">
               <RangeSlider label="Amount" min={0} max={AMOUNT_MAX} step={25_000} low={minAmt} high={maxAmt} onChange={(l, h) => setAmountRange([l, h])} format={(v) => moneyCompact(v)} testId="amount-range" />
             </div>
-            <label className="ml-1 inline-flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
-              <input type="checkbox" checked={missingReceipt} onChange={(e) => setMissingReceipt(e.target.checked)} className="accent-indigo-600" />
+            <label className="ml-1 inline-flex items-center gap-2 text-stone-600 dark:text-stone-400">
+              <input type="checkbox" checked={missingReceipt} onChange={(e) => setMissingReceipt(e.target.checked)} className="accent-teal-600" />
               Missing receipt
             </label>
             {filtersActive && (
@@ -154,7 +154,7 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
               <Download className="size-3.5" /> Export {rows.length}
             </Button>
           </div>
-          <div className="flex flex-wrap gap-6 text-sm text-zinc-500" data-testid="tx-summary">
+          <div className="flex flex-wrap gap-6 text-sm text-stone-500" data-testid="tx-summary">
             <span>
               {rows.length} results
             </span>
@@ -162,14 +162,14 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
               Money in <span className="tabular font-medium text-emerald-600">{money(totalIn)}</span>
             </span>
             <span>
-              Money out <span className="tabular font-medium text-zinc-800 dark:text-zinc-200">{money(totalOut)}</span>
+              Money out <span className="tabular font-medium text-stone-800 dark:text-stone-200">{money(totalOut)}</span>
             </span>
           </div>
         </div>
       )}
 
       {selected.size > 0 && (
-        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm dark:border-indigo-900 dark:bg-indigo-950" data-testid="bulk-bar">
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-teal-200 bg-teal-50 px-4 py-2 text-sm dark:border-teal-900 dark:bg-teal-950" data-testid="bulk-bar">
           <span className="font-medium">{selected.size} selected</span>
           <Dropdown
             className="w-48"
@@ -193,19 +193,19 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="overflow-x-auto rounded-xl border border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900">
         {rows.length === 0 ? (
           <Empty title="No transactions match" body="Try removing a filter or widening the date range." action={<Button onClick={clear}>Clear filters</Button>} />
         ) : (
           <table className="w-full min-w-[720px] text-sm">
-            <thead className="border-b border-zinc-100 text-left text-xs text-zinc-500 dark:border-zinc-800">
+            <thead className="border-b border-stone-100 text-left text-xs text-stone-500 dark:border-stone-800">
               <tr>
                 {!compact && (
                   <th className="w-10 px-4 py-2.5">
                     <input
                       type="checkbox"
                       aria-label="Select page"
-                      className="accent-indigo-600"
+                      className="accent-teal-600"
                       checked={allOnPage}
                       onChange={() => {
                         const next = new Set(selected);
@@ -223,17 +223,17 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
                 {!compact && <th className="w-10 px-2 py-2.5"><span className="sr-only">Actions</span></th>}
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+            <tbody className="divide-y divide-stone-100 dark:divide-stone-800">
               {pageRows.map((t) => {
                 const card = cards.find((c) => c.id === t.cardId);
                 return (
-                  <tr key={t.id} className={cx("group cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50", selected.has(t.id) && "bg-indigo-50/50 dark:bg-indigo-950/30")} onClick={() => openTx(t.id)} data-testid="tx-row">
+                  <tr key={t.id} className={cx("group cursor-pointer hover:bg-stone-50 dark:hover:bg-stone-800/50", selected.has(t.id) && "bg-teal-50/50 dark:bg-teal-950/30")} onClick={() => openTx(t.id)} data-testid="tx-row">
                     {!compact && (
                       <td className="px-4 py-2.5" onClick={(e) => e.stopPropagation()}>
                         <input
                           type="checkbox"
                           aria-label={`Select ${t.counterparty}`}
-                          className="accent-indigo-600"
+                          className="accent-teal-600"
                           checked={selected.has(t.id)}
                           onChange={() => {
                             const next = new Set(selected);
@@ -244,20 +244,20 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
                         />
                       </td>
                     )}
-                    <td className="whitespace-nowrap px-4 py-2.5 text-zinc-500">{shortDate(t.date)}</td>
+                    <td className="whitespace-nowrap px-4 py-2.5 text-stone-500">{shortDate(t.date)}</td>
                     <td className="px-4 py-2.5">
                       <div className="flex items-center gap-2">
                         <span className="font-medium">{t.counterparty}</span>
                         {t.status !== "posted" && <Badge tone={statusTone(t.status)}>{t.status}</Badge>}
-                        {t.receipt && <Paperclip className="size-3.5 text-zinc-400" aria-label="Has receipt" />}
+                        {t.receipt && <Paperclip className="size-3.5 text-stone-400" aria-label="Has receipt" />}
                       </div>
-                      <div className="text-xs text-zinc-500">{card ? `${card.name} ••${card.last4}` : t.description}</div>
+                      <div className="text-xs text-stone-500">{card ? `${card.name} ••${card.last4}` : t.description}</div>
                     </td>
                     <td className="px-4 py-2.5">
                       <Badge tone={t.category === "Uncategorized" ? "amber" : "gray"}>{t.category}</Badge>
                     </td>
-                    <td className="px-4 py-2.5 text-zinc-500">{accounts.find((a) => a.id === t.accountId)?.name}</td>
-                    <td className={cx("tabular whitespace-nowrap px-4 py-2.5 text-right font-medium", t.amount > 0 && "text-emerald-600", t.status === "failed" && "text-zinc-400 line-through")}>{signedMoney(t.amount)}</td>
+                    <td className="px-4 py-2.5 text-stone-500">{accounts.find((a) => a.id === t.accountId)?.name}</td>
+                    <td className={cx("tabular whitespace-nowrap px-4 py-2.5 text-right font-medium", t.amount > 0 && "text-emerald-600", t.status === "failed" && "text-stone-400 line-through")}>{signedMoney(t.amount)}</td>
                     {!compact && (
                       <td className="px-2 py-2.5 text-right">
                         <HoverMenu
@@ -301,7 +301,7 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
       </div>
 
       {!compact && rows.length > PAGE && (
-        <div className="flex items-center justify-between text-sm text-zinc-500">
+        <div className="flex items-center justify-between text-sm text-stone-500">
           <span>
             {page * PAGE + 1}–{Math.min(rows.length, (page + 1) * PAGE)} of {rows.length}
           </span>
@@ -339,9 +339,9 @@ function TransactionDrawer({ tx, onClose }: { tx?: Transaction; onClose: () => v
         <div>
           <p className={cx("tabular text-3xl font-semibold", tx.amount > 0 && "text-emerald-600")}>{signedMoney(tx.amount)}</p>
           <p className="mt-1 font-medium">{tx.counterparty}</p>
-          <p className="text-sm text-zinc-500">{tx.description}</p>
+          <p className="text-sm text-stone-500">{tx.description}</p>
         </div>
-        <dl className="divide-y divide-zinc-100 rounded-lg border border-zinc-200 text-sm dark:divide-zinc-800 dark:border-zinc-800">
+        <dl className="divide-y divide-stone-100 rounded-lg border border-stone-200 text-sm dark:divide-stone-800 dark:border-stone-800">
           {[
             ["Date", longDate(tx.date)],
             ["Status", <Badge key="s" tone={statusTone(tx.status)}>{tx.status}</Badge>],
@@ -351,13 +351,13 @@ function TransactionDrawer({ tx, onClose }: { tx?: Transaction; onClose: () => v
             ["Reference", tx.id],
           ].map(([k, v]) => (
             <div key={String(k)} className="flex justify-between gap-4 px-3 py-2.5">
-              <dt className="text-zinc-500">{k}</dt>
+              <dt className="text-stone-500">{k}</dt>
               <dd className="text-right font-medium">{v}</dd>
             </div>
           ))}
         </dl>
         <div>
-          <p className="mb-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">Category</p>
+          <p className="mb-1.5 text-xs font-medium text-stone-600 dark:text-stone-400">Category</p>
           <Dropdown
             label="Category"
             value={tx.category}
@@ -376,15 +376,15 @@ function TransactionDrawer({ tx, onClose }: { tx?: Transaction; onClose: () => v
             onBlur={() => note !== (tx.note ?? "") && dispatch({ type: "tx/update", id: tx.id, patch: { note } })}
             rows={3}
             placeholder="Add context for your accountant"
-            className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 dark:border-zinc-700 dark:bg-zinc-900"
+            className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm outline-none focus:border-teal-500 dark:border-stone-700 dark:bg-stone-900"
           />
         </Field>
         <div>
-          <p className="mb-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">Receipt</p>
+          <p className="mb-1.5 text-xs font-medium text-stone-600 dark:text-stone-400">Receipt</p>
           {tx.receipt ? (
-            <div className="flex items-center justify-between rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-800">
+            <div className="flex items-center justify-between rounded-lg border border-stone-200 px-3 py-2 text-sm dark:border-stone-800">
               <span className="flex items-center gap-2">
-                <Paperclip className="size-4 text-zinc-400" /> {tx.receipt}
+                <Paperclip className="size-4 text-stone-400" /> {tx.receipt}
               </span>
               <Button size="sm" variant="ghost" onClick={() => dispatch({ type: "tx/update", id: tx.id, patch: { receipt: undefined } })}>
                 Remove
@@ -406,7 +406,7 @@ function TransactionDrawer({ tx, onClose }: { tx?: Transaction; onClose: () => v
                 dispatch({ type: "tx/update", id: tx.id, patch: { receipt: f.name } });
                 toast("Receipt attached");
               }}
-              className={cx("flex cursor-pointer flex-col items-center gap-1 rounded-lg border border-dashed px-3 py-6 text-sm text-zinc-500 hover:border-indigo-400", dragging ? "border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950" : "border-zinc-300 dark:border-zinc-700")}
+              className={cx("flex cursor-pointer flex-col items-center gap-1 rounded-lg border border-dashed px-3 py-6 text-sm text-stone-500 hover:border-teal-400", dragging ? "border-teal-500 bg-teal-50 text-teal-700 dark:bg-teal-950" : "border-stone-300 dark:border-stone-700")}
             >
               <UploadCloud className="size-5" />
               {dragging ? "Drop to attach" : "Drag a receipt here, or click to upload"}

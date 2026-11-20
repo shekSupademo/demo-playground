@@ -42,7 +42,7 @@ export function Bills() {
   const overdueBills = open.filter((b) => b.dueDate < today);
   const dueSoon = open.filter((b) => b.dueDate >= today && b.dueDate <= weekAhead);
   const stats = [
-    { label: "Outstanding", value: money(sum(open)), note: `${open.length} open bills`, icon: Wallet, tone: "text-indigo-600 bg-indigo-50 dark:bg-indigo-950 dark:text-indigo-300" },
+    { label: "Outstanding", value: money(sum(open)), note: `${open.length} open bills`, icon: Wallet, tone: "text-teal-600 bg-teal-50 dark:bg-teal-950 dark:text-teal-300" },
     { label: "Overdue", value: money(sum(overdueBills)), note: `${overdueBills.length} past due`, icon: AlertTriangle, tone: "text-rose-600 bg-rose-50 dark:bg-rose-950 dark:text-rose-300" },
     { label: "Due in 7 days", value: money(sum(dueSoon)), note: `${dueSoon.length} coming up`, icon: CalendarClock, tone: "text-amber-600 bg-amber-50 dark:bg-amber-950 dark:text-amber-300" },
     { label: "Paid", value: money(sum(visible.filter((b) => b.status === "paid"))), note: "Debited from Operating", icon: CheckCircle2, tone: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950 dark:text-emerald-300" },
@@ -80,14 +80,14 @@ export function Bills() {
       />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" data-testid="bill-stats">
         {stats.map(({ label, value, note, icon: Icon, tone }) => (
-          <div key={label} className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+          <div key={label} className="flex items-center gap-3 rounded-xl border border-stone-200 bg-white p-4 shadow-sm dark:border-stone-800 dark:bg-stone-900">
             <span className={cx("flex size-10 shrink-0 items-center justify-center rounded-lg", tone)}>
               <Icon className="size-5" aria-hidden />
             </span>
             <div className="min-w-0">
-              <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">{label}</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-stone-500">{label}</p>
               <p className="tabular truncate text-lg font-semibold">{value}</p>
-              <p className="text-xs text-zinc-500">{note}</p>
+              <p className="text-xs text-stone-500">{note}</p>
             </div>
           </div>
         ))}
@@ -112,18 +112,18 @@ export function Bills() {
                 e.preventDefault();
                 drop(col.id, over?.col === col.id ? over.beforeId : undefined);
               }}
-              className={cx("flex min-h-72 flex-col rounded-xl border border-t-4 bg-zinc-50 p-3 transition-colors dark:bg-zinc-900/60", isOver ? "border-indigo-400 bg-indigo-50/60 dark:bg-indigo-950/40" : "border-zinc-200 dark:border-zinc-800", accent[col.id].bar)}
+              className={cx("flex min-h-72 flex-col rounded-xl border border-t-4 bg-stone-50 p-3 transition-colors dark:bg-stone-900/60", isOver ? "border-teal-400 bg-teal-50/60 dark:bg-teal-950/40" : "border-stone-200 dark:border-stone-800", accent[col.id].bar)}
             >
               <header className="mb-3 flex items-baseline justify-between px-1">
                 <div>
                   <h2 className="flex items-center gap-2 text-sm font-semibold">
                     <span className={cx("size-2 rounded-full", accent[col.id].dot)} aria-hidden />
                     {col.label}
-                    <span className="rounded-full bg-white px-1.5 text-xs font-medium text-zinc-500 shadow-sm dark:bg-zinc-800">{items.length}</span>
+                    <span className="rounded-full bg-white px-1.5 text-xs font-medium text-stone-500 shadow-sm dark:bg-stone-800">{items.length}</span>
                   </h2>
-                  <p className="text-xs text-zinc-500">{col.help}</p>
+                  <p className="text-xs text-stone-500">{col.help}</p>
                 </div>
-                <span className="tabular text-sm font-semibold text-zinc-700 dark:text-zinc-200">{money(total)}</span>
+                <span className="tabular text-sm font-semibold text-stone-700 dark:text-stone-200">{money(total)}</span>
               </header>
               <ul className="flex flex-1 flex-col gap-2">
                 {items.map((b) => {
@@ -157,20 +157,20 @@ export function Bills() {
                         drop(col.id, b.id);
                       }}
                       className={cx(
-                        "group cursor-grab rounded-lg border border-zinc-200 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md active:cursor-grabbing dark:border-zinc-700 dark:bg-zinc-900",
+                        "group cursor-grab rounded-lg border border-stone-200 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md active:cursor-grabbing dark:border-stone-700 dark:bg-stone-900",
                         overdue && "border-l-4 border-l-rose-500",
                         dragId === b.id && "opacity-40",
-                        over?.beforeId === b.id && "border-t-2 border-t-indigo-500",
+                        over?.beforeId === b.id && "border-t-2 border-t-teal-500",
                       )}
                     >
                       <div className="flex items-start gap-2">
-                        <GripVertical className="mt-2 size-4 shrink-0 text-zinc-300 group-hover:text-zinc-500" aria-hidden />
-                        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300" aria-hidden>
+                        <GripVertical className="mt-2 size-4 shrink-0 text-stone-300 group-hover:text-stone-500" aria-hidden />
+                        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-teal-100 text-xs font-semibold text-teal-700 dark:bg-teal-950 dark:text-teal-300" aria-hidden>
                           {initials(b.vendor)}
                         </span>
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-medium">{b.vendor}</p>
-                          <p className="text-xs text-zinc-500">
+                          <p className="text-xs text-stone-500">
                             {b.invoiceRef} · {b.category}
                           </p>
                         </div>
@@ -194,7 +194,7 @@ export function Bills() {
                     </li>
                   );
                 })}
-                {items.length === 0 && <li className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-zinc-300 p-6 text-center text-xs text-zinc-400 dark:border-zinc-700">Drop bills here</li>}
+                {items.length === 0 && <li className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-stone-300 p-6 text-center text-xs text-stone-400 dark:border-stone-700">Drop bills here</li>}
               </ul>
             </section>
           );
