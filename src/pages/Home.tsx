@@ -38,13 +38,13 @@ export function Home() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-sm text-zinc-500">Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"}, {state.settings.userName.split(" ")[0]}</p>
-          <h1 className="text-2xl font-semibold tracking-tight">Home</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Home</h1>
         </div>
         <div className="flex gap-2">
-          <button onClick={() => ui.openSend()} className="inline-flex h-9 items-center gap-2 rounded-lg bg-indigo-600 px-3.5 text-sm font-medium text-white hover:bg-indigo-500" data-testid="home-send">
+          <button onClick={() => ui.openSend()} className="inline-flex h-9 items-center gap-2 rounded-full bg-indigo-600 px-4 text-sm font-medium text-white shadow-sm shadow-indigo-600/30 hover:bg-indigo-500" data-testid="home-send">
             <Send className="size-4" /> Send
           </button>
-          <button onClick={() => ui.openTransfer()} className="inline-flex h-9 items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3.5 text-sm font-medium hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
+          <button onClick={() => ui.openTransfer()} className="inline-flex h-9 items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 text-sm font-medium hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
             <ArrowLeftRight className="size-4" /> Transfer
           </button>
         </div>
@@ -75,14 +75,14 @@ export function Home() {
               <AreaChart data={series} margin={{ left: 0, right: 0, top: 8, bottom: 0 }}>
                 <defs>
                   <linearGradient id="bal" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#6366f1" stopOpacity={0.25} />
+                    <stop offset="0%" stopColor="#6366f1" stopOpacity={0.35} />
                     <stop offset="100%" stopColor="#6366f1" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="date" tickFormatter={shortDate} tick={{ fontSize: 11, fill: "#a1a1aa" }} axisLine={false} tickLine={false} minTickGap={40} />
                 <YAxis hide domain={["dataMin - 500000", "dataMax + 500000"]} />
                 <Tooltip formatter={(v: number) => money(v)} labelFormatter={(l: string) => shortDate(l)} contentStyle={{ borderRadius: 8, fontSize: 12 }} />
-                <Area isAnimationActive={false} type="monotone" dataKey="balance" stroke="#6366f1" strokeWidth={2} fill="url(#bal)" />
+                <Area isAnimationActive={false} type="monotone" dataKey="balance" stroke="#6366f1" strokeWidth={2.5} fill="url(#bal)" activeDot={{ r: 5, strokeWidth: 2, stroke: "#fff" }} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -141,7 +141,7 @@ export function Home() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" data-testid="account-cards">
         {state.accounts.map((a) => (
-          <Link key={a.id} to={`/accounts/${a.id}`} className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-indigo-300 dark:border-zinc-800 dark:bg-zinc-900">
+          <Link key={a.id} to={`/accounts/${a.id}`} className={`relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-4 pt-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md before:absolute before:inset-x-0 before:top-0 before:h-1 dark:border-zinc-800 dark:bg-zinc-900 ${a.type === "checking" ? "before:bg-indigo-500" : a.type === "savings" ? "before:bg-emerald-500" : "before:bg-amber-500"}`}>
             <p className="flex items-center justify-between text-sm text-zinc-500">
               <span>{a.name}</span>
               <span className="text-xs">••{a.last4}</span>
@@ -160,12 +160,12 @@ export function Home() {
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={flows} margin={{ left: -12, right: 0, top: 4, bottom: 0 }}>
-                <CartesianGrid vertical={false} stroke="#e4e4e7" strokeOpacity={0.5} />
+                <CartesianGrid vertical={false} stroke="#e4e4e7" strokeOpacity={0.6} strokeDasharray="3 4" />
                 <XAxis dataKey="month" tickFormatter={monthLabel} tick={{ fontSize: 11, fill: "#a1a1aa" }} axisLine={false} tickLine={false} />
                 <YAxis tickFormatter={(v: number) => moneyCompact(v)} tick={{ fontSize: 10, fill: "#a1a1aa" }} axisLine={false} tickLine={false} width={56} />
                 <Tooltip formatter={(v: number) => money(v)} labelFormatter={(l: string) => monthLabel(l)} contentStyle={{ borderRadius: 8, fontSize: 12 }} />
-                <Bar isAnimationActive={false} dataKey="moneyIn" name="Money in" fill="#10b981" radius={[3, 3, 0, 0]} />
-                <Bar isAnimationActive={false} dataKey="moneyOut" name="Money out" fill="#a1a1aa" radius={[3, 3, 0, 0]} />
+                <Bar isAnimationActive={false} dataKey="moneyIn" name="Money in" fill="#10b981" radius={[6, 6, 0, 0]} maxBarSize={18} />
+                <Bar isAnimationActive={false} dataKey="moneyOut" name="Money out" fill="#d4d4d8" radius={[6, 6, 0, 0]} maxBarSize={18} />
               </BarChart>
             </ResponsiveContainer>
           </div>
