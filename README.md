@@ -19,13 +19,13 @@ There's no backend. All data is generated sample data and is kept in the browser
 | `#/settings` | Company profile and theme, team invites with roles (the last admin can't be removed), notification toggles and threshold, reset data, and an **Integrations** tab whose list (QuickBooks, Slack, Gusto with Connect, then Sync now) is a same-origin **iframe** loading `public/integrations/index.html`. `src/lib/integrations.ts` sets its src, title, name and load delay |
 
 Complex controls, built for testing interactions:
-- **Searchable dropdowns** (`role="combobox"`, type to filter, arrow keys and Enter): the category filter, the bulk "Set category…" control, the drawer's Category, the new card's Cardholder and Type, and the Bills vendor filter.
+- **Searchable dropdowns** (`role="combobox"`, type to filter, arrow keys and Enter): the category filter, the bulk "Set category…" control, the drawer's Category, the new card's Cardholder and Type, the Bills vendor filter, and Send money's Pay to.
 - **Sliders:** the card monthly limit (synced with a number field, with clickable tick marks and a warning when the limit is below this month's spend), plus a two-handle **Amount** range filter on Transactions.
 - **Drag and drop:** the Bills board, plus a receipt drop zone in the transaction drawer.
 - **Hover menus:** the "⋯" on each transaction row opens on hover, and **Categorize ▸** opens a submenu flyout. Bill cards have the same kind of menu.
 
 Also available everywhere:
-- **Move money**: a three-step send-money wizard (recipient, amount, review) that can add a recipient and checks the balance and date, plus transfers between accounts.
+- **Move money**: a send-money form (a searchable recipient dropdown, amount, account, date and memo on one screen, then a review) that can add a recipient and checks the balance and date, plus transfers between accounts.
 - **⌘K / Ctrl+K**: a command palette that searches pages, actions and transactions.
 - **Dark mode**.
 - **Mobile navigation**.
