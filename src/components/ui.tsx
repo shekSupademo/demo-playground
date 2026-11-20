@@ -164,6 +164,17 @@ export function Tabs<T extends string>({ value, onChange, options }: { value: T;
   );
 }
 
+const avatarTones = ["bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300", "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300", "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300", "bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300", "bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300"];
+export function Avatar({ name, size = "md" }: { name: string; size?: "sm" | "md" | "lg" }) {
+  const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("");
+  const tone = avatarTones[[...name].reduce((h, c) => h + c.charCodeAt(0), 0) % avatarTones.length];
+  return (
+    <span aria-hidden className={cx("flex shrink-0 items-center justify-center rounded-full font-semibold", size === "sm" ? "size-7 text-[10px]" : size === "lg" ? "size-11 text-sm" : "size-9 text-xs", tone)}>
+      {initials}
+    </span>
+  );
+}
+
 export function Empty({ title, body, action }: { title: string; body?: string; action?: ReactNode }) {
   return (
     <div className="flex flex-col items-center gap-2 px-6 py-14 text-center">
