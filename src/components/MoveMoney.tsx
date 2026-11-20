@@ -6,7 +6,7 @@ import { longDate, money, parseDollars, uid } from "../lib/format";
 import { useDispatch, useStore } from "../state/store";
 import { useToast } from "../state/toast";
 import { Dropdown } from "./Dropdown";
-import { Button, Field, Input, Modal, Select } from "./ui";
+import { Avatar, Button, Field, Input, Modal, Select } from "./ui";
 
 type Step = "details" | "review" | "done";
 
@@ -117,7 +117,7 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
             <Plus className="size-3.5" /> Add new recipient
           </button>
           <Field label="Amount" error={amountError}>
-            <Input inputMode="decimal" placeholder="$0.00" value={amountText} onChange={(e) => setAmountText(e.target.value)} onBlur={() => setTouched(true)} data-testid="amount-input" />
+            <Input inputMode="decimal" placeholder="$0.00" value={amountText} onChange={(e) => setAmountText(e.target.value)} onBlur={() => setTouched(true)} data-testid="amount-input" className="h-12 text-xl font-semibold tabular" />
           </Field>
           <Field label="From account" hint={account ? `Available ${money(account.balance)}` : undefined}>
             <Select value={accountId} onChange={(e) => setAccountId(e.target.value)}>
@@ -151,6 +151,11 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
 
       {step === "review" && recipient && amount && account && (
         <div className="space-y-4">
+          <div className="flex flex-col items-center gap-2 rounded-xl bg-indigo-50 py-5 text-center dark:bg-indigo-950/40">
+            <Avatar name={recipient.name} size="lg" />
+            <p className="tabular text-3xl font-semibold tracking-tight">{money(amount)}</p>
+            <p className="text-sm text-zinc-500">to {recipient.name}</p>
+          </div>
           <dl className="divide-y divide-zinc-100 rounded-lg border border-zinc-200 text-sm dark:divide-zinc-800 dark:border-zinc-800" data-testid="payment-review">
             {[
               ["Amount", money(amount)],

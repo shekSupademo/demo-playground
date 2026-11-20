@@ -26,7 +26,7 @@ export function Insights() {
             <div className="h-56 w-56 shrink-0">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie isAnimationActive={false} data={cats} dataKey="amount" nameKey="category" innerRadius={60} outerRadius={95} paddingAngle={1}>
+                  <Pie isAnimationActive={false} data={cats} dataKey="amount" nameKey="category" innerRadius={72} outerRadius={100} paddingAngle={2} cornerRadius={4} stroke="none">
                     {cats.map((c) => (
                       <Cell key={c.category} fill={CATEGORY_COLORS[c.category]} />
                     ))}
@@ -56,10 +56,16 @@ export function Insights() {
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={merchants} layout="vertical" margin={{ left: 24, right: 12 }}>
+                <defs>
+                  <linearGradient id="vendorBar" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#a5b4fc" />
+                    <stop offset="100%" stopColor="#6366f1" />
+                  </linearGradient>
+                </defs>
                 <XAxis type="number" tickFormatter={(v: number) => moneyCompact(v)} tick={{ fontSize: 10, fill: "#a1a1aa" }} axisLine={false} tickLine={false} />
                 <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 11, fill: "#71717a" }} axisLine={false} tickLine={false} />
                 <Tooltip formatter={(v: number) => money(v)} contentStyle={{ borderRadius: 8, fontSize: 12 }} />
-                <Bar isAnimationActive={false} dataKey="amount" name="Spend" fill="#6366f1" radius={[0, 4, 4, 0]} />
+                <Bar isAnimationActive={false} dataKey="amount" name="Spend" fill="url(#vendorBar)" radius={[0, 8, 8, 0]} maxBarSize={18} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -69,13 +75,13 @@ export function Insights() {
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={flows} margin={{ left: 0, right: 12 }}>
-              <CartesianGrid vertical={false} stroke="#e4e4e7" strokeOpacity={0.5} />
+              <CartesianGrid vertical={false} stroke="#e4e4e7" strokeOpacity={0.6} strokeDasharray="3 4" />
               <XAxis dataKey="month" tickFormatter={monthLabel} tick={{ fontSize: 11, fill: "#a1a1aa" }} axisLine={false} tickLine={false} />
               <YAxis tickFormatter={(v: number) => moneyCompact(v)} tick={{ fontSize: 10, fill: "#a1a1aa" }} axisLine={false} tickLine={false} width={64} />
               <Tooltip formatter={(v: number) => money(v)} labelFormatter={(l: string) => monthLabel(l)} contentStyle={{ borderRadius: 8, fontSize: 12 }} />
               <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Line isAnimationActive={false} type="monotone" dataKey="moneyIn" name="Money in" stroke="#10b981" strokeWidth={2} dot={false} />
-              <Line isAnimationActive={false} type="monotone" dataKey="moneyOut" name="Money out" stroke="#f43f5e" strokeWidth={2} dot={false} />
+              <Line isAnimationActive={false} type="monotone" dataKey="moneyIn" name="Money in" stroke="#10b981" strokeWidth={2.5} dot={{ r: 3 }} />
+              <Line isAnimationActive={false} type="monotone" dataKey="moneyOut" name="Money out" stroke="#f43f5e" strokeWidth={2.5} dot={{ r: 3 }} />
               <Line isAnimationActive={false} type="monotone" dataKey="net" name="Net" stroke="#6366f1" strokeWidth={2} strokeDasharray="4 3" />
             </LineChart>
           </ResponsiveContainer>

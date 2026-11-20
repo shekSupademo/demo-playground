@@ -9,7 +9,7 @@ import { CATEGORY_COLORS } from "../lib/analytics";
 import { Dropdown, type DropdownOption } from "./Dropdown";
 import { HoverMenu } from "./HoverMenu";
 import { RangeSlider } from "./Slider";
-import { Badge, Button, Drawer, Empty, Input, Select } from "./ui";
+import { Avatar, Badge, Button, Drawer, Empty, Input, Select } from "./ui";
 
 const dot = (c: Category) => <span className="size-2 shrink-0 rounded-full" style={{ background: CATEGORY_COLORS[c] }} />;
 export const categoryOptions: DropdownOption<Category>[] = CATEGORIES.map((c) => ({ value: c, label: c, icon: dot(c) }));
@@ -198,7 +198,7 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
           <Empty title="No transactions match" body="Try removing a filter or widening the date range." action={<Button onClick={clear}>Clear filters</Button>} />
         ) : (
           <table className="w-full min-w-[720px] text-sm">
-            <thead className="border-b border-zinc-100 text-left text-xs text-zinc-500 dark:border-zinc-800">
+            <thead className="sticky top-0 z-10 border-b border-zinc-200 bg-zinc-50/95 text-left text-[11px] uppercase tracking-wider text-zinc-500 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/95">
               <tr>
                 {!compact && (
                   <th className="w-10 px-4 py-2.5">
@@ -223,7 +223,7 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
                 {!compact && <th className="w-10 px-2 py-2.5"><span className="sr-only">Actions</span></th>}
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+            <tbody className="divide-y divide-zinc-100 even:[&>tr]:bg-zinc-50/40 dark:divide-zinc-800 dark:even:[&>tr]:bg-zinc-800/20">
               {pageRows.map((t) => {
                 const card = cards.find((c) => c.id === t.cardId);
                 return (
@@ -245,19 +245,26 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
                       </td>
                     )}
                     <td className="whitespace-nowrap px-4 py-2.5 text-zinc-500">{shortDate(t.date)}</td>
-                    <td className="px-4 py-2.5">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                      <Avatar name={t.counterparty} size="sm" />
+                      <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="font-medium">{t.counterparty}</span>
                         {t.status !== "posted" && <Badge tone={statusTone(t.status)}>{t.status}</Badge>}
                         {t.receipt && <Paperclip className="size-3.5 text-zinc-400" aria-label="Has receipt" />}
                       </div>
                       <div className="text-xs text-zinc-500">{card ? `${card.name} ••${card.last4}` : t.description}</div>
+                      </div>
+                      </div>
                     </td>
                     <td className="px-4 py-2.5">
                       <Badge tone={t.category === "Uncategorized" ? "amber" : "gray"}>{t.category}</Badge>
                     </td>
                     <td className="px-4 py-2.5 text-zinc-500">{accounts.find((a) => a.id === t.accountId)?.name}</td>
-                    <td className={cx("tabular whitespace-nowrap px-4 py-2.5 text-right font-medium", t.amount > 0 && "text-emerald-600", t.status === "failed" && "text-zinc-400 line-through")}>{signedMoney(t.amount)}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-right">
+                      <span className={cx("tabular rounded-md px-1.5 py-0.5 font-semibold", t.amount > 0 && "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300", t.status === "failed" && "text-zinc-400 line-through")}>{signedMoney(t.amount)}</span>
+                    </td>
                     {!compact && (
                       <td className="px-2 py-2.5 text-right">
                         <HoverMenu
@@ -351,10 +358,13 @@ function TransactionDrawer({ tx, onClose }: { tx?: Transaction; onClose: () => v
   return (
     <Drawer open onClose={close} title="Transaction details" testId="tx-drawer">
       <div className="space-y-6">
-        <div>
-          <p className={cx("tabular text-3xl font-semibold", tx.amount > 0 && "text-emerald-600")}>{signedMoney(tx.amount)}</p>
-          <p className="mt-1 font-medium">{tx.counterparty}</p>
-          <p className="text-sm text-zinc-500">{tx.description}</p>
+        <div className="flex flex-col items-center gap-2 rounded-2xl bg-gradient-to-b from-zinc-50 to-white py-6 text-center dark:from-zinc-800/60 dark:to-zinc-900">
+          <Avatar name={tx.counterparty} size="lg" />
+          <p className={cx("tabular text-3xl font-bold tracking-tight", tx.amount > 0 && "text-emerald-600")}>{signedMoney(tx.amount)}</p>
+          <div>
+            <p className="font-medium">{tx.counterparty}</p>
+            <p className="text-sm text-zinc-500">{tx.description}</p>
+          </div>
         </div>
         <dl className="divide-y divide-zinc-100 rounded-lg border border-zinc-200 text-sm dark:divide-zinc-800 dark:border-zinc-800">
           {[

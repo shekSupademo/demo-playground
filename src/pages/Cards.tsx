@@ -80,15 +80,18 @@ export function Cards() {
           const spent = cardSpendThisMonth(transactions, c.id);
           const pct = Math.min(100, (spent / c.monthlyLimit) * 100);
           return (
-            <button type="button" key={c.id} onClick={() => startEdit(c)} aria-label={`Manage ${c.name} card`} className="rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition hover:border-indigo-300 hover:shadow-md focus-visible:outline-2 focus-visible:outline-indigo-500 dark:border-zinc-800 dark:bg-zinc-900" data-testid="card-item">
-              <div className={cx("relative flex aspect-[1.6] flex-col justify-between rounded-lg bg-gradient-to-br p-4 text-white", c.color, c.frozen && "opacity-50 grayscale")}>
-                <div className="flex items-start justify-between text-sm font-medium">
+            <button type="button" key={c.id} onClick={() => startEdit(c)} aria-label={`Manage ${c.name} card`} className="rounded-2xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition hover:border-indigo-300 hover:shadow-md focus-visible:outline-2 focus-visible:outline-indigo-500 dark:border-zinc-800 dark:bg-zinc-900" data-testid="card-item">
+              <div className={cx("relative flex aspect-[1.6] flex-col justify-between overflow-hidden rounded-xl bg-gradient-to-br p-4 text-white shadow-lg shadow-black/10", c.color, c.frozen && "opacity-50 grayscale")}>
+                <span aria-hidden className="pointer-events-none absolute -right-10 -top-10 size-40 rounded-full bg-white/10" />
+                <span aria-hidden className="pointer-events-none absolute -bottom-16 -left-8 size-44 rounded-full bg-black/10" />
+                <div className="relative flex items-start justify-between text-sm font-semibold">
                   <span>{c.name}</span>
-                  <span className="text-xs uppercase opacity-80">{c.kind}</span>
+                  <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] uppercase tracking-wider backdrop-blur">{c.kind}</span>
                 </div>
+                <span aria-hidden className="relative h-6 w-8 rounded-md bg-gradient-to-br from-amber-200 to-amber-400 shadow-inner" />
                 {c.frozen && <Snowflake className="absolute left-1/2 top-1/2 size-10 -translate-x-1/2 -translate-y-1/2" />}
-                <div>
-                  <p className="tabular tracking-widest">•••• •••• •••• {c.last4}</p>
+                <div className="relative">
+                  <p className="tabular font-mono tracking-widest">•••• •••• •••• {c.last4}</p>
                   <p className="mt-1 text-xs opacity-80">{c.holder}</p>
                 </div>
               </div>
@@ -99,7 +102,7 @@ export function Cards() {
                     {money(spent)} <span className="text-zinc-400">/ {money(c.monthlyLimit)}</span>
                   </span>
                 </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800" role="progressbar" aria-valuenow={Math.round(pct)} aria-label="Limit used">
+                <div className="h-2 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800" role="progressbar" aria-valuenow={Math.round(pct)} aria-label="Limit used">
                   <div className={cx("h-full rounded-full", pct > 90 ? "bg-rose-500" : pct > 70 ? "bg-amber-500" : "bg-indigo-500")} style={{ width: `${pct}%` }} />
                 </div>
                 <div className="flex items-center justify-between pt-2">

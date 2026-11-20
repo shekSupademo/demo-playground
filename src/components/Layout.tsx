@@ -53,7 +53,7 @@ export function Layout() {
   const sidebar = (
     <nav className="flex h-full flex-col gap-6 p-4" aria-label="Main">
       <div className="flex items-center gap-2 px-2">
-        <span className="flex size-7 items-center justify-center rounded-lg bg-indigo-600 text-sm font-bold text-white">N</span>
+        <span className="flex size-8 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white shadow-sm shadow-indigo-600/30">N</span>
         <span className="font-semibold tracking-tight">{settings.companyName}</span>
       </div>
       <ul className="space-y-0.5">
@@ -62,7 +62,7 @@ export function Layout() {
             <NavLink
               to={to}
               end={end}
-              className={({ isActive }) => cx("flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium", isActive ? "bg-zinc-200/70 text-zinc-900 dark:bg-zinc-800 dark:text-white" : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900")}
+              className={({ isActive }) => cx("relative flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors", isActive ? "bg-indigo-50 text-indigo-700 before:absolute before:-left-4 before:top-1.5 before:bottom-1.5 before:w-1 before:rounded-r-full before:bg-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-300" : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900")}
             >
               <Icon className="size-4" />
               {label}
@@ -98,7 +98,7 @@ export function Layout() {
 
   return (
     <div className="flex h-full">
-      <aside className="hidden w-60 shrink-0 border-r border-zinc-200 bg-zinc-50 lg:block dark:border-zinc-800 dark:bg-zinc-950">{sidebar}</aside>
+      <aside className="hidden w-60 shrink-0 border-r border-zinc-200 bg-white lg:block dark:border-zinc-800 dark:bg-zinc-950">{sidebar}</aside>
       {mobileNav && (
         <div className="fixed inset-0 z-40 bg-zinc-950/40 lg:hidden" onMouseDown={(e) => e.target === e.currentTarget && setMobileNav(false)}>
           <aside className="h-full w-64 bg-zinc-50 dark:bg-zinc-950">{sidebar}</aside>
@@ -119,7 +119,7 @@ export function Layout() {
               {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
             </button>
             <div className="relative" ref={menuRef}>
-              <button onClick={() => setMoveMenu((m) => !m)} data-testid="move-money" aria-expanded={moveMenu} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-indigo-600 px-3.5 text-sm font-medium text-white hover:bg-indigo-500">
+              <button onClick={() => setMoveMenu((m) => !m)} data-testid="move-money" aria-expanded={moveMenu} className="inline-flex h-9 items-center gap-1.5 rounded-full bg-indigo-600 px-4 text-sm font-medium text-white shadow-sm shadow-indigo-600/30 hover:bg-indigo-500">
                 Move money <ChevronDown className="size-4" />
               </button>
               {moveMenu && (
@@ -133,7 +133,7 @@ export function Layout() {
                 </div>
               )}
             </div>
-            <span className="ml-1 hidden size-8 items-center justify-center rounded-full bg-zinc-200 text-xs font-semibold sm:flex dark:bg-zinc-800" title={settings.userName}>
+            <span className="ml-1 hidden size-8 items-center justify-center rounded-full bg-zinc-200 text-xs font-semibold ring-2 ring-white ring-offset-2 ring-offset-indigo-200 sm:flex dark:bg-zinc-800 dark:ring-zinc-950 dark:ring-offset-indigo-900" title={settings.userName}>
               {settings.userName.split(" ").map((p) => p[0]).join("")}
             </span>
           </div>
