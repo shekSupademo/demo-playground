@@ -9,12 +9,12 @@ There's no backend. All data is generated sample data and is kept in the browser
 | Route | What you can do |
 |---|---|
 | `#/` Home | Total balance chart (30D/90D/6M), money in and out, burn and runway, a "Needs attention" list, account tiles, cash flow chart, recent transactions |
-| `#/transactions` | Search, filter (account, category, status, direction, date range, minimum amount, missing receipt), sort, paginate, bulk-categorize, CSV export, a detail drawer with category, note and receipt upload |
+| `#/transactions` | Search, filter (account, category, status, direction, date range, minimum amount, missing receipt), sort, paginate, bulk-categorize, CSV export, a detail drawer (click a row) with category, an **Add note** / **Save note** editor and receipt upload |
 | `#/accounts/:id` | Per-account balance chart, routing and account numbers with copy buttons, that account's transactions |
 | `#/payments` | Upcoming and recent payments, recipients with search and a "Pay" button |
 | `#/bills` | **Drag-and-drop** approval board (Inbox → Approved → Scheduled → Paid). Drag across columns or reorder within one. Dropping on Paid posts a pending transaction and debits Operating. Each card also has a **hover menu** with "Move to…" as a keyboard-friendly alternative. A searchable vendor **dropdown** filters the board |
-| `#/cards` | Freeze and unfreeze, edit name and monthly limit, issue new virtual or physical cards, spend-vs-limit bars |
-| `#/invoices` | Status tabs, an invoice editor with line items and validation, send, mark paid (which posts a revenue transaction), view, delete |
+| `#/cards` | Click a card to open its **Manage card** drawer (freeze or unfreeze, edit name and monthly limit), issue new virtual or physical cards in two steps (type, then details), spend-vs-limit bars |
+| `#/invoices` | Status tabs, an invoice editor with line items and validation, send, view, delete, and **Record payment** from the invoice view, which asks you to confirm and then posts a revenue transaction |
 | `#/insights` | Spend by category (click through to filtered transactions), top vendors, net cash flow by month |
 | `#/settings` | Company profile and theme, team invites with roles (the last admin can't be removed), notification toggles and threshold, reset data, and an **Integrations** tab whose list (QuickBooks, Slack, Gusto with Connect, then Sync now) is a same-origin **iframe** loading `public/integrations/index.html`. `src/lib/integrations.ts` sets its src, title, name and load delay |
 

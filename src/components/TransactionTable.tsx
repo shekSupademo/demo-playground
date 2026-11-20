@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Copy, Download, Eye, Paperclip, Tag, UploadCloud, X } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Copy, Download, Paperclip, Pencil, Tag, UploadCloud, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { CATEGORIES, type Category, type Transaction, type TxStatus } from "../data/types";
@@ -9,7 +9,7 @@ import { CATEGORY_COLORS } from "../lib/analytics";
 import { Dropdown, type DropdownOption } from "./Dropdown";
 import { HoverMenu } from "./HoverMenu";
 import { RangeSlider } from "./Slider";
-import { Badge, Button, Drawer, Empty, Field, Input, Select } from "./ui";
+import { Badge, Button, Drawer, Empty, Input, Select } from "./ui";
 
 const dot = (c: Category) => <span className="size-2 shrink-0 rounded-full" style={{ background: CATEGORY_COLORS[c] }} />;
 export const categoryOptions: DropdownOption<Category>[] = CATEGORIES.map((c) => ({ value: c, label: c, icon: dot(c) }));
@@ -265,7 +265,6 @@ export function TransactionTable({ accountId, compact }: { accountId?: string; c
                           testId="row-menu"
                           className="opacity-60 group-hover:opacity-100"
                           items={[
-                            { label: "View details", icon: <Eye className="size-3.5" />, onSelect: () => openTx(t.id) },
                             {
                               label: "Categorize",
                               icon: <Tag className="size-3.5" />,
@@ -329,12 +328,28 @@ function TransactionDrawer({ tx, onClose }: { tx?: Transaction; onClose: () => v
   const dispatch = useDispatch();
   const toast = useToast();
   const [note, setNote] = useState(tx?.note ?? "");
+  const [editingNote, setEditingNote] = useState(false);
   const [dragging, setDragging] = useState(false);
-  useEffect(() => setNote(tx?.note ?? ""), [tx?.id, tx?.note]);
+  useEffect(() => {
+    setNote(tx?.note ?? "");
+    setEditingNote(false);
+  }, [tx?.id, tx?.note]);
   if (!tx) return null;
   const card = cards.find((c) => c.id === tx.cardId);
+  const saveNote = () => {
+    if (note !== (tx.note ?? "")) {
+      dispatch({ type: "tx/update", id: tx.id, patch: { note } });
+      toast(note ? "Note saved" : "Note removed");
+    }
+    setEditingNote(false);
+  };
+  // Closing with an unsaved note saves it, so the explicit Save step never drops typing.
+  const close = () => {
+    if (editingNote) saveNote();
+    onClose();
+  };
   return (
-    <Drawer open onClose={onClose} title="Transaction details" testId="tx-drawer">
+    <Drawer open onClose={close} title="Transaction details" testId="tx-drawer">
       <div className="space-y-6">
         <div>
           <p className={cx("tabular text-3xl font-semibold", tx.amount > 0 && "text-emerald-600")}>{signedMoney(tx.amount)}</p>
@@ -369,16 +384,41 @@ function TransactionDrawer({ tx, onClose }: { tx?: Transaction; onClose: () => v
             }}
           />
         </div>
-        <Field label="Note">
-          <textarea
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            onBlur={() => note !== (tx.note ?? "") && dispatch({ type: "tx/update", id: tx.id, patch: { note } })}
-            rows={3}
-            placeholder="Add context for your accountant"
-            className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 dark:border-zinc-700 dark:bg-zinc-900"
-          />
-        </Field>
+        <div>
+          <p className="mb-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">Note</p>
+          {editingNote ? (
+            <div className="space-y-2">
+              <textarea
+                autoFocus
+                aria-label="Note"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                rows={3}
+                placeholder="Add context for your accountant"
+                className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 dark:border-zinc-700 dark:bg-zinc-900"
+              />
+              <div className="flex justify-end gap-2">
+                <Button size="sm" variant="ghost" onClick={() => { setNote(tx.note ?? ""); setEditingNote(false); }}>
+                  Cancel
+                </Button>
+                <Button size="sm" variant="primary" onClick={saveNote} data-testid="save-note">
+                  Save note
+                </Button>
+              </div>
+            </div>
+          ) : tx.note ? (
+            <div className="flex items-start justify-between gap-3 rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-800">
+              <p className="whitespace-pre-wrap">{tx.note}</p>
+              <Button size="sm" variant="ghost" onClick={() => setEditingNote(true)} aria-label="Edit note">
+                <Pencil className="size-3.5" />
+              </Button>
+            </div>
+          ) : (
+            <Button size="sm" onClick={() => setEditingNote(true)} data-testid="add-note">
+              <Pencil className="size-3.5" /> Add note
+            </Button>
+          )}
+        </div>
         <div>
           <p className="mb-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">Receipt</p>
           {tx.receipt ? (
