@@ -1,11 +1,11 @@
-import { ArrowLeft, Check, Plus } from "lucide-react";
+import { ArrowLeft, Check, ChevronRight, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { isoDay } from "../data/seed";
 import type { Recipient } from "../data/types";
 import { cx, longDate, money, parseDollars, uid } from "../lib/format";
 import { useDispatch, useStore } from "../state/store";
 import { useToast } from "../state/toast";
-import { Button, Field, Input, Modal, Select } from "./ui";
+import { Avatar, Button, Field, Input, Modal, Select } from "./ui";
 
 type Step = "recipient" | "amount" | "review" | "done";
 
@@ -59,12 +59,11 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
   return (
     <Modal open={open} onClose={close} title="Send money" testId="send-money-modal">
       {step !== "done" && (
-        <ol className="flex items-center gap-2 text-xs text-zinc-500" aria-label="Progress">
+        <ol className="grid grid-cols-3 gap-2 text-[11px] text-zinc-400" aria-label="Progress">
           {steps.map((s, i) => (
-            <li key={s} className={cx("flex items-center gap-2", steps.indexOf(step) >= i && "font-medium text-indigo-600 dark:text-indigo-400")}>
-              <span className={cx("flex size-5 items-center justify-center rounded-full border text-[10px]", steps.indexOf(step) >= i ? "border-indigo-600 bg-indigo-600 text-white" : "border-zinc-300")}>{i + 1}</span>
-              {s === "recipient" ? "Recipient" : s === "amount" ? "Amount" : "Review"}
-              {i < 2 && <span className="mx-1 h-px w-6 bg-zinc-200 dark:bg-zinc-700" />}
+            <li key={s} className={cx("space-y-1.5", steps.indexOf(step) >= i && "font-medium text-indigo-600 dark:text-indigo-400")} aria-current={step === s ? "step" : undefined}>
+              <span className={cx("block h-1 rounded-full transition-colors", steps.indexOf(step) >= i ? "bg-indigo-600 dark:bg-indigo-400" : "bg-zinc-200 dark:bg-zinc-700")} />
+              <span className="block uppercase tracking-wide">{s === "recipient" ? "Recipient" : s === "amount" ? "Amount" : "Review"}</span>
             </li>
           ))}
         </ol>
@@ -73,7 +72,7 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
       {step === "recipient" && !adding && (
         <div className="space-y-3">
           <Input placeholder="Search recipients" value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Search recipients" />
-          <ul className="max-h-64 divide-y divide-zinc-100 overflow-y-auto rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800" data-testid="recipient-list">
+          <ul className="max-h-72 divide-y divide-zinc-100 overflow-y-auto rounded-xl border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800" data-testid="recipient-list">
             {filtered.map((r) => (
               <li key={r.id}>
                 <button
@@ -81,14 +80,16 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
                     setRecipientId(r.id);
                     setStep("amount");
                   }}
-                  className="flex w-full items-center justify-between px-3 py-2.5 text-left text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                  className="group flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm hover:bg-indigo-50/60 dark:hover:bg-zinc-800"
                 >
-                  <span>
-                    <span className="block font-medium">{r.name}</span>
+                  <Avatar name={r.name} size="sm" />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-medium">{r.name}</span>
                     <span className="text-xs text-zinc-500">
                       {r.bank} ••{r.last4} · {r.method.toUpperCase()}
                     </span>
                   </span>
+                  <ChevronRight className="size-4 text-zinc-300 transition-transform group-hover:translate-x-0.5 group-hover:text-indigo-500" />
                 </button>
               </li>
             ))}
@@ -146,11 +147,15 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
 
       {step === "amount" && recipient && (
         <div className="space-y-4">
-          <div className="rounded-lg bg-zinc-50 px-3 py-2.5 text-sm dark:bg-zinc-800">
-            To <span className="font-medium">{recipient.name}</span> · {recipient.method.toUpperCase()} ••{recipient.last4}
+          <div className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm dark:border-zinc-800 dark:bg-zinc-800/60">
+            <Avatar name={recipient.name} />
+            <span className="min-w-0">
+              <span className="block text-xs text-zinc-500">To</span>
+              <span className="font-medium">{recipient.name}</span> <span className="text-zinc-500">· {recipient.method.toUpperCase()} ••{recipient.last4}</span>
+            </span>
           </div>
           <Field label="Amount" error={amountError}>
-            <Input autoFocus inputMode="decimal" placeholder="$0.00" value={amountText} onChange={(e) => setAmountText(e.target.value)} onBlur={() => setTouched(true)} data-testid="amount-input" />
+            <Input autoFocus inputMode="decimal" placeholder="$0.00" value={amountText} onChange={(e) => setAmountText(e.target.value)} onBlur={() => setTouched(true)} data-testid="amount-input" className="h-12 text-xl font-semibold tabular" />
           </Field>
           <Field label="From account" hint={account ? `Available ${money(account.balance)}` : undefined}>
             <Select value={accountId} onChange={(e) => setAccountId(e.target.value)}>
@@ -186,6 +191,11 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
 
       {step === "review" && recipient && amount && account && (
         <div className="space-y-4">
+          <div className="flex flex-col items-center gap-2 rounded-xl bg-indigo-50 py-5 text-center dark:bg-indigo-950/40">
+            <Avatar name={recipient.name} size="lg" />
+            <p className="tabular text-3xl font-semibold tracking-tight">{money(amount)}</p>
+            <p className="text-sm text-zinc-500">to {recipient.name}</p>
+          </div>
           <dl className="divide-y divide-zinc-100 rounded-lg border border-zinc-200 text-sm dark:divide-zinc-800 dark:border-zinc-800" data-testid="payment-review">
             {[
               ["Amount", money(amount)],

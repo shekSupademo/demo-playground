@@ -1,4 +1,4 @@
-import { Plus, Trash2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Badge, Button, Empty, Field, Input, Modal, PageHeader, Panel, Tabs } from "../components/ui";
@@ -46,14 +46,21 @@ export function Invoices() {
         }
       />
       <div className="grid gap-4 sm:grid-cols-3">
-        {[
-          ["Outstanding", outstanding],
-          ["Overdue", overdue],
-          ["Collected", paid],
-        ].map(([k, v]) => (
-          <Panel key={k as string}>
-            <p className="text-sm text-zinc-500">{k}</p>
-            <p className="tabular mt-1 text-xl font-semibold">{money(v as number)}</p>
+        {([
+          ["Outstanding", outstanding, Clock, "bg-sky-50 text-sky-600 dark:bg-sky-950 dark:text-sky-300"],
+          ["Overdue", overdue, AlertCircle, "bg-rose-50 text-rose-600 dark:bg-rose-950 dark:text-rose-300"],
+          ["Collected", paid, CheckCircle2, "bg-emerald-50 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-300"],
+        ] as const).map(([k, v, Icon, iconTone]) => (
+          <Panel key={k}>
+            <div className="flex items-center gap-4">
+              <span className={`flex size-11 items-center justify-center rounded-xl ${iconTone}`}>
+                <Icon className="size-5" />
+              </span>
+              <div>
+                <p className="text-sm text-zinc-500">{k}</p>
+                <p className="tabular text-2xl font-bold tracking-tight">{money(v)}</p>
+              </div>
+            </div>
           </Panel>
         ))}
       </div>
@@ -92,7 +99,7 @@ export function Invoices() {
               <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
                 {list.map((inv) => (
                   <tr key={inv.id} className="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50" onClick={() => setViewing(inv)}>
-                    <td className="px-5 py-3 font-medium">{inv.number}</td>
+                    <td className="whitespace-nowrap px-5 py-3 font-mono text-xs font-semibold text-indigo-700 dark:text-indigo-300">{inv.number}</td>
                     <td className="px-5 py-3">{inv.customer}</td>
                     <td className="px-5 py-3 text-zinc-500">{longDate(inv.dueDate)}</td>
                     <td className="px-5 py-3">
