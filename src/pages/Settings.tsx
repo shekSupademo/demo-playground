@@ -61,7 +61,7 @@ function CompanyTab() {
         </form>
       </Panel>
       <Panel title="Demo data">
-        <p className="text-sm text-zinc-500">Everything here lives in your browser. Reset to start over with the original sample data.</p>
+        <p className="text-sm text-stone-500">Everything here lives in your browser. Reset to start over with the original sample data.</p>
         <Button className="mt-4" variant="danger" onClick={() => setConfirmReset(true)} data-testid="reset-data">
           Reset demo data
         </Button>
@@ -87,7 +87,7 @@ function CompanyTab() {
             </>
           }
         >
-          <p className="text-sm text-zinc-500">Payments, cards, invoices and edits you've made will be replaced with the original sample data.</p>
+          <p className="text-sm text-stone-500">Payments, cards, invoices and edits you've made will be replaced with the original sample data.</p>
         </Modal>
       </Panel>
     </div>
@@ -122,19 +122,19 @@ function TeamTab() {
         </Button>
       }
     >
-      <ul className="divide-y divide-zinc-100 dark:divide-zinc-800" data-testid="member-list">
+      <ul className="divide-y divide-stone-100 dark:divide-stone-800" data-testid="member-list">
         {members.map((m) => {
           const lastAdmin = m.role === "admin" && admins <= 1;
           return (
             <li key={m.id} className="flex flex-wrap items-center gap-3 px-5 py-3 text-sm">
-              <span className="flex size-8 items-center justify-center rounded-full bg-zinc-100 text-xs font-semibold dark:bg-zinc-800">
+              <span className="flex size-8 items-center justify-center rounded-full bg-stone-100 text-xs font-semibold dark:bg-stone-800">
                 {m.name.split(" ").map((p) => p[0]).join("")}
               </span>
               <div className="min-w-0 flex-1">
                 <p className="font-medium">
                   {m.name} {m.status === "invited" && <Badge tone="amber">Invited</Badge>}
                 </p>
-                <p className="truncate text-xs text-zinc-500">{m.email}</p>
+                <p className="truncate text-xs text-stone-500">{m.email}</p>
               </div>
               <Select
                 className="h-8 w-36"
@@ -227,18 +227,18 @@ function NotificationsTab() {
   const parsed = parseDollars(threshold);
   return (
     <Panel title="Email notifications">
-      <ul className="divide-y divide-zinc-100 dark:divide-zinc-800">
+      <ul className="divide-y divide-stone-100 dark:divide-stone-800">
         {rows.map(([k, label, help]) => (
           <li key={k} className="flex items-center justify-between gap-6 py-3.5 first:pt-0">
             <div>
               <p className="text-sm font-medium">{label}</p>
-              <p className="text-xs text-zinc-500">{help}</p>
+              <p className="text-xs text-stone-500">{help}</p>
             </div>
             <Toggle checked={n[k]} onChange={(v) => set(k, v)} label={label} testId={`notify-${k}`} />
           </li>
         ))}
       </ul>
-      <div className="mt-4 flex items-end gap-3 border-t border-zinc-100 pt-4 dark:border-zinc-800">
+      <div className="mt-4 flex items-end gap-3 border-t border-stone-100 pt-4 dark:border-stone-800">
         <div className="w-48">
           <Field label="Large transaction threshold" error={!parsed ? "Enter an amount" : undefined}>
             <Input inputMode="decimal" value={threshold} disabled={!n.largeTransactions} onChange={(e) => setThreshold(e.target.value)} />
@@ -298,7 +298,7 @@ function IntegrationsTab() {
           style={{ height, border: 0 }}
         />
       ) : (
-        <p className="px-5 py-14 text-center text-sm text-zinc-500" data-testid="integrations-loading">
+        <p className="px-5 py-14 text-center text-sm text-stone-500" data-testid="integrations-loading">
           Loading integrations…
         </p>
       )}

@@ -53,7 +53,11 @@ export function Layout() {
   const sidebar = (
     <nav className="flex h-full flex-col gap-6 p-4" aria-label="Main">
       <div className="flex items-center gap-2 px-2">
-        <span className="flex size-7 items-center justify-center rounded-lg bg-indigo-600 text-sm font-bold text-white">N</span>
+        <svg viewBox="0 0 32 32" className="size-7" aria-hidden>
+          <rect width="32" height="32" rx="9" className="fill-teal-600" />
+          <circle cx="16" cy="18.5" r="7" stroke="#fff" strokeWidth="3" fill="none" />
+          <path d="M16 11.5c0-3 2.2-5.5 5.5-5.5" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+        </svg>
         <span className="font-semibold tracking-tight">{settings.companyName}</span>
       </div>
       <ul className="space-y-0.5">
@@ -62,7 +66,7 @@ export function Layout() {
             <NavLink
               to={to}
               end={end}
-              className={({ isActive }) => cx("flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium", isActive ? "bg-zinc-200/70 text-zinc-900 dark:bg-zinc-800 dark:text-white" : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900")}
+              className={({ isActive }) => cx("flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium", isActive ? "bg-stone-200/70 text-stone-900 dark:bg-stone-800 dark:text-white" : "text-stone-600 hover:bg-stone-100 dark:text-stone-400 dark:hover:bg-stone-900")}
             >
               <Icon className="size-4" />
               {label}
@@ -72,24 +76,24 @@ export function Layout() {
         ))}
       </ul>
       <div>
-        <p className="px-2.5 pb-1.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400">Accounts</p>
+        <p className="px-2.5 pb-1.5 text-[11px] font-medium uppercase tracking-wide text-stone-400">Accounts</p>
         <ul className="space-y-0.5">
           {accounts.map((a) => (
             <li key={a.id}>
-              <NavLink to={`/accounts/${a.id}`} className={({ isActive }) => cx("flex justify-between rounded-lg px-2.5 py-1.5 text-sm", isActive ? "bg-zinc-200/70 dark:bg-zinc-800" : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900")}>
+              <NavLink to={`/accounts/${a.id}`} className={({ isActive }) => cx("flex justify-between rounded-lg px-2.5 py-1.5 text-sm", isActive ? "bg-stone-200/70 dark:bg-stone-800" : "text-stone-600 hover:bg-stone-100 dark:text-stone-400 dark:hover:bg-stone-900")}>
                 <span>{a.name}</span>
-                <span className="tabular text-xs text-zinc-500">{money(a.balance).replace(/\.\d\d$/, "")}</span>
+                <span className="tabular text-xs text-stone-500">{money(a.balance).replace(/\.\d\d$/, "")}</span>
               </NavLink>
             </li>
           ))}
         </ul>
-        <p className="mt-2 flex justify-between px-2.5 text-xs text-zinc-500">
+        <p className="mt-2 flex justify-between px-2.5 text-xs text-stone-500">
           <span>Total</span>
-          <span className="tabular font-medium text-zinc-700 dark:text-zinc-300">{money(total).replace(/\.\d\d$/, "")}</span>
+          <span className="tabular font-medium text-stone-700 dark:text-stone-300">{money(total).replace(/\.\d\d$/, "")}</span>
         </p>
       </div>
       <div className="mt-auto">
-        <NavLink to="/settings" className={({ isActive }) => cx("flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium", isActive ? "bg-zinc-200/70 dark:bg-zinc-800" : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900")}>
+        <NavLink to="/settings" className={({ isActive }) => cx("flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium", isActive ? "bg-stone-200/70 dark:bg-stone-800" : "text-stone-600 hover:bg-stone-100 dark:text-stone-400 dark:hover:bg-stone-900")}>
           <Settings className="size-4" /> Settings
         </NavLink>
       </div>
@@ -98,42 +102,42 @@ export function Layout() {
 
   return (
     <div className="flex h-full">
-      <aside className="hidden w-60 shrink-0 border-r border-zinc-200 bg-zinc-50 lg:block dark:border-zinc-800 dark:bg-zinc-950">{sidebar}</aside>
+      <aside className="hidden w-60 shrink-0 border-r border-stone-200 bg-stone-50 lg:block dark:border-stone-800 dark:bg-stone-950">{sidebar}</aside>
       {mobileNav && (
-        <div className="fixed inset-0 z-40 bg-zinc-950/40 lg:hidden" onMouseDown={(e) => e.target === e.currentTarget && setMobileNav(false)}>
-          <aside className="h-full w-64 bg-zinc-50 dark:bg-zinc-950">{sidebar}</aside>
+        <div className="fixed inset-0 z-40 bg-stone-950/40 lg:hidden" onMouseDown={(e) => e.target === e.currentTarget && setMobileNav(false)}>
+          <aside className="h-full w-64 bg-stone-50 dark:bg-stone-950">{sidebar}</aside>
         </div>
       )}
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-zinc-200 bg-white/80 px-4 backdrop-blur lg:px-8 dark:border-zinc-800 dark:bg-zinc-950/80">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-stone-200 bg-white/80 px-4 backdrop-blur lg:px-8 dark:border-stone-800 dark:bg-stone-950/80">
           <button className="rounded p-1.5 lg:hidden" aria-label="Open navigation" onClick={() => setMobileNav(true)}>
             <Menu className="size-5" />
           </button>
-          <button onClick={() => setPalette(true)} data-testid="open-search" className="flex h-9 max-w-sm flex-1 items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 text-sm text-zinc-400 hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900">
+          <button onClick={() => setPalette(true)} data-testid="open-search" className="flex h-9 max-w-sm flex-1 items-center gap-2 rounded-lg border border-stone-200 bg-stone-50 px-3 text-sm text-stone-400 hover:border-stone-300 dark:border-stone-800 dark:bg-stone-900">
             <Search className="size-4" />
             <span className="flex-1 truncate whitespace-nowrap text-left">Search or jump to…</span>
-            <kbd className="hidden rounded border border-zinc-200 px-1.5 text-[10px] sm:inline dark:border-zinc-700">⌘K</kbd>
+            <kbd className="hidden rounded border border-stone-200 px-1.5 text-[10px] sm:inline dark:border-stone-700">⌘K</kbd>
           </button>
           <div className="ml-auto flex items-center gap-2">
-            <button aria-label="Toggle dark mode" data-testid="theme-toggle" className="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-900" onClick={() => dispatch({ type: "settings/update", patch: { theme: dark ? "light" : "dark" } })}>
+            <button aria-label="Toggle dark mode" data-testid="theme-toggle" className="rounded-lg p-2 text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-900" onClick={() => dispatch({ type: "settings/update", patch: { theme: dark ? "light" : "dark" } })}>
               {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
             </button>
             <div className="relative" ref={menuRef}>
-              <button onClick={() => setMoveMenu((m) => !m)} data-testid="move-money" aria-expanded={moveMenu} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-indigo-600 px-3.5 text-sm font-medium text-white hover:bg-indigo-500">
+              <button onClick={() => setMoveMenu((m) => !m)} data-testid="move-money" aria-expanded={moveMenu} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-teal-600 px-3.5 text-sm font-medium text-white hover:bg-teal-500">
                 Move money <ChevronDown className="size-4" />
               </button>
               {moveMenu && (
-                <div role="menu" className="absolute right-0 mt-2 w-56 overflow-hidden rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
-                  <button role="menuitem" className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800" onClick={() => { setMoveMenu(false); ui.openSend(); }}>
+                <div role="menu" className="absolute right-0 mt-2 w-56 overflow-hidden rounded-lg border border-stone-200 bg-white py-1 shadow-lg dark:border-stone-800 dark:bg-stone-900">
+                  <button role="menuitem" className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-stone-50 dark:hover:bg-stone-800" onClick={() => { setMoveMenu(false); ui.openSend(); }}>
                     <Send className="size-4" /> Send money
                   </button>
-                  <button role="menuitem" className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800" onClick={() => { setMoveMenu(false); ui.openTransfer(); }}>
+                  <button role="menuitem" className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-stone-50 dark:hover:bg-stone-800" onClick={() => { setMoveMenu(false); ui.openTransfer(); }}>
                     <ArrowLeftRight className="size-4" /> Transfer between accounts
                   </button>
                 </div>
               )}
             </div>
-            <span className="ml-1 hidden size-8 items-center justify-center rounded-full bg-zinc-200 text-xs font-semibold sm:flex dark:bg-zinc-800" title={settings.userName}>
+            <span className="ml-1 hidden size-8 items-center justify-center rounded-full bg-stone-200 text-xs font-semibold sm:flex dark:bg-stone-800" title={settings.userName}>
               {settings.userName.split(" ").map((p) => p[0]).join("")}
             </span>
           </div>

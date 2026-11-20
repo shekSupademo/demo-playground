@@ -47,12 +47,12 @@ export function HoverMenu({ items, label, testId, className }: { items: MenuItem
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
         onKeyDown={(e) => e.key === "Escape" && setOpen(false)}
-        className="rounded-md p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800"
+        className="rounded-md p-1 text-stone-400 hover:bg-stone-100 hover:text-stone-700 dark:hover:bg-stone-800"
       >
         <MoreHorizontal className="size-4" />
       </button>
       {open && (
-        <div role="menu" aria-label={label} className="absolute right-0 top-full z-40 mt-1 w-52 rounded-lg border border-zinc-200 bg-white py-1 text-sm shadow-lg dark:border-zinc-700 dark:bg-zinc-900">
+        <div role="menu" aria-label={label} className="absolute right-0 top-full z-40 mt-1 w-52 rounded-lg border border-stone-200 bg-white py-1 text-sm shadow-lg dark:border-stone-700 dark:bg-stone-900">
           {items.map((it, i) => (
             <div key={it.label} className="relative" onMouseEnter={() => setSub(it.submenu ? i : null)}>
               <button
@@ -61,16 +61,16 @@ export function HoverMenu({ items, label, testId, className }: { items: MenuItem
                 aria-haspopup={it.submenu ? "menu" : undefined}
                 aria-expanded={it.submenu ? sub === i : undefined}
                 onClick={() => (it.submenu ? setSub(sub === i ? null : i) : run(it.onSelect))}
-                className={cx("flex w-full items-center gap-2 px-3 py-1.5 text-left hover:bg-zinc-50 dark:hover:bg-zinc-800", it.danger && "text-rose-600", sub === i && "bg-zinc-50 dark:bg-zinc-800")}
+                className={cx("flex w-full items-center gap-2 px-3 py-1.5 text-left hover:bg-stone-50 dark:hover:bg-stone-800", it.danger && "text-rose-600", sub === i && "bg-stone-50 dark:bg-stone-800")}
               >
                 {it.icon}
                 <span className="flex-1">{it.label}</span>
-                {it.submenu && <ChevronRight className="size-3.5 text-zinc-400" />}
+                {it.submenu && <ChevronRight className="size-3.5 text-stone-400" />}
               </button>
               {it.submenu && sub === i && (
-                <div role="menu" aria-label={it.label} className="absolute right-full top-0 z-50 mr-1 max-h-72 w-48 overflow-y-auto rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-900">
+                <div role="menu" aria-label={it.label} className="absolute right-full top-0 z-50 mr-1 max-h-72 w-48 overflow-y-auto rounded-lg border border-stone-200 bg-white py-1 shadow-lg dark:border-stone-700 dark:bg-stone-900">
                   {it.submenu.map((s) => (
-                    <button key={s.label} type="button" role="menuitemradio" aria-checked={!!s.active} onClick={() => run(s.onSelect)} className={cx("flex w-full items-center gap-2 px-3 py-1.5 text-left hover:bg-zinc-50 dark:hover:bg-zinc-800", s.active && "font-medium text-indigo-600")}>
+                    <button key={s.label} type="button" role="menuitemradio" aria-checked={!!s.active} onClick={() => run(s.onSelect)} className={cx("flex w-full items-center gap-2 px-3 py-1.5 text-left hover:bg-stone-50 dark:hover:bg-stone-800", s.active && "font-medium text-teal-600")}>
                       {s.icon}
                       {s.label}
                     </button>
