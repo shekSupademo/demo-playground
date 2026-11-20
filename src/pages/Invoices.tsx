@@ -1,4 +1,4 @@
-import { AlertCircle, CheckCircle2, Clock, Plus, Trash2 } from "lucide-react";
+import { AlertCircle, Banknote, CheckCircle2, Clock, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Badge, Button, Empty, Field, Input, Modal, PageHeader, Panel, Tabs } from "../components/ui";
@@ -18,7 +18,13 @@ export function Invoices() {
   const [params, setParams] = useSearchParams();
   const [filter, setFilter] = useState<Filter>("all");
   const [creating, setCreating] = useState(params.get("new") === "1");
-  const [viewing, setViewing] = useState<Invoice | null>(null);
+  const [viewingId, setViewingId] = useState<string | null>(null);
+  const [recording, setRecording] = useState(false);
+  const viewing = invoices.find((i) => i.id === viewingId) ?? null;
+  const view = (inv: Invoice | null) => {
+    setViewingId(inv?.id ?? null);
+    setRecording(false);
+  };
 
   useEffect(() => {
     if (params.get("new") === "1") {
@@ -98,7 +104,7 @@ export function Invoices() {
               </thead>
               <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
                 {list.map((inv) => (
-                  <tr key={inv.id} className="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50" onClick={() => setViewing(inv)}>
+                  <tr key={inv.id} className="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50" onClick={() => view(inv)} data-testid="invoice-row">
                     <td className="whitespace-nowrap px-5 py-3 font-mono text-xs font-semibold text-indigo-700 dark:text-indigo-300">{inv.number}</td>
                     <td className="px-5 py-3">{inv.customer}</td>
                     <td className="px-5 py-3 text-zinc-500">{longDate(inv.dueDate)}</td>
@@ -112,11 +118,6 @@ export function Invoices() {
                           Send
                         </Button>
                       )}
-                      {(inv.status === "sent" || inv.status === "overdue") && (
-                        <Button size="sm" onClick={() => { dispatch({ type: "invoice/setStatus", id: inv.id, status: "paid" }); toast(`${inv.number} marked paid`); }} data-testid="mark-paid">
-                          Mark paid
-                        </Button>
-                      )}
                     </td>
                   </tr>
                 ))}
@@ -128,7 +129,7 @@ export function Invoices() {
 
       <InvoiceEditor open={creating} onClose={() => setCreating(false)} />
 
-      <Modal open={!!viewing} onClose={() => setViewing(null)} title={viewing?.number ?? ""} wide>
+      <Modal open={!!viewing} onClose={() => view(null)} title={viewing?.number ?? ""} wide>
         {viewing && (
           <div className="space-y-4 text-sm">
             <div className="flex justify-between">
@@ -162,18 +163,48 @@ export function Invoices() {
               </tbody>
             </table>
             <p className="tabular text-right text-lg font-semibold">Total {money(invoiceTotal(viewing))}</p>
+            {recording && (
+              <div className="space-y-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950/40" data-testid="record-payment">
+                <p className="font-medium">Record {money(invoiceTotal(viewing))} from {viewing.customer}?</p>
+                <p className="text-zinc-600 dark:text-zinc-400">This marks {viewing.number} paid and adds a Revenue deposit to Operating dated today.</p>
+                <div className="flex justify-end gap-2">
+                  <Button size="sm" variant="ghost" onClick={() => setRecording(false)}>
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    data-testid="confirm-record-payment"
+                    onClick={() => {
+                      dispatch({ type: "invoice/setStatus", id: viewing.id, status: "paid" });
+                      toast(`${viewing.number} marked paid`);
+                      setRecording(false);
+                    }}
+                  >
+                    Record {money(invoiceTotal(viewing))}
+                  </Button>
+                </div>
+              </div>
+            )}
             <div className="flex justify-between">
               <Button
                 variant="ghost"
                 onClick={() => {
                   dispatch({ type: "invoice/delete", id: viewing.id });
                   toast(`${viewing.number} deleted`);
-                  setViewing(null);
+                  view(null);
                 }}
               >
                 <Trash2 className="size-4" /> Delete
               </Button>
-              <Button onClick={() => setViewing(null)}>Close</Button>
+              <div className="flex gap-2">
+                <Button onClick={() => view(null)}>Close</Button>
+                {(viewing.status === "sent" || viewing.status === "overdue") && !recording && (
+                  <Button variant="primary" onClick={() => setRecording(true)} data-testid="mark-paid">
+                    <Banknote className="size-4" /> Record payment
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         )}

@@ -1,8 +1,8 @@
-import { Plus, Snowflake } from "lucide-react";
+import { ArrowLeft, CreditCard, Plus, Smartphone, Snowflake } from "lucide-react";
 import { useState } from "react";
 import { Dropdown } from "../components/Dropdown";
 import { Slider } from "../components/Slider";
-import { Badge, Button, Field, Input, Modal, PageHeader } from "../components/ui";
+import { Badge, Button, Drawer, Field, Input, Modal, PageHeader } from "../components/ui";
 import type { Card } from "../data/types";
 import { cardSpendThisMonth } from "../lib/analytics";
 import { cx, money, moneyCompact, parseDollars, uid } from "../lib/format";
@@ -50,14 +50,16 @@ export function Cards() {
   const { cards, transactions, members } = useStore();
   const dispatch = useDispatch();
   const toast = useToast();
-  const [editing, setEditing] = useState<Card | null>(null);
+  const [managingId, setManagingId] = useState<string | null>(null);
+  const editing = cards.find((c) => c.id === managingId) ?? null;
   const [limit, setLimit] = useState(0);
   const [nameText, setNameText] = useState("");
   const [creating, setCreating] = useState(false);
+  const [createStep, setCreateStep] = useState<"type" | "details">("type");
   const [draft, setDraft] = useState({ name: "", holder: members[0]?.name ?? "", limit: 500_000, kind: "virtual" as Card["kind"] });
 
   const startEdit = (c: Card) => {
-    setEditing(c);
+    setManagingId(c.id);
     setLimit(c.monthlyLimit);
     setNameText(c.name);
   };
@@ -68,7 +70,7 @@ export function Cards() {
         title="Cards"
         subtitle="Issue cards, set monthly limits and freeze them instantly."
         actions={
-          <Button variant="primary" onClick={() => setCreating(true)} data-testid="new-card">
+          <Button variant="primary" onClick={() => { setCreateStep("type"); setCreating(true); }} data-testid="new-card">
             <Plus className="size-4" /> New card
           </Button>
         }
@@ -78,7 +80,7 @@ export function Cards() {
           const spent = cardSpendThisMonth(transactions, c.id);
           const pct = Math.min(100, (spent / c.monthlyLimit) * 100);
           return (
-            <article key={c.id} className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900" data-testid="card-item">
+            <button type="button" key={c.id} onClick={() => startEdit(c)} aria-label={`Manage ${c.name} card`} className="rounded-2xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition hover:border-indigo-300 hover:shadow-md focus-visible:outline-2 focus-visible:outline-indigo-500 dark:border-zinc-800 dark:bg-zinc-900" data-testid="card-item">
               <div className={cx("relative flex aspect-[1.6] flex-col justify-between overflow-hidden rounded-xl bg-gradient-to-br p-4 text-white shadow-lg shadow-black/10", c.color, c.frozen && "opacity-50 grayscale")}>
                 <span aria-hidden className="pointer-events-none absolute -right-10 -top-10 size-40 rounded-full bg-white/10" />
                 <span aria-hidden className="pointer-events-none absolute -bottom-16 -left-8 size-44 rounded-full bg-black/10" />
@@ -105,116 +107,141 @@ export function Cards() {
                 </div>
                 <div className="flex items-center justify-between pt-2">
                   {c.frozen ? <Badge tone="blue">Frozen</Badge> : <Badge tone="green">Active</Badge>}
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="ghost" onClick={() => startEdit(c)}>
-                      Edit
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        dispatch({ type: "card/toggleFreeze", id: c.id });
-                        toast(`${c.name} ${c.frozen ? "unfrozen" : "frozen"}`);
-                      }}
-                      data-testid="freeze-toggle"
-                    >
-                      <Snowflake className="size-3.5" /> {c.frozen ? "Unfreeze" : "Freeze"}
-                    </Button>
-                  </div>
+                  <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400">Manage →</span>
                 </div>
               </div>
-            </article>
+            </button>
           );
         })}
       </div>
 
-      <Modal
-        open={!!editing}
-        onClose={() => setEditing(null)}
-        title={`Edit ${editing?.name ?? "card"}`}
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setEditing(null)}>
-              Cancel
-            </Button>
-            <Button
-              variant="primary"
-              disabled={limit <= 0 || !nameText.trim()}
-              onClick={() => {
-                if (!editing) return;
-                dispatch({ type: "card/update", id: editing.id, patch: { monthlyLimit: limit, name: nameText.trim() } });
-                toast("Card updated");
-                setEditing(null);
-              }}
-            >
-              Save
-            </Button>
-          </>
-        }
-      >
-        <Field label="Card name">
-          <Input value={nameText} onChange={(e) => setNameText(e.target.value)} />
-        </Field>
-        <LimitControl cents={limit} onChange={setLimit} spent={editing ? cardSpendThisMonth(transactions, editing.id) : undefined} />
-      </Modal>
+      <Drawer open={!!editing} onClose={() => setManagingId(null)} title="Manage card" testId="card-drawer">
+        {editing && (
+          <div className="space-y-6">
+            <div className={cx("flex aspect-[1.6] flex-col justify-between rounded-lg bg-gradient-to-br p-4 text-white", editing.color, editing.frozen && "opacity-50 grayscale")}>
+              <div className="flex justify-between text-sm font-medium">
+                <span>{editing.name}</span>
+                <span className="text-xs uppercase opacity-80">{editing.kind}</span>
+              </div>
+              <div>
+                <p className="tabular tracking-widest">•••• •••• •••• {editing.last4}</p>
+                <p className="mt-1 text-xs opacity-80">{editing.holder}</p>
+              </div>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border border-zinc-200 px-3 py-2.5 text-sm dark:border-zinc-800">
+              <span>
+                <span className="block font-medium">{editing.frozen ? "This card is frozen" : "This card is active"}</span>
+                <span className="text-xs text-zinc-500">{editing.frozen ? "Charges are declined until you unfreeze it." : "Freeze it to decline all new charges."}</span>
+              </span>
+              <Button
+                variant={editing.frozen ? "primary" : "secondary"}
+                className="shrink-0 whitespace-nowrap"
+                onClick={() => {
+                  dispatch({ type: "card/toggleFreeze", id: editing.id });
+                  toast(`${editing.name} ${editing.frozen ? "unfrozen" : "frozen"}`);
+                }}
+                data-testid="freeze-toggle"
+              >
+                <Snowflake className="size-3.5" /> {editing.frozen ? "Unfreeze card" : "Freeze card"}
+              </Button>
+            </div>
+            <Field label="Card name">
+              <Input value={nameText} onChange={(e) => setNameText(e.target.value)} />
+            </Field>
+            <LimitControl cents={limit} onChange={setLimit} spent={cardSpendThisMonth(transactions, editing.id)} />
+            <div className="flex justify-end">
+              <Button
+                variant="primary"
+                disabled={limit <= 0 || !nameText.trim() || (limit === editing.monthlyLimit && nameText.trim() === editing.name)}
+                onClick={() => {
+                  dispatch({ type: "card/update", id: editing.id, patch: { monthlyLimit: limit, name: nameText.trim() } });
+                  toast("Card updated");
+                }}
+              >
+                Save changes
+              </Button>
+            </div>
+          </div>
+        )}
+      </Drawer>
 
       <Modal
         open={creating}
         onClose={() => setCreating(false)}
-        title="Issue a new card"
+        title={createStep === "type" ? "What kind of card?" : `New ${draft.kind} card`}
         testId="new-card-modal"
         footer={
-          <>
-            <Button variant="ghost" onClick={() => setCreating(false)}>
-              Cancel
-            </Button>
-            <Button
-              variant="primary"
-              disabled={!draft.name.trim() || draft.limit <= 0}
-              onClick={() => {
-                dispatch({
-                  type: "card/create",
-                  card: { id: uid("card"), name: draft.name.trim(), holder: draft.holder, kind: draft.kind, monthlyLimit: draft.limit, frozen: false, accountId: "acc_ops", last4: String(Math.floor(1000 + Math.random() * 9000)), color: COLORS[cards.length % COLORS.length] },
-                });
-                toast(`${draft.kind === "virtual" ? "Virtual" : "Physical"} card created`);
-                setCreating(false);
-                setDraft({ name: "", holder: members[0]?.name ?? "", limit: 500_000, kind: "virtual" });
-              }}
-            >
-              Create card
-            </Button>
-          </>
+          createStep === "type" ? (
+            <>
+              <Button variant="ghost" onClick={() => setCreating(false)}>
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={() => setCreateStep("details")} data-testid="card-type-continue">
+                Continue
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" onClick={() => setCreateStep("type")}>
+                <ArrowLeft className="size-4" /> Back
+              </Button>
+              <Button
+                variant="primary"
+                disabled={!draft.name.trim() || draft.limit <= 0}
+                onClick={() => {
+                  dispatch({
+                    type: "card/create",
+                    card: { id: uid("card"), name: draft.name.trim(), holder: draft.holder, kind: draft.kind, monthlyLimit: draft.limit, frozen: false, accountId: "acc_ops", last4: String(Math.floor(1000 + Math.random() * 9000)), color: COLORS[cards.length % COLORS.length] },
+                  });
+                  toast(`${draft.kind === "virtual" ? "Virtual" : "Physical"} card created`);
+                  setCreating(false);
+                  setDraft({ name: "", holder: members[0]?.name ?? "", limit: 500_000, kind: "virtual" });
+                }}
+              >
+                Create card
+              </Button>
+            </>
+          )
         }
       >
-        <Field label="Card name">
-          <Input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} placeholder="e.g. Conference travel" />
-        </Field>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <p className="mb-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">Cardholder</p>
-            <Dropdown
-              label="Cardholder"
-              value={draft.holder}
-              testId="cardholder"
-              options={members.filter((m) => m.status === "active").map((m) => ({ value: m.name, label: m.name, hint: m.role }))}
-              onChange={(v) => setDraft({ ...draft, holder: v })}
-            />
+        {createStep === "type" ? (
+          <div role="radiogroup" aria-label="Card type" className="grid grid-cols-2 gap-3" data-testid="card-type">
+            {([
+              { kind: "virtual", label: "Virtual", body: "Ready instantly for online spend.", icon: Smartphone },
+              { kind: "physical", label: "Physical", body: "Ships to the cardholder in 5 days.", icon: CreditCard },
+            ] as const).map(({ kind, label, body, icon: Icon }) => (
+              <button
+                key={kind}
+                type="button"
+                role="radio"
+                aria-checked={draft.kind === kind}
+                onClick={() => setDraft({ ...draft, kind })}
+                className={cx("flex flex-col gap-2 rounded-xl border p-4 text-left text-sm", draft.kind === kind ? "border-indigo-500 bg-indigo-50 ring-2 ring-indigo-500/20 dark:bg-indigo-950/40" : "border-zinc-200 hover:border-zinc-300 dark:border-zinc-700")}
+              >
+                <Icon className="size-5 text-indigo-600 dark:text-indigo-400" />
+                <span className="font-medium">{label}</span>
+                <span className="text-xs text-zinc-500">{body}</span>
+              </button>
+            ))}
           </div>
-          <div>
-            <p className="mb-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">Type</p>
-            <Dropdown
-              label="Card type"
-              searchable={false}
-              value={draft.kind}
-              testId="card-type"
-              options={[
-                { value: "virtual", label: "Virtual", hint: "Instant" },
-                { value: "physical", label: "Physical", hint: "Ships in 5 days" },
-              ]}
-              onChange={(v) => setDraft({ ...draft, kind: v })}
-            />
-          </div>
-        </div>
-        <LimitControl cents={draft.limit} onChange={(c) => setDraft({ ...draft, limit: c })} />
+        ) : (
+          <>
+            <Field label="Card name">
+              <Input autoFocus value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} placeholder="e.g. Conference travel" />
+            </Field>
+            <div>
+              <p className="mb-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">Cardholder</p>
+              <Dropdown
+                label="Cardholder"
+                value={draft.holder}
+                testId="cardholder"
+                options={members.filter((m) => m.status === "active").map((m) => ({ value: m.name, label: m.name, hint: m.role }))}
+                onChange={(v) => setDraft({ ...draft, holder: v })}
+              />
+            </div>
+            <LimitControl cents={draft.limit} onChange={(c) => setDraft({ ...draft, limit: c })} />
+          </>
+        )}
       </Modal>
     </div>
   );
