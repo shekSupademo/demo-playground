@@ -1,4 +1,4 @@
-import { ArrowLeft, CreditCard, Plus, Smartphone, Snowflake } from "lucide-react";
+import { ArrowLeft, CreditCard, Info, Plus, Smartphone, Snowflake } from "lucide-react";
 import { useState } from "react";
 import { Dropdown } from "../components/Dropdown";
 import { Slider } from "../components/Slider";
@@ -6,6 +6,7 @@ import { Badge, Button, Drawer, Field, Input, Modal, PageHeader } from "../compo
 import type { Card } from "../data/types";
 import { cardSpendThisMonth } from "../lib/analytics";
 import { cx, money, moneyCompact, parseDollars, uid } from "../lib/format";
+import { useDemoVariants } from "../state/demoVariants";
 import { useDispatch, useStore } from "../state/store";
 import { useToast } from "../state/toast";
 
@@ -47,6 +48,9 @@ function LimitControl({ cents, onChange, spent }: { cents: number; onChange: (c:
 const COLORS = ["from-indigo-500 to-violet-600", "from-sky-500 to-cyan-600", "from-emerald-500 to-teal-600", "from-amber-500 to-orange-600", "from-rose-500 to-pink-600", "from-zinc-600 to-zinc-800"];
 
 export function Cards() {
+  const { variants } = useDemoVariants();
+  const refreshed = variants.cards === "variant";
+  const [showTips, setShowTips] = useState(false);
   const { cards, transactions, members } = useStore();
   const dispatch = useDispatch();
   const toast = useToast();
@@ -71,10 +75,26 @@ export function Cards() {
         subtitle="Issue cards, set monthly limits and freeze them instantly."
         actions={
           <Button variant="primary" onClick={() => { setCreateStep("type"); setCreating(true); }} data-testid="new-card">
-            <Plus className="size-4" /> New card
+            <Plus className="size-4" /> {refreshed ? "Issue card" : "New card"}
           </Button>
         }
       />
+      {refreshed && (
+        <section aria-label="Card controls" className="rounded-xl border border-sky-200 bg-sky-50 p-4 dark:border-sky-900 dark:bg-sky-950/50">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="font-semibold">Keep team spending in check</h2>
+              <p className="text-sm text-zinc-600 dark:text-zinc-300">Set a limit for each card or freeze one from the card list.</p>
+            </div>
+            <Button onClick={() => setShowTips(!showTips)} aria-expanded={showTips} aria-controls="card-tips">
+              <Info className="size-4" aria-hidden /> Card tips
+            </Button>
+          </div>
+          <p id="card-tips" hidden={!showTips} className="mt-3 border-t border-sky-200 pt-3 text-sm dark:border-sky-900">
+            Use a virtual card for online purchases and a physical card for in-person purchases.
+          </p>
+        </section>
+      )}
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3" data-testid="card-grid">
         {cards.map((c) => {
           const spent = cardSpendThisMonth(transactions, c.id);
