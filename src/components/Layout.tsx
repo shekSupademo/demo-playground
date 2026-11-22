@@ -1,4 +1,4 @@
-import { ArrowLeftRight, BarChart3, ClipboardList, ChevronDown, CreditCard, FileText, Home, List, Menu, Moon, Search, Send, Settings, Sun } from "lucide-react";
+import { ArrowLeftRight, BarChart3, ClipboardList, ChevronDown, CreditCard, FileText, Home, List, Menu, Moon, Search, Send, Settings, SlidersHorizontal, Sun } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { cx, money } from "../lib/format";
@@ -88,7 +88,10 @@ export function Layout() {
           <span className="tabular font-medium text-zinc-700 dark:text-zinc-300">{money(total).replace(/\.\d\d$/, "")}</span>
         </p>
       </div>
-      <div className="mt-auto">
+      <div className="mt-auto space-y-0.5">
+        <NavLink to="/admin" className={({ isActive }) => cx("flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium", isActive ? "bg-zinc-200/70 dark:bg-zinc-800" : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900")}>
+          <SlidersHorizontal className="size-4" /> Demo admin
+        </NavLink>
         <NavLink to="/settings" className={({ isActive }) => cx("flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium", isActive ? "bg-zinc-200/70 dark:bg-zinc-800" : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900")}>
           <Settings className="size-4" /> Settings
         </NavLink>

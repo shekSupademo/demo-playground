@@ -3,10 +3,13 @@ import { useMemo, useState } from "react";
 import { Avatar, Badge, Button, Empty, Input, PageHeader, Panel, Tabs } from "../components/ui";
 import { isoDay } from "../data/seed";
 import { longDate, money } from "../lib/format";
+import { useDemoVariants } from "../state/demoVariants";
 import { useStore } from "../state/store";
 import { useUI } from "../state/ui";
 
 export function Payments() {
+  const { variants } = useDemoVariants();
+  const guided = variants.payments === "variant";
   const { recipients, transactions, accounts } = useStore();
   const ui = useUI();
   const [tab, setTab] = useState<"upcoming" | "recent">("upcoming");
@@ -38,16 +41,19 @@ export function Payments() {
 
   const filteredRecipients = recipients.filter((r) => r.name.toLowerCase().includes(q.toLowerCase()));
 
+  const openSend = (recipientId?: string) => ui.openSend(recipientId, guided);
+  const sendButton = (
+    <Button variant="primary" onClick={() => openSend()} data-testid="payments-send">
+      <Send className="size-4" /> Send money
+    </Button>
+  );
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="Payments"
         subtitle="Pay vendors and contractors by ACH or wire."
-        actions={
-          <Button variant="primary" onClick={() => ui.openSend()} data-testid="payments-send">
-            <Send className="size-4" /> Send money
-          </Button>
-        }
+        actions={guided ? undefined : sendButton}
       />
       <div className="grid gap-4 sm:grid-cols-3" data-testid="payment-stats">
         {stats.map(({ label, value, hint, icon: Icon, tone }) => (
@@ -65,8 +71,13 @@ export function Payments() {
       </div>
       <div className="grid gap-6 lg:grid-cols-3">
         <Panel title="Payments" className="lg:col-span-2" padded={false} action={<Tabs value={tab} onChange={setTab} options={[{ value: "upcoming", label: "Upcoming", count: upcoming.length }, { value: "recent", label: "Recent" }]} />}>
+          {guided && (
+            <div className="flex justify-end border-b border-zinc-100 px-5 py-3 dark:border-zinc-800">
+              {sendButton}
+            </div>
+          )}
           {list.length === 0 ? (
-            <Empty title={tab === "upcoming" ? "No upcoming payments" : "No payments yet"} body="Payments you send or schedule show up here." action={<Button onClick={() => ui.openSend()}>Send money</Button>} />
+            <Empty title={tab === "upcoming" ? "No upcoming payments" : "No payments yet"} body="Payments you send or schedule show up here." action={guided ? undefined : <Button onClick={() => openSend()}>Send money</Button>} />
           ) : (
             <ul className="divide-y divide-zinc-100 dark:divide-zinc-800" data-testid="payment-list">
               {list.map((t) => (
@@ -89,7 +100,7 @@ export function Payments() {
             </ul>
           )}
         </Panel>
-        <Panel title="Recipients" padded={false} action={<Button size="sm" variant="ghost" onClick={() => ui.openSend()}><Plus className="size-3.5" /> New</Button>}>
+        <Panel title="Recipients" padded={false} action={<Button size="sm" variant="ghost" onClick={() => openSend()}><Plus className="size-3.5" /> New</Button>}>
           <div className="p-3">
             <Input placeholder="Search recipients" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search recipients" />
           </div>
@@ -105,7 +116,7 @@ export function Payments() {
                       {r.bank} ••{r.last4} · {paid ? `${money(paid.total)} paid` : "Never paid"}
                     </p>
                   </div>
-                  <Button size="sm" onClick={() => ui.openSend(r.id)} aria-label={`Pay ${r.name}`}>
+                  <Button size="sm" onClick={() => openSend(r.id)} aria-label={`Pay ${r.name}`}>
                     Pay
                   </Button>
                 </li>

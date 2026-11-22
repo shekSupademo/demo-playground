@@ -45,3 +45,16 @@ pnpm build    # type-check and build to dist/
 `.github/workflows/pages.yml` builds every push to `main` and publishes it to GitHub Pages, which is free. Pull requests run the same build as a check. One-time setup: **Settings → Pages → Source: GitHub Actions**.
 
 Stack: React 19, React Router 7 (hash routing for Pages), Tailwind CSS 4, Recharts, Vite 6, TypeScript.
+
+## Demo variants
+
+Open **Demo admin** in the sidebar or go to `#/admin`. Each selector applies immediately and persists in the current browser. Any combination of the four variants works.
+
+| Feature | Variant | What changes |
+|---|---|---|
+| Cards | UI change | **New card** becomes **Issue card**. A banner and expandable **Card tips** button appear. The issue-card form stays the same. |
+| Payments | Flow change | **Send money** moves into the Payments list. The workflow adds recipient verification and separates the date and memo into a Delivery step. This applies to entry points on Payments. |
+| Bills | Big flow change | The status board becomes a searchable vendor list. Open a vendor, choose a bill, then select **Pay now** or **Schedule** and confirm. |
+| Insights | Rebranding | **Fieldnote Analytics** adds a leaf mark, a forest-green palette, serif heading, and new chart labels. Report data, filters, and drill-down links keep their existing behavior. |
+
+**Shareable preview** opens the feature in a new tab with all four selections encoded in the URL. For example, `?variants=payments#/payments` enables just the guided payment variant, and `?variants=#/payments` forces all baselines. Opening a preview is independent of the receiving browser’s saved selections. The URL carries variant settings only. Demo records continue to use the browser’s sample data, which you can restore from Settings. **Reset to baseline** resets the selectors.

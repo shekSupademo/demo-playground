@@ -8,15 +8,16 @@ import { useToast } from "../state/toast";
 import { Dropdown } from "./Dropdown";
 import { Avatar, Button, Field, Input, Modal, Select } from "./ui";
 
-type Step = "details" | "review" | "done";
+type Step = "recipient" | "verify" | "details" | "delivery" | "review" | "done";
 
-export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: boolean; onClose: () => void; initialRecipientId?: string }) {
+export function SendMoneyModal({ open, onClose, initialRecipientId, guided = false }: { open: boolean; onClose: () => void; initialRecipientId?: string; guided?: boolean }) {
   const { recipients, accounts } = useStore();
   const dispatch = useDispatch();
   const toast = useToast();
   const checking = accounts.filter((a) => a.type === "checking");
 
-  const [step, setStep] = useState<Step>("details");
+  const firstStep = guided ? (initialRecipientId ? "verify" : "recipient") : "details";
+  const [step, setStep] = useState<Step>(firstStep);
   const [recipientId, setRecipientId] = useState(initialRecipientId ?? "");
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState<Omit<Recipient, "id">>({ name: "", email: "", bank: "", last4: "", method: "ach" });
@@ -33,13 +34,13 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
 
   const recipientError = touched && !recipient ? "Choose who to pay" : undefined;
   const amountError = !touched ? undefined : amount === null || amount <= 0 ? "Enter an amount greater than $0" : account && amount > account.balance ? `Exceeds available balance of ${money(account.balance)}` : undefined;
-  const dateError = date < today ? "Date can't be in the past" : undefined;
+  const dateError = !date ? "Choose a date" : date < today ? "Date can't be in the past" : undefined;
   const draftValid = draft.name.trim() && /\S+@\S+\.\S+/.test(draft.email) && draft.bank.trim() && /^\d{4}$/.test(draft.last4);
 
   const close = () => {
     onClose();
     setTimeout(() => {
-      setStep("details");
+      setStep(firstStep);
       setAmountText("");
       setMemo("");
       setTouched(false);
@@ -54,9 +55,40 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
     setStep("done");
   };
 
+  const selectingRecipient = step === "recipient" || (step === "details" && !guided);
+  const recipientFields = (
+    <>
+      <div>
+        <span className="mb-1.5 block text-xs font-medium text-zinc-600 dark:text-zinc-400">Pay to</span>
+        <Dropdown
+          label="Recipient"
+          placeholder="Choose a recipient"
+          value={recipientId}
+          onChange={setRecipientId}
+          options={recipients.map((r) => ({ value: r.id, label: r.name, hint: `${r.method.toUpperCase()} ••${r.last4}` }))}
+          testId="recipient-select"
+        />
+        {recipientError && <span className="mt-1 block text-xs text-rose-600">{recipientError}</span>}
+      </div>
+      <button type="button" onClick={() => setAdding(true)} className="-mt-2 inline-flex items-center gap-1 text-xs font-medium text-indigo-600 hover:underline dark:text-indigo-400">
+        <Plus className="size-3.5" /> Add new recipient
+      </button>
+    </>
+  );
+  const deliveryFields = (
+    <>
+      <Field label="Send on" error={dateError}>
+        <Input type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} />
+      </Field>
+      <Field label="Memo (optional)">
+        <Input value={memo} maxLength={80} onChange={(e) => setMemo(e.target.value)} placeholder="e.g. October retainer" />
+      </Field>
+    </>
+  );
+
   return (
     <Modal open={open} onClose={close} title={step === "review" ? "Review payment" : "Send money"} testId="send-money-modal">
-      {step === "details" && adding && (
+      {selectingRecipient && adding && (
         <form
           className="space-y-3"
           onSubmit={(e) => {
@@ -66,6 +98,7 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
             dispatch({ type: "recipient/add", recipient: r });
             setRecipientId(r.id);
             setAdding(false);
+            if (guided) setStep("verify");
           }}
         >
           <Field label="Name">
@@ -99,23 +132,42 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
         </form>
       )}
 
+      {guided && step !== "done" && (
+        <ol aria-label="Payment progress" className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-zinc-500">
+          {([["recipient", "Recipient"], ["verify", "Verify"], ["details", "Amount"], ["delivery", "Delivery"], ["review", "Review"]] as const).map(([id, label], index) => (
+            <li key={id} aria-current={step === id ? "step" : undefined} className={step === id ? "font-semibold text-indigo-600 dark:text-indigo-400" : undefined}>
+              {index + 1}. {label}
+            </li>
+          ))}
+        </ol>
+      )}
+
+      {step === "recipient" && !adding && (
+        <div className="space-y-3">
+          {recipientFields}
+          <div className="flex justify-end">
+            <Button variant="primary" disabled={!recipient} onClick={() => setStep("verify")}>Verify recipient</Button>
+          </div>
+        </div>
+      )}
+
+      {step === "verify" && recipient && (
+        <div className="space-y-4" data-testid="payment-verify">
+          <h3 className="font-semibold">Verify recipient details</h3>
+          <div className="rounded-lg bg-zinc-50 px-3 py-2.5 text-sm dark:bg-zinc-800">
+            <p className="font-medium">{recipient.name}</p>
+            <p>{recipient.bank} ••{recipient.last4} · {recipient.method.toUpperCase()}</p>
+          </div>
+          <div className="flex justify-between">
+            <Button variant="ghost" onClick={() => setStep("recipient")}><ArrowLeft className="size-4" /> Back</Button>
+            <Button variant="primary" onClick={() => setStep("details")}>Confirm recipient</Button>
+          </div>
+        </div>
+      )}
+
       {step === "details" && !adding && (
         <div className="space-y-4">
-          <div>
-            <span className="mb-1.5 block text-xs font-medium text-zinc-600 dark:text-zinc-400">Pay to</span>
-            <Dropdown
-              label="Recipient"
-              placeholder="Choose a recipient"
-              value={recipientId}
-              onChange={setRecipientId}
-              options={recipients.map((r) => ({ value: r.id, label: r.name, hint: `${r.method.toUpperCase()} ••${r.last4}` }))}
-              testId="recipient-select"
-            />
-            {recipientError && <span className="mt-1 block text-xs text-rose-600">{recipientError}</span>}
-          </div>
-          <button type="button" onClick={() => setAdding(true)} className="-mt-2 inline-flex items-center gap-1 text-xs font-medium text-indigo-600 hover:underline dark:text-indigo-400">
-            <Plus className="size-3.5" /> Add new recipient
-          </button>
+          {!guided && recipientFields}
           <Field label="Amount" error={amountError}>
             <Input inputMode="decimal" placeholder="$0.00" value={amountText} onChange={(e) => setAmountText(e.target.value)} onBlur={() => setTouched(true)} data-testid="amount-input" className="h-12 text-xl font-semibold tabular" />
           </Field>
@@ -128,23 +180,30 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
               ))}
             </Select>
           </Field>
-          <Field label="Send on" error={dateError}>
-            <Input type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} />
-          </Field>
-          <Field label="Memo (optional)">
-            <Input value={memo} maxLength={80} onChange={(e) => setMemo(e.target.value)} placeholder="e.g. October retainer" />
-          </Field>
-          <div className="flex justify-end pt-2">
+          {!guided && deliveryFields}
+          <div className={guided ? "flex justify-between pt-2" : "flex justify-end pt-2"}>
+            {guided && <Button variant="ghost" onClick={() => setStep("verify")}><ArrowLeft className="size-4" /> Back</Button>}
             <Button
               variant="primary"
               data-testid="continue-send"
               onClick={() => {
                 setTouched(true);
-                if (recipient && amount && amount > 0 && account && amount <= account.balance && !dateError) setStep("review");
+                if (recipient && amount && amount > 0 && account && amount <= account.balance && (guided || !dateError)) setStep(guided ? "delivery" : "review");
               }}
             >
-              Continue
+              {guided ? "Continue to delivery" : "Continue"}
             </Button>
+          </div>
+        </div>
+      )}
+
+      {step === "delivery" && (
+        <div className="space-y-4" data-testid="payment-delivery">
+          <h3 className="font-semibold">Delivery details</h3>
+          {deliveryFields}
+          <div className="flex justify-between">
+            <Button variant="ghost" onClick={() => setStep("details")}><ArrowLeft className="size-4" /> Back</Button>
+            <Button variant="primary" disabled={!!dateError} onClick={() => setStep("review")}>Review</Button>
           </div>
         </div>
       )}
@@ -172,7 +231,7 @@ export function SendMoneyModal({ open, onClose, initialRecipientId }: { open: bo
             ))}
           </dl>
           <div className="flex justify-between">
-            <Button variant="ghost" onClick={() => setStep("details")}>
+            <Button variant="ghost" onClick={() => setStep(guided ? "delivery" : "details")}>
               <ArrowLeft className="size-4" /> Edit
             </Button>
             <Button variant="primary" onClick={submit} data-testid="confirm-send">
