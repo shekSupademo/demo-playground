@@ -1,6 +1,6 @@
 {
-  "cards": "baseline",
+  "cards": "variant",
   "payments": "variant",
-  "bills": "baseline",
+  "bills": "variant",
   "insights": "variant"
 }
