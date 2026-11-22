@@ -5,8 +5,9 @@ export const demoFeatures = {
     baseline: "New card opens the existing two-step issue-card modal.",
     variant: "Card controls refresh",
     changes: [
-      "Rename New card to Issue card.",
-      "Add a card-controls banner and a Card tips button that expands usage guidance.",
+      "Replace the plain Cards header with a full-width orange Card management banner.",
+      "Rename New card to Issue card and give it a high-contrast button beside expandable Card tips.",
+      "Add a Your cards section and apply warm accents to card borders, progress bars, and management links.",
       "Keep the same issue-card form and submit action.",
     ],
   },

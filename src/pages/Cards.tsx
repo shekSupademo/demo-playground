@@ -1,4 +1,4 @@
-import { ArrowLeft, CreditCard, Info, Plus, Smartphone, Snowflake } from "lucide-react";
+import { ArrowLeft, ChevronDown, CreditCard, Info, Plus, Smartphone, Snowflake } from "lucide-react";
 import { useState } from "react";
 import { Dropdown } from "../components/Dropdown";
 import { Slider } from "../components/Slider";
@@ -68,39 +68,68 @@ export function Cards() {
     setNameText(c.name);
   };
 
+  const openCreateCard = () => {
+    setCreateStep("type");
+    setCreating(true);
+  };
+
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Cards"
-        subtitle="Issue cards, set monthly limits and freeze them instantly."
-        actions={
-          <Button variant="primary" onClick={() => { setCreateStep("type"); setCreating(true); }} data-testid="new-card">
-            <Plus className="size-4" /> {refreshed ? "Issue card" : "New card"}
-          </Button>
-        }
-      />
-      {refreshed && (
-        <section aria-label="Card controls" className="rounded-xl border border-sky-200 bg-sky-50 p-4 dark:border-sky-900 dark:bg-sky-950/50">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+      {refreshed ? (
+        <section aria-labelledby="card-management-title" className="relative overflow-hidden rounded-3xl bg-linear-to-br from-orange-900 via-orange-800 to-rose-950 p-6 text-white shadow-lg sm:px-9 sm:py-8">
+          <div aria-hidden className="pointer-events-none absolute -right-14 -top-32 size-96 rounded-full border-56 border-amber-300/10" />
+          <div className="relative flex flex-wrap items-end justify-between gap-6">
             <div>
-              <h2 className="font-semibold">Keep team spending in check</h2>
-              <p className="text-sm text-zinc-600 dark:text-zinc-300">Set a limit for each card or freeze one from the card list.</p>
+              <span className="mb-4 inline-flex rounded-xl bg-white/15 p-2.5 text-amber-200">
+                <CreditCard className="size-6" aria-hidden />
+              </span>
+              <h1 id="card-management-title" className="text-4xl font-semibold tracking-tight sm:text-5xl">Card management</h1>
+              <p className="mt-2 max-w-md text-sm leading-6 text-orange-50 sm:text-base">
+                Issue cards for your team, set spending limits, and freeze cards when needed.
+              </p>
             </div>
-            <Button onClick={() => setShowTips(!showTips)} aria-expanded={showTips} aria-controls="card-tips">
-              <Info className="size-4" aria-hidden /> Card tips
-            </Button>
+            <div className="flex flex-wrap gap-3">
+              <button type="button" onClick={() => setShowTips(!showTips)} aria-expanded={showTips} aria-controls="card-tips" className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/40 bg-black/15 px-4 py-2 text-sm font-semibold text-white hover:bg-black/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+                <Info className="size-4" aria-hidden /> Card tips
+                <ChevronDown className={cx("size-4", showTips && "rotate-180")} aria-hidden />
+              </button>
+              <button type="button" onClick={openCreateCard} data-testid="new-card" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-amber-200 px-5 py-2 text-sm font-bold text-orange-950 shadow-sm hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+                <Plus className="size-4" aria-hidden /> Issue card
+              </button>
+            </div>
           </div>
-          <p id="card-tips" hidden={!showTips} className="mt-3 border-t border-sky-200 pt-3 text-sm dark:border-sky-900">
+          <p id="card-tips" hidden={!showTips} className="relative mt-5 max-w-xl rounded-xl bg-black/25 px-4 py-3 text-sm leading-6 text-orange-50">
             Use a virtual card for online purchases and a physical card for in-person purchases.
           </p>
         </section>
+      ) : (
+        <PageHeader
+          title="Cards"
+          subtitle="Issue cards, set monthly limits and freeze them instantly."
+          actions={
+            <Button variant="primary" onClick={openCreateCard} data-testid="new-card">
+              <Plus className="size-4" /> New card
+            </Button>
+          }
+        />
+      )}
+      {refreshed && (
+        <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-orange-200 pb-3 dark:border-orange-900">
+          <h2 className="text-xl font-semibold">Your cards</h2>
+          <p className="text-sm text-zinc-600 dark:text-zinc-300">{cards.length} {cards.length === 1 ? "card" : "cards"}</p>
+        </div>
       )}
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3" data-testid="card-grid">
         {cards.map((c) => {
           const spent = cardSpendThisMonth(transactions, c.id);
           const pct = Math.min(100, (spent / c.monthlyLimit) * 100);
           return (
-            <button type="button" key={c.id} onClick={() => startEdit(c)} aria-label={`Manage ${c.name} card`} className="rounded-2xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition hover:border-indigo-300 hover:shadow-md focus-visible:outline-2 focus-visible:outline-indigo-500 dark:border-zinc-800 dark:bg-zinc-900" data-testid="card-item">
+            <button type="button" key={c.id} onClick={() => startEdit(c)} aria-label={`Manage ${c.name} card`} className={cx(
+              "rounded-2xl border p-4 text-left shadow-sm transition hover:shadow-md focus-visible:outline-2",
+              refreshed
+                ? "border-orange-200 bg-orange-50/60 hover:border-orange-500 focus-visible:outline-orange-600 dark:border-orange-900 dark:bg-orange-950/30"
+                : "border-zinc-200 bg-white hover:border-indigo-300 focus-visible:outline-indigo-500 dark:border-zinc-800 dark:bg-zinc-900",
+            )} data-testid="card-item">
               <div className={cx("relative flex aspect-[1.6] flex-col justify-between overflow-hidden rounded-xl bg-gradient-to-br p-4 text-white shadow-lg shadow-black/10", c.color, c.frozen && "opacity-50 grayscale")}>
                 <span aria-hidden className="pointer-events-none absolute -right-10 -top-10 size-40 rounded-full bg-white/10" />
                 <span aria-hidden className="pointer-events-none absolute -bottom-16 -left-8 size-44 rounded-full bg-black/10" />
@@ -123,11 +152,11 @@ export function Cards() {
                   </span>
                 </div>
                 <div className="h-2 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800" role="progressbar" aria-valuenow={Math.round(pct)} aria-label="Limit used">
-                  <div className={cx("h-full rounded-full", pct > 90 ? "bg-rose-500" : pct > 70 ? "bg-amber-500" : "bg-indigo-500")} style={{ width: `${pct}%` }} />
+                  <div className={cx("h-full rounded-full", pct > 90 ? "bg-rose-500" : pct > 70 ? "bg-amber-500" : refreshed ? "bg-orange-600" : "bg-indigo-500")} style={{ width: `${pct}%` }} />
                 </div>
                 <div className="flex items-center justify-between pt-2">
                   {c.frozen ? <Badge tone="blue">Frozen</Badge> : <Badge tone="green">Active</Badge>}
-                  <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400">Manage →</span>
+                  <span className={cx("text-xs font-medium", refreshed ? "text-orange-800 dark:text-orange-300" : "text-indigo-600 dark:text-indigo-400")}>Manage →</span>
                 </div>
               </div>
             </button>
