@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
-import { decodeVariants, encodeVariants, variantUrl, type DemoVariants } from "../lib/demoVariants";
+import { decodeVariants, defaultVariants, encodeVariants, variantUrl, type DemoVariants } from "../lib/demoVariants";
 
 const STORAGE_KEY = "northbeam-demo-variants";
 const DemoVariantsContext = createContext<{
@@ -11,9 +11,10 @@ function loadVariants() {
   const shared = new URLSearchParams(window.location.search).get("variants");
   if (shared !== null) return decodeVariants(shared);
   try {
-    return decodeVariants(localStorage.getItem(STORAGE_KEY) ?? "");
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved === null ? defaultVariants : decodeVariants(saved);
   } catch {
-    return decodeVariants("");
+    return defaultVariants;
   }
 }
 
