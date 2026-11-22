@@ -53,7 +53,7 @@ Open **Demo admin** in the sidebar or go to `#/admin`. Each selector applies imm
 | Feature | Variant | What changes |
 |---|---|---|
 | Cards | UI change | A full-width orange **Card management** banner highlights **Issue card** and expandable **Card tips**. The card list adds a **Your cards** heading and warm accents. The issue-card form stays the same. |
-| Payments | Flow change | **Send money** moves into the Payments list. The workflow adds recipient verification and separates the date and memo into a Delivery step. This applies to entry points on Payments. |
+| Payments | Flow change | **Send money** moves into the three-dot **More payment actions** menu. Recipient verification requires a sample PDF, PNG, or JPG up to 5 MB, a document type, and confirmation that it matches. Date and memo move to a separate **Delivery** step. This applies to entry points on Payments. |
 | Bills | Big flow change | The status board becomes a searchable vendor list. Open a vendor, choose a bill, then select **Pay now** or **Schedule** and confirm. |
 | Insights | Rebranding | **Fieldnote Analytics** adds a leaf mark, a forest-green palette, serif heading, and new chart labels. Report data, filters, and drill-down links keep their existing behavior. |
 

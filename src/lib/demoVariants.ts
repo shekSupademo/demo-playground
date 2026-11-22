@@ -17,8 +17,8 @@ export const demoFeatures = {
     baseline: "Send money opens one details form, followed by Review.",
     variant: "Guided payment",
     changes: [
-      "Move Send money from the page header into the Payments list.",
-      "Add a Verify recipient step after selecting or adding a recipient.",
+      "Hide Send money under the three-dot More payment actions menu on Payments.",
+      "Require a document type, a supporting file, and confirmation that it matches the recipient.",
       "Move the date and memo from Amount into a separate Delivery step before Review.",
     ],
   },

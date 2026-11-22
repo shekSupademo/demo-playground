@@ -1,4 +1,4 @@
-import { ArrowLeft, Check, Plus } from "lucide-react";
+import { ArrowLeft, Check, FileCheck2, Plus } from "lucide-react";
 import { useState } from "react";
 import { isoDay } from "../data/seed";
 import type { Recipient } from "../data/types";
@@ -9,6 +9,9 @@ import { Dropdown } from "./Dropdown";
 import { Avatar, Button, Field, Input, Modal, Select } from "./ui";
 
 type Step = "recipient" | "verify" | "details" | "delivery" | "review" | "done";
+
+const verificationFileLimit = 5 * 1024 * 1024;
+const verificationFileTypes = new Set(["application/pdf", "image/jpeg", "image/png"]);
 
 export function SendMoneyModal({ open, onClose, initialRecipientId, guided = false }: { open: boolean; onClose: () => void; initialRecipientId?: string; guided?: boolean }) {
   const { recipients, accounts } = useStore();
@@ -26,6 +29,35 @@ export function SendMoneyModal({ open, onClose, initialRecipientId, guided = fal
   const [date, setDate] = useState(isoDay(new Date()));
   const [memo, setMemo] = useState("");
   const [touched, setTouched] = useState(false);
+  const [documentType, setDocumentType] = useState("");
+  const [documentName, setDocumentName] = useState("");
+  const [documentError, setDocumentError] = useState("");
+  const [detailsMatch, setDetailsMatch] = useState(false);
+
+  const canVerify = Boolean(documentType && documentName && detailsMatch);
+
+  function selectRecipient(id: string) {
+    if (id === recipientId) return;
+    setRecipientId(id);
+    setDocumentType("");
+    setDocumentName("");
+    setDocumentError("");
+    setDetailsMatch(false);
+  }
+
+  function attachDocument(file?: File) {
+    if (!file) return;
+    setDetailsMatch(false);
+    setDocumentName("");
+    if (!/\.(pdf|png|jpe?g)$/i.test(file.name) || (file.type && !verificationFileTypes.has(file.type))) {
+      setDocumentError("Choose a PDF, PNG, or JPG file.");
+    } else if (file.size === 0 || file.size > verificationFileLimit) {
+      setDocumentError("Choose a non-empty file up to 5 MB.");
+    } else {
+      setDocumentError("");
+      setDocumentName(file.name);
+    }
+  }
 
   const recipient = recipients.find((r) => r.id === recipientId);
   const account = accounts.find((a) => a.id === accountId);
@@ -49,7 +81,7 @@ export function SendMoneyModal({ open, onClose, initialRecipientId, guided = fal
   };
 
   const submit = () => {
-    if (!recipient || !amount) return;
+    if (!recipient || !amount || (guided && !canVerify)) return;
     dispatch({ type: "payment/send", recipientId: recipient.id, accountId, amount, date, memo });
     toast(`${money(amount)} to ${recipient.name} ${date === today ? "is on its way" : `scheduled for ${longDate(date)}`}`);
     setStep("done");
@@ -64,7 +96,7 @@ export function SendMoneyModal({ open, onClose, initialRecipientId, guided = fal
           label="Recipient"
           placeholder="Choose a recipient"
           value={recipientId}
-          onChange={setRecipientId}
+          onChange={selectRecipient}
           options={recipients.map((r) => ({ value: r.id, label: r.name, hint: `${r.method.toUpperCase()} ••${r.last4}` }))}
           testId="recipient-select"
         />
@@ -96,7 +128,7 @@ export function SendMoneyModal({ open, onClose, initialRecipientId, guided = fal
             if (!draftValid) return;
             const r = { ...draft, id: uid("rec") };
             dispatch({ type: "recipient/add", recipient: r });
-            setRecipientId(r.id);
+            selectRecipient(r.id);
             setAdding(false);
             if (guided) setStep("verify");
           }}
@@ -158,9 +190,55 @@ export function SendMoneyModal({ open, onClose, initialRecipientId, guided = fal
             <p className="font-medium">{recipient.name}</p>
             <p>{recipient.bank} ••{recipient.last4} · {recipient.method.toUpperCase()}</p>
           </div>
+          <Field label="Document type">
+            <Select value={documentType} onChange={(e) => {
+              setDocumentType(e.target.value);
+              setDetailsMatch(false);
+            }}>
+              <option value="">Choose a document type</option>
+              <option>Invoice</option>
+              <option>Bank letter</option>
+              <option>Vendor agreement</option>
+            </Select>
+          </Field>
+          <div>
+            <p id="verification-document-label" className="mb-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">Supporting document</p>
+            <input
+              id="verification-document"
+              type="file"
+              accept=".pdf,.png,.jpg,.jpeg"
+              aria-labelledby="verification-document-label"
+              aria-describedby={documentError ? "verification-file-hint verification-file-error" : "verification-file-hint"}
+              aria-invalid={!!documentError}
+              data-testid="verification-document"
+              className="peer sr-only"
+              onChange={(e) => {
+                attachDocument(e.currentTarget.files?.[0]);
+                e.currentTarget.value = "";
+              }}
+            />
+            <label htmlFor="verification-document" className="inline-flex cursor-pointer rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium hover:bg-zinc-50 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-indigo-500 dark:border-zinc-700 dark:hover:bg-zinc-800">
+              {documentName ? "Replace file" : "Choose file"}
+            </label>
+            <p id="verification-file-hint" className="mt-1 text-xs text-zinc-500">Use a sample PDF, PNG, or JPG up to 5 MB. The file stays in this browser.</p>
+            {documentError && <p id="verification-file-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-300">{documentError}</p>}
+            {documentName && (
+              <div className="mt-2 flex items-center justify-between gap-2 rounded-lg bg-indigo-50 px-3 py-1.5 text-sm dark:bg-indigo-950/50">
+                <p role="status" className="flex min-w-0 items-center gap-2">
+                  <FileCheck2 className="size-4 shrink-0" aria-hidden />
+                  <span className="truncate">{documentName}</span>
+                </p>
+                <Button size="sm" variant="ghost" onClick={() => { setDocumentName(""); setDetailsMatch(false); }}>Remove file</Button>
+              </div>
+            )}
+          </div>
+          <label className="flex items-start gap-2 text-sm">
+            <input type="checkbox" className="mt-0.5 size-4 shrink-0 accent-indigo-600" checked={detailsMatch} onChange={(e) => setDetailsMatch(e.target.checked)} disabled={!documentType || !documentName} />
+            <span>I checked that the document matches the recipient’s details.</span>
+          </label>
           <div className="flex justify-between">
             <Button variant="ghost" onClick={() => setStep("recipient")}><ArrowLeft className="size-4" /> Back</Button>
-            <Button variant="primary" onClick={() => setStep("details")}>Confirm recipient</Button>
+            <Button variant="primary" disabled={!canVerify} onClick={() => setStep("details")}>Confirm recipient</Button>
           </div>
         </div>
       )}
@@ -223,10 +301,11 @@ export function SendMoneyModal({ open, onClose, initialRecipientId, guided = fal
               ["Method", recipient.method === "wire" ? "Domestic wire" : "ACH"],
               ["Date", date === today ? "Today" : longDate(date)],
               ["Memo", memo || "—"],
+              ...(guided ? [["Verification", `${documentType} · ${documentName}`]] : []),
             ].map(([k, v]) => (
               <div key={k} className="flex justify-between gap-4 px-3 py-2.5">
                 <dt className="text-zinc-500">{k}</dt>
-                <dd className="text-right font-medium">{v}</dd>
+                <dd className="min-w-0 break-words text-right font-medium">{v}</dd>
               </div>
             ))}
           </dl>

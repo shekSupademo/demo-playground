@@ -1,5 +1,6 @@
 import { ArrowUpRight, CalendarClock, Plus, Send, Users } from "lucide-react";
 import { useMemo, useState } from "react";
+import { HoverMenu } from "../components/HoverMenu";
 import { Avatar, Badge, Button, Empty, Input, PageHeader, Panel, Tabs } from "../components/ui";
 import { isoDay } from "../data/seed";
 import { longDate, money } from "../lib/format";
@@ -48,6 +49,8 @@ export function Payments() {
     </Button>
   );
 
+  const paymentTabs = <Tabs value={tab} onChange={setTab} options={[{ value: "upcoming", label: "Upcoming", count: upcoming.length }, { value: "recent", label: "Recent" }]} />;
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -70,12 +73,17 @@ export function Payments() {
         ))}
       </div>
       <div className="grid gap-6 lg:grid-cols-3">
-        <Panel title="Payments" className="lg:col-span-2" padded={false} action={<Tabs value={tab} onChange={setTab} options={[{ value: "upcoming", label: "Upcoming", count: upcoming.length }, { value: "recent", label: "Recent" }]} />}>
-          {guided && (
-            <div className="flex justify-end border-b border-zinc-100 px-5 py-3 dark:border-zinc-800">
-              {sendButton}
-            </div>
-          )}
+        <Panel title="Payments" className="lg:col-span-2" padded={false} action={guided ? (
+          <div className="flex items-center gap-2">
+            {paymentTabs}
+            <HoverMenu
+              label="More payment actions"
+              testId="payments-actions"
+              openOnHover={false}
+              items={[{ label: "Send money", icon: <Send className="size-4" aria-hidden />, onSelect: () => openSend(), testId: "payments-send" }]}
+            />
+          </div>
+        ) : paymentTabs}>
           {list.length === 0 ? (
             <Empty title={tab === "upcoming" ? "No upcoming payments" : "No payments yet"} body="Payments you send or schedule show up here." action={guided ? undefined : <Button onClick={() => openSend()}>Send money</Button>} />
           ) : (
