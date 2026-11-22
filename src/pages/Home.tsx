@@ -7,6 +7,7 @@ import { Panel, Tabs } from "../components/ui";
 import { isoDay } from "../data/seed";
 import { balanceSeries, monthlyInOut } from "../lib/analytics";
 import { money, moneyCompact, monthKey, monthLabel, shortDate } from "../lib/format";
+import { useDemoVariants } from "../state/demoVariants";
 import { useStore } from "../state/store";
 import { useUI } from "../state/ui";
 
@@ -14,6 +15,9 @@ const RANGES = { "30": 30, "90": 90, "180": 180 } as const;
 type Range = keyof typeof RANGES;
 
 export function Home() {
+  const { variants } = useDemoVariants();
+  const fieldnote = variants.insights === "variant";
+  const balanceAccent = fieldnote ? "#47734d" : "#6366f1";
   const state = useStore();
   const ui = useUI();
   const [range, setRange] = useState<Range>("90");
@@ -38,7 +42,7 @@ export function Home() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-sm text-zinc-500">Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"}, {state.settings.userName.split(" ")[0]}</p>
-          <h1 className="text-3xl font-bold tracking-tight">Home</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{fieldnote ? "Overview" : "Home"}</h1>
         </div>
         <div className="flex gap-2">
           <button onClick={() => ui.openSend()} className="inline-flex h-9 items-center gap-2 rounded-full bg-indigo-600 px-4 text-sm font-medium text-white shadow-sm shadow-indigo-600/30 hover:bg-indigo-500" data-testid="home-send">
@@ -75,14 +79,14 @@ export function Home() {
               <AreaChart data={series} margin={{ left: 0, right: 0, top: 8, bottom: 0 }}>
                 <defs>
                   <linearGradient id="bal" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#6366f1" stopOpacity={0.35} />
-                    <stop offset="100%" stopColor="#6366f1" stopOpacity={0} />
+                    <stop offset="0%" stopColor={balanceAccent} stopOpacity={0.35} />
+                    <stop offset="100%" stopColor={balanceAccent} stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="date" tickFormatter={shortDate} tick={{ fontSize: 11, fill: "#a1a1aa" }} axisLine={false} tickLine={false} minTickGap={40} />
                 <YAxis hide domain={["dataMin - 500000", "dataMax + 500000"]} />
                 <Tooltip formatter={(v: number) => money(v)} labelFormatter={(l: string) => shortDate(l)} contentStyle={{ borderRadius: 8, fontSize: 12 }} />
-                <Area isAnimationActive={false} type="monotone" dataKey="balance" stroke="#6366f1" strokeWidth={2.5} fill="url(#bal)" activeDot={{ r: 5, strokeWidth: 2, stroke: "#fff" }} />
+                <Area isAnimationActive={false} type="monotone" dataKey="balance" stroke={balanceAccent} strokeWidth={2.5} fill="url(#bal)" activeDot={{ r: 5, strokeWidth: 2, stroke: "#fff" }} />
               </AreaChart>
             </ResponsiveContainer>
           </div>

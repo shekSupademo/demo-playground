@@ -20,3 +20,70 @@ body {
 .tabular {
   font-variant-numeric: tabular-nums;
 }
+
+.fieldnote-brand {
+  --color-indigo-50: #eef3e8;
+  --color-indigo-100: #e0ecd7;
+  --color-indigo-200: #cadfc0;
+  --color-indigo-300: #adcda1;
+  --color-indigo-400: #88b780;
+  --color-indigo-500: #47734d;
+  --color-indigo-600: #3a6b42;
+  --color-indigo-700: #2b5433;
+  --color-indigo-800: #23442b;
+  --color-indigo-900: #193423;
+  --color-indigo-950: #112819;
+  --color-zinc-50: #f8f6ee;
+  --color-zinc-100: #f0ece0;
+  --color-zinc-200: #e3ddcc;
+  --color-zinc-300: #d2cbb9;
+  --color-zinc-400: #a39d8b;
+  --color-zinc-500: #6f6a59;
+  --color-zinc-600: #595644;
+  --color-zinc-700: #48473a;
+  --color-zinc-800: #34382e;
+  --color-zinc-900: #232a22;
+  --color-zinc-950: #171f18;
+}
+
+.fieldnote-brand #root main h1 {
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.fieldnote-brand .fieldnote-nav-surface {
+  border-color: #263e2b;
+  background-color: #173321;
+}
+
+.fieldnote-sidebar {
+  color: #dce8d8;
+}
+
+.fieldnote-sidebar a {
+  color: #dce8d8;
+}
+
+.fieldnote-sidebar a:hover,
+.fieldnote-sidebar a[aria-current="page"] {
+  background-color: #2c5134;
+  color: #f1f8de;
+}
+
+.fieldnote-sidebar a[aria-current="page"]::before {
+  background-color: #c4e598;
+}
+
+.fieldnote-sidebar a span.text-zinc-500,
+.fieldnote-sidebar p.text-zinc-500,
+.fieldnote-sidebar p.text-zinc-400,
+.fieldnote-sidebar p.text-zinc-500 span {
+  color: #b9ceb5;
+}
+
+.fieldnote-brand .fieldnote-topbar {
+  background-color: rgb(245 241 228 / 92%);
+}
+
+.fieldnote-brand.dark .fieldnote-topbar {
+  background-color: rgb(33 45 35 / 92%);
+}

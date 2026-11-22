@@ -1,10 +1,10 @@
-import { ArrowUpRight, ChartNoAxesCombined, ClipboardList, CreditCard, RotateCcw, Send, SlidersHorizontal } from "lucide-react";
+import { ArrowUpRight, ClipboardList, CreditCard, Leaf, RotateCcw, Send, SlidersHorizontal } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge, Button, Select } from "../components/ui";
 import { baselineVariants, demoFeatureIds, demoFeatures, variantUrl } from "../lib/demoVariants";
 import { useDemoVariants } from "../state/demoVariants";
 
-const icons = { cards: CreditCard, payments: Send, bills: ClipboardList, insights: ChartNoAxesCombined };
+const icons = { cards: CreditCard, payments: Send, bills: ClipboardList, insights: Leaf };
 
 export function DemoAdmin() {
   const { variants, saveVariants } = useDemoVariants();
@@ -50,7 +50,7 @@ export function DemoAdmin() {
                 </ul>
               </div>
               <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-zinc-100 pt-4 text-sm dark:border-zinc-800">
-                <Link to={`/${id}`} className="font-medium text-indigo-700 hover:underline dark:text-indigo-300">Open {feature.name}</Link>
+                <Link to={`/${id}`} className="font-medium text-indigo-700 hover:underline dark:text-indigo-300">Open {id === "insights" ? "Insights" : feature.name}</Link>
                 <a href={variantUrl(variants, `/${id}`)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-zinc-600 hover:underline dark:text-zinc-400">
                   Shareable preview <ArrowUpRight className="size-3.5" aria-hidden />
                 </a>

@@ -34,14 +34,14 @@ export const demoFeatures = {
     ],
   },
   insights: {
-    name: "Insights",
+    name: "App branding",
     category: "Rebranding",
-    baseline: "Insights uses the Northbeam dashboard styling and chart labels.",
-    variant: "Fieldnote Analytics",
+    baseline: "Northbeam uses its original wordmark, sidebar, and indigo palette.",
+    variant: "Fieldnote",
     changes: [
-      "Introduce the Fieldnote Analytics name and a leaf mark.",
-      "Apply a forest-green palette, serif title, and new chart and panel labels.",
-      "Keep the date ranges, underlying metrics, and transaction drill-downs.",
+      "Rebrand the entire app with a Fieldnote wordmark, leaf icon, and browser tab title.",
+      "Use forest-green navigation, warm surfaces, green accents, and serif page headings.",
+      "Rename Home to Overview and Insights to Analytics. Refresh chart colors and report labels.",
     ],
   },
 } as const;

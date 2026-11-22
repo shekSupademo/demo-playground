@@ -7,7 +7,7 @@ import { useUI } from "../state/ui";
 
 type Item = { id: string; label: string; hint?: string; group: string; run: () => void };
 
-export function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function CommandPalette({ open, onClose, fieldnote }: { open: boolean; onClose: () => void; fieldnote: boolean }) {
   const [q, setQ] = useState("");
   const [active, setActive] = useState(0);
   const navigate = useNavigate();
@@ -25,13 +25,13 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
   const items = useMemo<Item[]>(() => {
     const go = (path: string) => () => navigate(path);
     const base: Item[] = [
-      { id: "home", label: "Go to Home", group: "Navigate", run: go("/") },
+      { id: "home", label: fieldnote ? "Go to Overview" : "Go to Home", group: "Navigate", run: go("/") },
       { id: "tx", label: "Go to Transactions", group: "Navigate", run: go("/transactions") },
       { id: "pay", label: "Go to Payments", group: "Navigate", run: go("/payments") },
       { id: "bills", label: "Go to Bills", group: "Navigate", run: go("/bills") },
       { id: "cards", label: "Go to Cards", group: "Navigate", run: go("/cards") },
       { id: "inv", label: "Go to Invoices", group: "Navigate", run: go("/invoices") },
-      { id: "ins", label: "Go to Insights", group: "Navigate", run: go("/insights") },
+      { id: "ins", label: fieldnote ? "Go to Analytics" : "Go to Insights", group: "Navigate", run: go("/insights") },
       { id: "set", label: "Go to Settings", group: "Navigate", run: go("/settings") },
       { id: "send", label: "Send money", group: "Actions", run: () => ui.openSend() },
       { id: "transfer", label: "Transfer between accounts", group: "Actions", run: () => ui.openTransfer() },
@@ -45,7 +45,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
       .slice(0, 6)
       .map((t) => ({ id: t.id, label: t.counterparty, hint: `${shortDate(t.date)} · ${money(t.amount)}`, group: "Transactions", run: go(`/transactions?tx=${t.id}`) }));
     return [...base.filter((i) => i.label.toLowerCase().includes(term)), ...txHits];
-  }, [q, transactions, navigate, ui, dispatch, settings.theme]);
+  }, [q, transactions, navigate, ui, dispatch, settings.theme, fieldnote]);
 
   if (!open) return null;
   const runAt = (i: number) => {
