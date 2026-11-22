@@ -48,7 +48,7 @@ Stack: React 19, React Router 7 (hash routing for Pages), Tailwind CSS 4, Rechar
 
 ## Demo variants
 
-Open **Demo admin** in the sidebar or go to `#/admin`. Each selector applies immediately and persists in the current browser. Any combination of the four variants works.
+Open **Demo admin** in the sidebar or go to `#/admin`. Each selector applies immediately and persists in the current browser. A browser with no saved selection, such as a new incognito window, starts from `src/demoVariantDefaults.json`. Set a feature to `"variant"` there and push to `main` to change what every new visitor sees. Any combination of the four variants works.
 
 | Feature | Variant | What changes |
 |---|---|---|

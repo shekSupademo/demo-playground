@@ -1,3 +1,5 @@
+import defaults from "../demoVariantDefaults.json";
+
 export const demoFeatures = {
   cards: {
     name: "Cards",
@@ -57,6 +59,10 @@ export const baselineVariants: DemoVariants = {
   bills: "baseline",
   insights: "baseline",
 };
+
+export const defaultVariants = Object.fromEntries(
+  demoFeatureIds.map((id) => [id, (defaults as Record<string, string>)[id] === "variant" ? "variant" : "baseline"]),
+) as DemoVariants;
 
 export function decodeVariants(value: string): DemoVariants {
   const enabled = new Set(value.split(","));
