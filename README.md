@@ -2,7 +2,7 @@
 
 A frontend-only business banking dashboard. It's a realistic, interaction-heavy UI for testing tools that watch code changes and check their effect on the user-facing app.
 
-There's no backend. All data is generated sample data and is kept in the browser's `localStorage`. **Settings → Company → Reset demo data** restores the original data.
+There's no backend. Shared demo variants are stored in Supabase, and all other data is generated sample data and is kept in the browser's `localStorage`. **Settings → Company → Reset demo data** restores the original data.
 
 ## Pages and flows
 
@@ -44,11 +44,23 @@ pnpm build    # type-check and build to dist/
 
 `.github/workflows/pages.yml` builds every push to `main` and publishes it to GitHub Pages, which is free. Pull requests run the same build as a check. One-time setup: **Settings → Pages → Source: GitHub Actions**.
 
+### Shared demo variants
+
+1. Create a free project at supabase.com.
+2. In its **SQL editor**, run `supabase/demo_variants.sql`. It creates a one-row `demo_variants` table that anyone can read and update, with checks that allow only the four features set to `baseline` or `variant`.
+3. In **Project Settings → API keys**, copy the project URL and the publishable key. Both are safe to expose, because row-level security limits what the key can change.
+4. In this repository, open **Settings → Secrets and variables → Actions → Variables** and add `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`.
+5. Rerun the **Deploy to GitHub Pages** workflow.
+
+To use the shared store with `pnpm dev`, put `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in `.env.local`. Without them, the app uses the defaults and changes apply to that tab only.
+
+A free Supabase project pauses after a week with no activity. Restore it from the Supabase dashboard. Until then, the app uses the defaults.
+
 Stack: React 19, React Router 7 (hash routing for Pages), Tailwind CSS 4, Recharts, Vite 6, TypeScript.
 
 ## Demo variants
 
-Open **Demo admin** in the sidebar or go to `#/admin`. Each selector applies immediately and persists in the current browser. A browser with no saved selection, such as a new incognito window, starts from `src/demoVariantDefaults.json`. Set a feature to `"variant"` there and push to `main` to change what every new visitor sees. Any combination of the four variants works.
+Open **Demo admin** in the sidebar or go to `#/admin`. Each selector applies immediately and is shared: every visitor loads the same selection from Supabase. Changes made by others show up on your next page load. Until someone saves a selection, or if Supabase can't be reached, the app uses `src/demoVariantDefaults.json`. To go back to those defaults, set `variants` to `null` in the `demo_variants` table. Any combination of the four variants works.
 
 | Feature | Variant | What changes |
 |---|---|---|
@@ -57,4 +69,4 @@ Open **Demo admin** in the sidebar or go to `#/admin`. Each selector applies imm
 | Bills | Big flow change | The status board becomes a searchable vendor list. Open a vendor, choose a bill, then select **Pay now** or **Schedule** and confirm. |
 | App branding | Rebranding | **Fieldnote** replaces the app wordmark and browser icon, adds forest-green navigation, warm surfaces, and serif headings, and renames **Home** to **Overview** and **Insights** to **Analytics**. The other variant selectors work independently. |
 
-**Shareable preview** opens the feature in a new tab with all four selections encoded in the URL. For example, `?variants=payments#/payments` enables just the guided payment variant, and `?variants=#/payments` forces all baselines. Opening a preview is independent of the receiving browser’s saved selections. The URL carries variant settings only. Demo records continue to use the browser’s sample data, which you can restore from Settings. **Reset to baseline** resets the selectors.
+**Shareable preview** opens the feature in a new tab with all four selections encoded in the URL. For example, `?variants=payments#/payments` enables just the guided payment variant, and `?variants=#/payments` forces all baselines. A preview ignores the shared selection, and changing selectors while viewing it only updates that tab's URL. The URL carries variant settings only. Demo records continue to use the browser’s sample data, which you can restore from Settings. **Reset to baseline** resets the selectors.

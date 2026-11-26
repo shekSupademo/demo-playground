@@ -27,7 +27,8 @@ export const demoFeatures = {
   bills: {
     name: "Bills",
     category: "Big flow change",
-    baseline: "Move bills through the Inbox, Approved, Scheduled, and Paid board columns.",
+    baseline:
+      "Move bills through the Inbox, Approved, Scheduled, and Paid board columns.",
     variant: "Vendor-first payments",
     changes: [
       "Replace the status board with a searchable vendor list.",
@@ -38,7 +39,8 @@ export const demoFeatures = {
   insights: {
     name: "App branding",
     category: "Rebranding",
-    baseline: "Northbeam uses its original wordmark, sidebar, and indigo palette.",
+    baseline:
+      "Northbeam uses its original wordmark, sidebar, and indigo palette.",
     variant: "Fieldnote",
     changes: [
       "Rebrand the entire app with a Fieldnote wordmark, leaf icon, and browser tab title.",
@@ -61,8 +63,27 @@ export const baselineVariants: DemoVariants = {
 };
 
 export const defaultVariants = Object.fromEntries(
-  demoFeatureIds.map((id) => [id, (defaults as Record<string, string>)[id] === "variant" ? "variant" : "baseline"]),
+  demoFeatureIds.map((id) => [
+    id,
+    (defaults as Record<string, string>)[id] === "variant"
+      ? "variant"
+      : "baseline",
+  ]),
 ) as DemoVariants;
+
+export function parseVariants(value: unknown): DemoVariants | null {
+  if (typeof value !== "object" || value === null || Array.isArray(value))
+    return null;
+  const record = value as Record<string, unknown>;
+  const valid = demoFeatureIds.every(
+    (id) => record[id] === "baseline" || record[id] === "variant",
+  );
+  return valid
+    ? (Object.fromEntries(
+        demoFeatureIds.map((id) => [id, record[id]]),
+      ) as DemoVariants)
+    : null;
+}
 
 export function decodeVariants(value: string): DemoVariants {
   const enabled = new Set(value.split(","));

@@ -1,40 +1,58 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
-import { decodeVariants, defaultVariants, encodeVariants, variantUrl, type DemoVariants } from "../lib/demoVariants";
+import {
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import {
+  type DemoVariants,
+  decodeVariants,
+  variantUrl,
+} from "../lib/demoVariants";
+import { loadSharedVariants, saveSharedVariants } from "../lib/sharedVariants";
+import { useToast } from "./toast";
 
-const STORAGE_KEY = "northbeam-demo-variants";
 const DemoVariantsContext = createContext<{
   variants: DemoVariants;
   saveVariants: (next: DemoVariants) => void;
 } | null>(null);
 
-function loadVariants() {
+function previewVariants() {
   const shared = new URLSearchParams(window.location.search).get("variants");
-  if (shared !== null) return decodeVariants(shared);
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return saved === null ? defaultVariants : decodeVariants(saved);
-  } catch {
-    return defaultVariants;
-  }
+  return shared === null ? null : decodeVariants(shared);
 }
 
 export function DemoVariantsProvider({ children }: { children: ReactNode }) {
-  const [variants, setVariants] = useState(loadVariants);
+  const toast = useToast();
+  const [preview] = useState(previewVariants);
+  const [variants, setVariants] = useState<DemoVariants | null>(preview);
 
-  function saveVariants(next: DemoVariants) {
+  useEffect(() => {
+    if (!preview) loadSharedVariants().then(setVariants);
+  }, [preview]);
+
+  async function saveVariants(next: DemoVariants) {
     setVariants(next);
-    let useUrl = new URLSearchParams(window.location.search).has("variants");
-    try {
-      localStorage.setItem(STORAGE_KEY, encodeVariants(next));
-    } catch {
-      useUrl = true;
+    if (preview) {
+      window.history.replaceState(
+        window.history.state,
+        "",
+        variantUrl(next, window.location.hash),
+      );
+      return;
     }
-    if (useUrl) {
-      window.history.replaceState(window.history.state, "", variantUrl(next, window.location.hash));
-    }
+    if (!(await saveSharedVariants(next)))
+      toast("Couldn't share this change. It applies to this tab only.");
   }
 
-  return <DemoVariantsContext.Provider value={{ variants, saveVariants }}>{children}</DemoVariantsContext.Provider>;
+  // Hold the app until the shared variants load so visitors never see the wrong version flash.
+  if (!variants) return null;
+  return (
+    <DemoVariantsContext.Provider value={{ variants, saveVariants }}>
+      {children}
+    </DemoVariantsContext.Provider>
+  );
 }
 
 export function useDemoVariants() {
