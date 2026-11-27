@@ -1,41 +1,53 @@
-import { ChevronRight, type LucideIcon } from "lucide-react";
-import { type ReactNode, useState } from "react";
+import { ChevronRight, CircleDashed, Tag } from "lucide-react";
+import type { ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Badge, useDocumentTitle } from "../../kit";
-import { cx, Dialog } from "../../ui";
-import type { Member } from "./data";
+import { Avatar, useDocumentTitle } from "../../kit";
+import { cx, Menu } from "../../ui";
+import { cycles, labels, people, teams } from "./data";
+import {
+  type Issue,
+  priorities,
+  priorityLabel,
+  type Status,
+  type StatusCategory,
+} from "./model";
+import { useStore } from "./store";
 
 const focus =
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3046C5]";
 
 export const t = {
   focus,
-  page: "bg-[#F6F7F9] text-slate-900",
+  page: "bg-white text-slate-900",
   muted: "text-slate-500",
   link: cx("font-medium text-[#3046C5] hover:underline", focus),
   primary: cx(
-    "inline-flex items-center justify-center gap-2 rounded-md bg-[#3046C5] px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#25389F] disabled:cursor-not-allowed disabled:opacity-50",
+    "inline-flex h-8 items-center justify-center gap-1.5 rounded-md bg-[#3046C5] px-3 text-[13px] font-medium text-white shadow-sm hover:bg-[#25389F] disabled:cursor-not-allowed disabled:opacity-50",
     focus,
   ),
   secondary: cx(
-    "inline-flex items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50",
+    "inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 text-[13px] font-medium text-slate-700 shadow-xs hover:bg-slate-50 disabled:opacity-50",
     focus,
   ),
-  danger: cx(
-    "inline-flex items-center justify-center gap-2 rounded-md bg-rose-600 px-3.5 py-2 text-sm font-semibold text-white hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50",
+  chip: cx(
+    "inline-flex h-7 items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2 text-xs font-medium text-slate-700 hover:bg-slate-50",
     focus,
   ),
   ghost: cx(
-    "inline-grid size-9 place-items-center rounded-md text-slate-600 hover:bg-slate-200/70 hover:text-slate-900",
+    "inline-grid size-8 place-items-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-900",
     focus,
   ),
   input:
-    "w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm placeholder:text-slate-400 focus:border-[#3046C5] focus:outline-2 focus:outline-[#3046C5]/25 aria-invalid:border-rose-500",
-  panel: "rounded-xl border border-slate-200 bg-white",
-  dialog: "w-full max-w-md rounded-xl bg-white p-6 text-slate-900 shadow-2xl",
+    "w-full rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm placeholder:text-slate-400 focus:border-[#3046C5] focus:outline-2 focus:outline-[#3046C5]/20 aria-invalid:border-rose-500",
+  panel: "rounded-lg border border-slate-200 bg-white",
+  dialog: "w-full max-w-lg rounded-xl bg-white p-5 text-slate-900 shadow-2xl",
+  menuTrigger: cx(
+    "inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 text-left hover:bg-slate-100",
+    focus,
+  ),
 };
 
-export function Logo({ size = 28 }: { size?: number }) {
+export function Logo({ size = 22 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden>
       <rect width="32" height="32" rx="8" fill="#141B3D" />
@@ -51,131 +63,500 @@ export function Logo({ size = 28 }: { size?: number }) {
   );
 }
 
-export type Crumb = { label: string; to?: string };
+const categoryColor: Record<StatusCategory, string> = {
+  triage: "#C2410C",
+  backlog: "#94A3B8",
+  unstarted: "#64748B",
+  started: "#D97706",
+  completed: "#3046C5",
+  canceled: "#94A3B8",
+};
 
-export function Page({
-  crumbs,
-  title,
-  description,
-  actions,
-  children,
-  meta,
+export function StatusIcon({
+  category,
+  size = 14,
 }: {
-  crumbs: Crumb[];
-  title: ReactNode;
-  description?: ReactNode;
-  actions?: ReactNode;
-  meta?: ReactNode;
-  children: ReactNode;
+  category: StatusCategory;
+  size?: number;
 }) {
-  const plain =
-    typeof title === "string" ? title : (crumbs.at(-1)?.label ?? "Corvid");
-  useDocumentTitle(`${plain} – Corvid`);
+  const c = categoryColor[category];
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3">
-        <nav aria-label="Breadcrumb" data-testid="breadcrumbs">
-          <ol className="flex flex-wrap items-center gap-1 text-sm text-slate-500">
-            {crumbs.map((c, i) => (
-              <li key={`${c.label}-${i}`} className="flex items-center gap-1">
-                {i > 0 && (
-                  <ChevronRight
-                    className="size-3.5 text-slate-400"
-                    aria-hidden
-                  />
-                )}
-                {c.to ? (
-                  <Link
-                    to={c.to}
-                    className={cx("rounded hover:text-slate-900", focus)}
-                  >
-                    {c.label}
-                  </Link>
-                ) : (
-                  <span aria-current="page" className="text-slate-700">
-                    {c.label}
-                  </span>
-                )}
-              </li>
-            ))}
-          </ol>
-        </nav>
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="min-w-0">
-            <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-            {description && (
-              <p className="mt-1 max-w-2xl text-sm text-slate-500">
-                {description}
-              </p>
-            )}
-            {meta && (
-              <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-600">
-                {meta}
-              </div>
-            )}
-          </div>
-          {actions && (
-            <div className="flex shrink-0 items-center gap-2">{actions}</div>
-          )}
-        </div>
-      </div>
-      {children}
-    </div>
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 14 14"
+      aria-hidden
+      className="shrink-0"
+    >
+      {category === "backlog" || category === "triage" ? (
+        <circle
+          cx="7"
+          cy="7"
+          r="5.5"
+          fill="none"
+          stroke={c}
+          strokeWidth="1.5"
+          strokeDasharray={category === "backlog" ? "2 1.6" : undefined}
+        />
+      ) : category === "unstarted" ? (
+        <circle
+          cx="7"
+          cy="7"
+          r="5.5"
+          fill="none"
+          stroke={c}
+          strokeWidth="1.5"
+        />
+      ) : category === "started" ? (
+        <>
+          <circle
+            cx="7"
+            cy="7"
+            r="5.5"
+            fill="none"
+            stroke={c}
+            strokeWidth="1.5"
+          />
+          <path d="M7 3.5a3.5 3.5 0 0 1 0 7Z" fill={c} />
+        </>
+      ) : category === "completed" ? (
+        <>
+          <circle cx="7" cy="7" r="6.25" fill={c} />
+          <path
+            d="m4.3 7.2 1.8 1.8 3.6-3.8"
+            fill="none"
+            stroke="#fff"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </>
+      ) : (
+        <>
+          <circle cx="7" cy="7" r="6.25" fill={c} />
+          <path
+            d="m5 5 4 4m0-4-4 4"
+            stroke="#fff"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
+        </>
+      )}
+    </svg>
   );
 }
 
-export function LinkList({
-  items,
-}: {
-  items: {
-    to: string;
-    label: string;
-    description: string;
-    Icon?: LucideIcon;
-    testId?: string;
-    aside?: ReactNode;
-  }[];
-}) {
+export function PriorityIcon({ value }: { value: number }) {
+  if (value === 1)
+    return (
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 14 14"
+        aria-hidden
+        className="shrink-0"
+      >
+        <rect width="14" height="14" rx="3" fill="#E11D48" />
+        <path
+          d="M7 3.5v4.2M7 10.2v.1"
+          stroke="#fff"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+      </svg>
+    );
+  if (value === 0)
+    return (
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 14 14"
+        aria-hidden
+        className="shrink-0"
+      >
+        <path
+          d="M2.5 7h2m2.5 0h0m2.5 0h2"
+          stroke="#94A3B8"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+      </svg>
+    );
+  const filled = value === 2 ? 3 : value === 3 ? 2 : 1;
   return (
-    <ul className={cx(t.panel, "divide-y divide-slate-100 overflow-hidden")}>
-      {items.map(({ to, label, description, Icon, testId, aside }) => (
-        <li key={to}>
-          <Link
-            to={to}
-            data-testid={testId}
-            className={cx(
-              "flex items-center gap-4 px-5 py-4 hover:bg-slate-50",
-              focus,
-              "focus-visible:-outline-offset-2",
-            )}
-          >
-            {Icon && (
-              <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#EEF0FC] text-[#3046C5]">
-                <Icon className="size-4.5" aria-hidden />
-              </span>
-            )}
-            <span className="min-w-0 flex-1">
-              <span className="block font-medium">{label}</span>
-              <span
-                className="block truncate text-sm text-slate-500"
-                title={description}
-              >
-                {description}
-              </span>
-            </span>
-            {aside && (
-              <span className="hidden text-sm text-slate-500 tabular-nums sm:block">
-                {aside}
-              </span>
-            )}
-            <ChevronRight
-              className="size-4 shrink-0 text-slate-400"
-              aria-hidden
-            />
-          </Link>
-        </li>
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 14 14"
+      aria-hidden
+      className="shrink-0"
+    >
+      {[0, 1, 2].map((i) => (
+        <rect
+          key={i}
+          x={1.5 + i * 4}
+          y={9 - i * 3}
+          width="3"
+          height={3.5 + i * 3}
+          rx="1"
+          fill={i < filled ? "#475569" : "#CBD5E1"}
+        />
       ))}
-    </ul>
+    </svg>
+  );
+}
+
+export function LabelPill({ id }: { id: string }) {
+  const label = labels.find((l) => l.id === id);
+  if (!label) return null;
+  return (
+    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200 px-2 py-0.5 text-xs text-slate-600">
+      <span
+        className="size-2 rounded-full"
+        style={{ background: label.color }}
+      />
+      {label.name}
+    </span>
+  );
+}
+
+export const personName = (id: string | null) =>
+  people.find((p) => p.id === id)?.name ?? "No assignee";
+
+export function StatusMenu({
+  issue,
+  withLabel = false,
+}: {
+  issue: Issue;
+  withLabel?: boolean;
+}) {
+  const { statuses, statusOf, updateIssue } = useStore();
+  const current = statusOf(issue);
+  return (
+    <Menu
+      label={`Change status of ${issue.key}, now ${current?.name}`}
+      trigger={
+        <>
+          <StatusIcon category={current?.category ?? "backlog"} />
+          {withLabel && <span>{current?.name}</span>}
+        </>
+      }
+      triggerClassName={t.menuTrigger}
+      testId={withLabel ? "prop-status" : undefined}
+      items={statuses[issue.teamId].map((s: Status) => ({
+        label: s.name,
+        testId: `set-status-${s.id}`,
+        onSelect: () =>
+          s.id !== issue.statusId &&
+          updateIssue(
+            issue.id,
+            { statusId: s.id },
+            `changed status to ${s.name}`,
+          ),
+      }))}
+    />
+  );
+}
+
+export function PriorityMenu({
+  issue,
+  withLabel = false,
+}: {
+  issue: Issue;
+  withLabel?: boolean;
+}) {
+  const { updateIssue } = useStore();
+  return (
+    <Menu
+      label={`Change priority of ${issue.key}, now ${priorityLabel(issue.priority)}`}
+      trigger={
+        <>
+          <PriorityIcon value={issue.priority} />
+          {withLabel && <span>{priorityLabel(issue.priority)}</span>}
+        </>
+      }
+      triggerClassName={t.menuTrigger}
+      testId={withLabel ? "prop-priority" : undefined}
+      items={priorities.map((p) => ({
+        label: p.label,
+        testId: `set-priority-${p.value}`,
+        onSelect: () =>
+          updateIssue(
+            issue.id,
+            { priority: p.value },
+            `set priority to ${p.label}`,
+          ),
+      }))}
+    />
+  );
+}
+
+export function AssigneeMenu({
+  issue,
+  withLabel = false,
+}: {
+  issue: Issue;
+  withLabel?: boolean;
+}) {
+  const { updateIssue } = useStore();
+  const members = teams.find((x) => x.id === issue.teamId)?.members ?? [];
+  const team = people.filter((p) => members.includes(p.id));
+  return (
+    <Menu
+      label={`Assign ${issue.key}, now ${personName(issue.assigneeId)}`}
+      trigger={
+        <>
+          {issue.assigneeId ? (
+            <Avatar name={personName(issue.assigneeId)} size={20} />
+          ) : (
+            <CircleDashed className="size-5 text-slate-400" aria-hidden />
+          )}
+          {withLabel && <span>{personName(issue.assigneeId)}</span>}
+        </>
+      }
+      triggerClassName={cx(t.menuTrigger, !withLabel && "rounded-full p-0.5")}
+      testId={withLabel ? "prop-assignee" : undefined}
+      items={[
+        {
+          label: "No assignee",
+          testId: "set-assignee-none",
+          onSelect: () =>
+            updateIssue(issue.id, { assigneeId: null }, "removed the assignee"),
+        },
+        ...team.map((p) => ({
+          label: p.name,
+          testId: `set-assignee-${p.id}`,
+          onSelect: () =>
+            updateIssue(
+              issue.id,
+              { assigneeId: p.id },
+              `assigned the issue to ${p.name}`,
+            ),
+        })),
+      ]}
+    />
+  );
+}
+
+export function LabelsMenu({ issue }: { issue: Issue }) {
+  const { updateIssue } = useStore();
+  return (
+    <Menu
+      label={`Add or remove labels on ${issue.key}`}
+      trigger={
+        issue.labelIds.length ? (
+          <span className="flex flex-wrap gap-1">
+            {issue.labelIds.map((id) => (
+              <LabelPill key={id} id={id} />
+            ))}
+          </span>
+        ) : (
+          <span className="flex items-center gap-1.5 text-slate-500">
+            <Tag className="size-3.5" aria-hidden /> Add label
+          </span>
+        )
+      }
+      triggerClassName={t.menuTrigger}
+      testId="prop-labels"
+      items={labels.map((l) => {
+        const has = issue.labelIds.includes(l.id);
+        return {
+          label: has ? `Remove ${l.name}` : `Add ${l.name}`,
+          testId: `toggle-label-${l.id}`,
+          onSelect: () =>
+            updateIssue(
+              issue.id,
+              {
+                labelIds: has
+                  ? issue.labelIds.filter((x) => x !== l.id)
+                  : [...issue.labelIds, l.id],
+              },
+              has ? `removed the ${l.name} label` : `added the ${l.name} label`,
+            ),
+        };
+      })}
+    />
+  );
+}
+
+export function CycleMenu({ issue }: { issue: Issue }) {
+  const { updateIssue, toast } = useStore();
+  const current = cycles.find((c) => c.id === issue.cycleId);
+  const options = cycles.filter(
+    (c) =>
+      c.teamId === issue.teamId &&
+      c.end >= new Date().toISOString().slice(0, 10),
+  );
+  return (
+    <Menu
+      label={`Change cycle of ${issue.key}, now ${current ? `Cycle ${current.number}` : "no cycle"}`}
+      trigger={
+        <span className={current ? "" : "text-slate-500"}>
+          {current ? `Cycle ${current.number}` : "Add to cycle"}
+        </span>
+      }
+      triggerClassName={t.menuTrigger}
+      testId="prop-cycle"
+      items={[
+        ...options.map((c) => ({
+          label: `Cycle ${c.number}`,
+          testId: `set-cycle-${c.id}`,
+          onSelect: () => {
+            updateIssue(
+              issue.id,
+              { cycleId: c.id },
+              `added the issue to Cycle ${c.number}`,
+            );
+            toast(`${issue.key} added to Cycle ${c.number}`);
+          },
+        })),
+        {
+          label: "No cycle",
+          testId: "set-cycle-none",
+          onSelect: () =>
+            updateIssue(
+              issue.id,
+              { cycleId: null },
+              "removed the issue from its cycle",
+            ),
+        },
+      ]}
+    />
+  );
+}
+
+export function ProjectMenu({ issue }: { issue: Issue }) {
+  const { projects, updateIssue } = useStore();
+  const current = projects.find((p) => p.id === issue.projectId);
+  return (
+    <Menu
+      label={`Change project of ${issue.key}`}
+      trigger={
+        <span className={cx("truncate", !current && "text-slate-500")}>
+          {current?.name ?? "Add to project"}
+        </span>
+      }
+      triggerClassName={cx(t.menuTrigger, "max-w-full")}
+      testId="prop-project"
+      items={[
+        ...projects.map((p) => ({
+          label: p.name,
+          testId: `set-project-${p.id}`,
+          onSelect: () =>
+            updateIssue(
+              issue.id,
+              { projectId: p.id, milestoneId: null },
+              `moved the issue to ${p.name}`,
+            ),
+        })),
+        {
+          label: "No project",
+          testId: "set-project-none",
+          onSelect: () =>
+            updateIssue(
+              issue.id,
+              { projectId: null, milestoneId: null },
+              "removed the project",
+            ),
+        },
+      ]}
+    />
+  );
+}
+
+export function MilestoneMenu({ issue }: { issue: Issue }) {
+  const { milestones, updateIssue } = useStore();
+  const options = milestones.filter((m) => m.projectId === issue.projectId);
+  const current = milestones.find((m) => m.id === issue.milestoneId);
+  return (
+    <Menu
+      label={`Change milestone of ${issue.key}`}
+      trigger={
+        <span className={current ? "" : "text-slate-500"}>
+          {current?.name ?? "Add milestone"}
+        </span>
+      }
+      triggerClassName={t.menuTrigger}
+      testId="prop-milestone"
+      items={[
+        ...options.map((m) => ({
+          label: m.name,
+          testId: `set-milestone-${m.id}`,
+          onSelect: () =>
+            updateIssue(
+              issue.id,
+              { milestoneId: m.id },
+              `set the milestone to ${m.name}`,
+            ),
+        })),
+        {
+          label: "No milestone",
+          onSelect: () =>
+            updateIssue(
+              issue.id,
+              { milestoneId: null },
+              "removed the milestone",
+            ),
+        },
+      ]}
+    />
+  );
+}
+
+export type Crumb = { label: string; to?: string; testId?: string };
+
+export function Header({
+  crumbs,
+  actions,
+}: {
+  crumbs: Crumb[];
+  actions?: ReactNode;
+}) {
+  useDocumentTitle(`${crumbs.at(-1)?.label ?? "Corvid"} – Corvid`);
+  return (
+    <div className="flex min-h-12 flex-wrap items-center gap-3 border-b border-slate-200 px-4 py-2 md:px-6">
+      <nav aria-label="Breadcrumb" className="min-w-0 flex-1">
+        <ol className="flex min-w-0 items-center gap-1 text-[13px] text-slate-500">
+          {crumbs.map((c, i) => (
+            <li
+              key={`${c.label}-${i}`}
+              className="flex min-w-0 items-center gap-1"
+            >
+              {i > 0 && (
+                <ChevronRight
+                  className="size-3.5 shrink-0 text-slate-400"
+                  aria-hidden
+                />
+              )}
+              {c.to ? (
+                <Link
+                  to={c.to}
+                  data-testid={c.testId}
+                  className={cx(
+                    "truncate rounded px-1 hover:bg-slate-100 hover:text-slate-900",
+                    focus,
+                  )}
+                >
+                  {c.label}
+                </Link>
+              ) : (
+                <span
+                  aria-current="page"
+                  className="truncate px-1 font-medium text-slate-900"
+                >
+                  {c.label}
+                </span>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+      {actions && (
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          {actions}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -193,7 +574,7 @@ export function Tabs<T extends string>({
   tabs,
   current,
   onChange,
-  labels,
+  labels: names,
 }: {
   tabs: readonly T[];
   current: T;
@@ -201,10 +582,7 @@ export function Tabs<T extends string>({
   labels: Record<T, string>;
 }) {
   return (
-    <div
-      role="tablist"
-      className="-mt-2 flex gap-6 overflow-x-auto border-b border-slate-200"
-    >
+    <div role="tablist" className="flex gap-1 overflow-x-auto">
       {tabs.map((tab) => (
         <button
           key={tab}
@@ -214,182 +592,60 @@ export function Tabs<T extends string>({
           data-testid={`tab-${tab}`}
           onClick={() => onChange(tab)}
           className={cx(
-            "-mb-px shrink-0 border-b-2 pb-2.5 text-sm font-medium",
+            "h-7 shrink-0 rounded-md px-2.5 text-[13px] font-medium",
             focus,
             tab === current
-              ? "border-[#3046C5] text-slate-900"
-              : "border-transparent text-slate-500 hover:text-slate-800",
+              ? "bg-slate-100 text-slate-900"
+              : "text-slate-500 hover:bg-slate-50 hover:text-slate-800",
           )}
         >
-          {labels[tab]}
+          {names[tab]}
         </button>
       ))}
     </div>
   );
 }
 
-export function Section({
-  title,
-  description,
-  action,
-  children,
+export function ProgressRing({
+  pct,
+  size = 16,
 }: {
-  title: string;
-  description?: string;
-  action?: ReactNode;
-  children: ReactNode;
+  pct: number;
+  size?: number;
 }) {
+  const r = size / 2 - 2;
+  const len = 2 * Math.PI * r;
   return (
-    <section className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h2 className="font-semibold">{title}</h2>
-          {description && (
-            <p className="text-sm text-slate-500">{description}</p>
-          )}
-        </div>
-        {action}
-      </div>
-      {children}
-    </section>
-  );
-}
-
-export function Facts({ items }: { items: [string, ReactNode][] }) {
-  return (
-    <dl
-      className={cx(
-        t.panel,
-        "grid gap-x-8 gap-y-4 p-5 sm:grid-cols-2 lg:grid-cols-3",
-      )}
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      aria-hidden
+      className="shrink-0 -rotate-90"
     >
-      {items.map(([label, value]) => (
-        <div key={label} className="min-w-0">
-          <dt className="text-xs text-slate-500">{label}</dt>
-          <dd className="mt-0.5 truncate text-sm font-medium">{value}</dd>
-        </div>
-      ))}
-    </dl>
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={r}
+        fill="none"
+        stroke="#E2E8F0"
+        strokeWidth="2"
+      />
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={r}
+        fill="none"
+        stroke="#3046C5"
+        strokeWidth="2"
+        strokeDasharray={`${(pct / 100) * len} ${len}`}
+        strokeLinecap="round"
+      />
+    </svg>
   );
 }
 
-export function TwoFactorBadge({ value }: { value: Member["twoFactor"] }) {
-  return (
-    <Badge tone={value === "Not enrolled" ? "warning" : "success"}>
-      {value}
-    </Badge>
-  );
-}
-
-export function ConfirmDialog({
-  open,
-  onClose,
-  title,
-  body,
-  confirm,
-  onConfirm,
-  testId,
-  typeToConfirm,
-  danger = true,
-}: {
-  open: boolean;
-  onClose: () => void;
-  title: string;
-  body: ReactNode;
-  confirm: string;
-  onConfirm: () => void;
-  testId: string;
-  typeToConfirm?: string;
-  danger?: boolean;
-}) {
-  const [typed, setTyped] = useState("");
-  const ready = !typeToConfirm || typed === typeToConfirm;
-  const close = () => {
-    setTyped("");
-    onClose();
-  };
-  return (
-    <Dialog open={open} onClose={close} title={title} className={t.dialog}>
-      <div className="mt-2 text-sm text-slate-600">{body}</div>
-      {typeToConfirm && (
-        <label className="mt-4 block text-sm">
-          <span className="font-medium">
-            Type <span className="font-semibold">{typeToConfirm}</span> to
-            confirm
-          </span>
-          <input
-            className={cx(t.input, "mt-1.5")}
-            value={typed}
-            onChange={(e) => setTyped(e.target.value)}
-            autoComplete="off"
-            data-testid="confirm-key-name"
-          />
-        </label>
-      )}
-      <div className="mt-6 flex justify-end gap-2">
-        <button type="button" className={t.secondary} onClick={close}>
-          Cancel
-        </button>
-        <button
-          type="button"
-          className={danger ? t.danger : t.primary}
-          disabled={!ready}
-          data-testid={testId}
-          onClick={() => {
-            onConfirm();
-            close();
-          }}
-        >
-          {confirm}
-        </button>
-      </div>
-    </Dialog>
-  );
-}
-
-export function Table({
-  head,
-  children,
-}: {
-  head: { label: string; right?: boolean }[];
-  children: ReactNode;
-}) {
-  return (
-    <div className={cx(t.panel, "relative overflow-x-auto")}>
-      <table className="w-full min-w-[40rem] text-left text-sm">
-        <thead className="border-b border-slate-200 text-xs text-slate-500">
-          <tr>
-            {head.map((h, i) => (
-              <th
-                key={`${h.label}-${i}`}
-                scope="col"
-                className={cx(
-                  "px-5 py-2.5 font-medium",
-                  h.right && "text-right",
-                )}
-              >
-                {h.label}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100">{children}</tbody>
-      </table>
-    </div>
-  );
-}
-
-export function usage(used: number, limit: number) {
-  const pct = Math.min(100, Math.round((used / limit) * 100));
-  return {
-    pct,
-    tone:
-      pct >= 90 ? "bg-rose-500" : pct >= 75 ? "bg-amber-500" : "bg-[#3046C5]",
-  };
-}
-
-export function UsageBar({ used, limit }: { used: number; limit: number }) {
-  const { pct, tone } = usage(used, limit);
+export function Bar({ pct }: { pct: number }) {
   return (
     <div
       className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100"
@@ -397,12 +653,27 @@ export function UsageBar({ used, limit }: { used: number; limit: number }) {
       aria-valuenow={pct}
       aria-valuemin={0}
       aria-valuemax={100}
-      aria-label="Storage used"
+      aria-label="Progress"
     >
       <div
-        className={cx("h-full rounded-full", tone)}
+        className="h-full rounded-full bg-[#3046C5]"
         style={{ width: `${pct}%` }}
       />
+    </div>
+  );
+}
+
+export function PropRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-2 text-[13px]">
+      <span className="text-slate-500">{label}</span>
+      <div className="min-w-0">{children}</div>
     </div>
   );
 }

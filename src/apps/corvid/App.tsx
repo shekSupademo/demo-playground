@@ -1,16 +1,18 @@
 import {
-  AppWindow,
-  Building2,
+  ChevronDown,
   CircleHelp,
-  CreditCard,
-  House,
-  LifeBuoy,
+  Inbox,
+  Layers,
+  ListTodo,
   type LucideIcon,
+  Mountain,
+  RefreshCcw,
   Search,
-  ShieldCheck,
-  Users,
+  Settings,
+  SquarePen,
+  TriangleAlert,
 } from "lucide-react";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import {
   HashRouter,
   Link,
@@ -19,329 +21,606 @@ import {
   Route,
   Routes,
   useNavigate,
-  useParams,
 } from "react-router-dom";
-import { Avatar, MobileNav, NotificationsMenu, UserMenu } from "../../kit";
+import {
+  MobileNav,
+  NotificationsMenu,
+  relativeTime,
+  UserMenu,
+} from "../../kit";
 import type { Variant } from "../../registry";
-import { cx, Menu, useToasts } from "../../ui";
+import { cx, Dialog, Menu, useToasts } from "../../ui";
+import { CycleDetail, CyclesList } from "./cycles";
+import { labels, me, notifications, people, teams } from "./data";
+import { IssuePage } from "./issue";
+import { MyIssues, SavedViewPage, TeamIssues, ViewsPage } from "./issues";
+import { priorities } from "./model";
+import { Header, Logo, StatusIcon, t } from "./parts";
+import { ProjectDetail, ProjectsList } from "./projects";
 import {
-  BillingHistory,
-  BillingHub,
-  InvoiceDetail,
-  PaymentMethod,
-  SubscriptionRecord,
-  SubscriptionsList,
-} from "./billing";
-import { company, notifications, policies } from "./data";
-import {
-  AppRecord,
-  AppsList,
-  DevelopersHub,
-  KeyDetail,
-  KeysPage,
-  Webhooks,
-} from "./developers";
-import { Logo, Page, t } from "./parts";
-import {
-  AllMembers,
-  MemberRecord,
-  OrganizationHub,
-  OrganizationProfile,
-  OrganizationRegions,
-  OrganizationStorage,
-  PeopleHub,
-  TeamAccess,
-  TeamRecord,
-  TeamStorage,
-  TeamsList,
-} from "./people";
-import {
-  AuditLog,
-  AuthenticationDomains,
-  AuthenticationMethods,
-  AuthenticationPolicy,
-  AuthenticationTwoStep,
-  OtherPolicy,
-  PoliciesList,
-  SecurityHub,
-  SignInPolicy,
-} from "./security";
+  CycleSettings,
+  LabelsSettings,
+  MembersSettings,
+  SettingsHome,
+  TeamSettings,
+  TeamsSettings,
+  TriageSettings,
+  WorkflowSettings,
+  WorkspaceSettings,
+} from "./settings";
 import { StoreProvider, useStore } from "./store";
-
-const areas: {
-  to: string;
-  label: string;
-  Icon: LucideIcon;
-  id: string;
-  blurb: string;
-}[] = [
-  {
-    to: "/people",
-    label: "People",
-    Icon: Users,
-    id: "people",
-    blurb: "Teams, members and roles",
-  },
-  {
-    to: "/organization",
-    label: "Organization",
-    Icon: Building2,
-    id: "organization",
-    blurb: "Company details and data region",
-  },
-  {
-    to: "/security",
-    label: "Security",
-    Icon: ShieldCheck,
-    id: "security",
-    blurb: "Sign-in policies and the audit log",
-  },
-  {
-    to: "/developers",
-    label: "Developers",
-    Icon: AppWindow,
-    id: "developers",
-    blurb: "Apps, API keys and webhooks",
-  },
-  {
-    to: "/billing",
-    label: "Billing",
-    Icon: CreditCard,
-    id: "billing",
-    blurb: "Subscriptions and invoices",
-  },
-];
+import { Triage } from "./triage";
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
   cx(
-    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium",
+    "flex h-7 items-center gap-2 rounded-md px-2 text-[13px]",
     t.focus,
     isActive
-      ? "bg-white/10 text-white"
-      : "text-slate-300 hover:bg-white/5 hover:text-white",
+      ? "bg-slate-200/70 font-medium text-slate-900"
+      : "text-slate-600 hover:bg-slate-200/40 hover:text-slate-900",
   );
 
-function Nav({ toast }: { toast: (m: string) => void }) {
+function NavItem({
+  to,
+  Icon,
+  label,
+  count,
+  testId,
+  end,
+}: {
+  to: string;
+  Icon: LucideIcon;
+  label: string;
+  count?: number;
+  testId: string;
+  end?: boolean;
+}) {
   return (
-    <nav aria-label="Main" className="flex flex-1 flex-col gap-1">
-      <NavLink to="/" end className={navClass} data-testid="nav-home">
-        <House className="size-4" aria-hidden /> Home
-      </NavLink>
-      {areas.map(({ to, label, Icon, id }) => (
-        <NavLink
-          key={to}
-          to={to}
-          className={navClass}
-          data-testid={`nav-${id}`}
-        >
-          <Icon className="size-4" aria-hidden /> {label}
-        </NavLink>
-      ))}
-      <div className="mt-auto border-t border-white/10 pt-3">
+    <NavLink to={to} end={end} className={navClass} data-testid={testId}>
+      <Icon className="size-4 shrink-0" aria-hidden />
+      <span className="min-w-0 flex-1 truncate">{label}</span>
+      {count ? (
+        <span className="text-xs text-slate-500 tabular-nums">{count}</span>
+      ) : null}
+    </NavLink>
+  );
+}
+
+function Sidebar() {
+  const { issues, statusOf, views, v, setCommandOpen, setNewIssueOpen } =
+    useStore();
+  const [collapsed, setCollapsed] = useState<string[]>(["des"]);
+  return (
+    <div className="flex h-full flex-col gap-4" data-testid="sidebar">
+      <div className="flex items-center gap-2 px-1">
+        <Logo />
+        <span className="min-w-0 flex-1 truncate text-[13px] font-semibold">
+          Halden Robotics
+        </span>
         <button
           type="button"
-          className={cx(navClass({ isActive: false }), "w-full")}
-          onClick={() => toast("Help center opened")}
+          className={cx(t.ghost, "size-7")}
+          aria-label="Search"
+          onClick={() => setCommandOpen(true)}
         >
-          <LifeBuoy className="size-4" aria-hidden /> Help center
+          <Search className="size-4" aria-hidden />
+        </button>
+        <button
+          type="button"
+          className={cx(t.ghost, "size-7 border border-slate-200 bg-white")}
+          aria-label="New issue"
+          onClick={() => setNewIssueOpen({ teamId: "eng" })}
+          data-testid="new-issue"
+        >
+          <SquarePen className="size-4" aria-hidden />
         </button>
       </div>
-    </nav>
-  );
-}
-
-function Brand() {
-  return (
-    <div className="flex items-center gap-2.5 px-2">
-      <Logo />
-      <span className="min-w-0">
-        <span className="block text-sm font-semibold text-white">Corvid</span>
-        <span className="block truncate text-xs text-slate-400">
-          {company.name}
-        </span>
-      </span>
+      <nav aria-label="Main" className="flex flex-col gap-0.5">
+        <NavItem
+          to="/inbox"
+          Icon={Inbox}
+          label="Inbox"
+          count={notifications.filter((n) => n.unread).length}
+          testId="nav-inbox"
+        />
+        <NavItem
+          to="/"
+          end
+          Icon={ListTodo}
+          label="My issues"
+          testId="nav-my-issues"
+        />
+      </nav>
+      <div>
+        <p className="px-2 pb-1 text-xs font-medium text-slate-500">
+          Workspace
+        </p>
+        <NavItem
+          to="/projects"
+          Icon={Mountain}
+          label="Projects"
+          testId="nav-projects"
+        />
+      </div>
+      <div className="flex flex-col gap-2">
+        <p className="px-2 text-xs font-medium text-slate-500">Your teams</p>
+        {teams.map((team) => {
+          const open = !collapsed.includes(team.id);
+          const triage = issues.filter(
+            (i) => i.teamId === team.id && statusOf(i)?.category === "triage",
+          ).length;
+          const own = views.filter((x) => x.teamId === team.id);
+          return (
+            <div key={team.id}>
+              <button
+                type="button"
+                aria-expanded={open}
+                onClick={() =>
+                  setCollapsed((all) =>
+                    open ? [...all, team.id] : all.filter((x) => x !== team.id),
+                  )
+                }
+                className={cx(
+                  "flex h-7 w-full items-center gap-2 rounded-md px-2 text-[13px] font-medium text-slate-700 hover:bg-slate-200/40",
+                  t.focus,
+                )}
+              >
+                <span
+                  className="grid size-4 place-items-center rounded text-[9px] font-bold text-white"
+                  style={{ background: team.color }}
+                >
+                  {team.key[0]}
+                </span>
+                {team.name}
+                <ChevronDown
+                  className={cx(
+                    "ml-auto size-3.5 text-slate-400",
+                    !open && "-rotate-90",
+                  )}
+                  aria-hidden
+                />
+              </button>
+              {open && (
+                <div className="ml-3 flex flex-col gap-0.5 border-l border-slate-200 pl-2">
+                  <NavItem
+                    to={`/team/${team.id}/issues`}
+                    Icon={Layers}
+                    label="Issues"
+                    testId={`nav-team-${team.id}-issues`}
+                  />
+                  <NavItem
+                    to={`/team/${team.id}/cycles`}
+                    Icon={RefreshCcw}
+                    label="Cycles"
+                    testId={`nav-team-${team.id}-cycles`}
+                  />
+                  <NavItem
+                    to={`/team/${team.id}/triage`}
+                    Icon={TriangleAlert}
+                    label="Triage"
+                    count={triage}
+                    testId={`nav-team-${team.id}-triage`}
+                  />
+                  {v ? (
+                    <NavItem
+                      to={`/team/${team.id}/views`}
+                      end
+                      Icon={Layers}
+                      label="Views"
+                      testId={`nav-team-${team.id}-views`}
+                    />
+                  ) : (
+                    own.map((x) => (
+                      <NavItem
+                        key={x.id}
+                        to={`/team/${team.id}/views/${x.id}`}
+                        Icon={Layers}
+                        label={x.name}
+                        testId={`nav-view-${x.id}`}
+                      />
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-auto flex flex-col gap-0.5">
+        <NavItem
+          to="/settings"
+          Icon={Settings}
+          label="Settings"
+          testId="nav-settings"
+        />
+      </div>
     </div>
   );
 }
 
-function GlobalSearch() {
-  const { members, teams, apps } = useStore();
+function CommandMenu() {
+  const {
+    commandOpen,
+    setCommandOpen,
+    issues,
+    projects,
+    setNewIssueOpen,
+    statusOf,
+  } = useStore();
   const navigate = useNavigate();
-  const [term, setTerm] = useState("");
-  const [open, setOpen] = useState(false);
-  const q = term.trim().toLowerCase();
-  const results: {
-    key: string;
-    label: string;
-    kind: string;
-    to: string;
-    avatar?: boolean;
-  }[] = q
-    ? [
-        ...members
-          .filter((m) => m.name.toLowerCase().includes(q))
-          .slice(0, 4)
-          .map((m) => ({
-            key: m.id,
-            label: m.name,
-            kind: "Member",
-            to: `/people/teams/${m.teamId}/members/${m.id}`,
-            avatar: true,
-          })),
-        ...teams
-          .filter((x) => x.name.toLowerCase().includes(q))
-          .slice(0, 3)
-          .map((x) => ({
-            key: x.id,
-            label: x.name,
-            kind: "Team",
-            to: `/people/teams/${x.id}`,
-          })),
-        ...apps
-          .filter((a) => a.name.toLowerCase().includes(q))
-          .slice(0, 3)
-          .map((a) => ({
-            key: a.id,
-            label: a.name,
-            kind: "App",
-            to: `/developers/apps/${a.id}`,
-          })),
-      ]
+  const [q, setQ] = useState("");
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setCommandOpen(true);
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [setCommandOpen]);
+  const term = q.trim().toLowerCase();
+  const close = () => {
+    setQ("");
+    setCommandOpen(false);
+  };
+  const go = (to: string) => {
+    navigate(to);
+    close();
+  };
+  const actions = [
+    {
+      label: "Create new issue",
+      run: () => {
+        close();
+        setNewIssueOpen({ teamId: "eng" });
+      },
+    },
+    { label: "Go to My issues", run: () => go("/") },
+    { label: "Go to Projects", run: () => go("/projects") },
+    { label: "Go to Engineering issues", run: () => go("/team/eng/issues") },
+    { label: "Go to Engineering cycles", run: () => go("/team/eng/cycles") },
+    { label: "Go to Settings", run: () => go("/settings") },
+  ].filter((a) => a.label.toLowerCase().includes(term));
+  const found = term
+    ? issues
+        .filter((i) => `${i.key} ${i.title}`.toLowerCase().includes(term))
+        .slice(0, 8)
+    : [];
+  const foundProjects = term
+    ? projects.filter((p) => p.name.toLowerCase().includes(term))
     : [];
   return (
-    <div role="search" className="relative w-full max-w-md">
-      <label>
-        <span className="sr-only">Search members, teams and apps</span>
-        <Search
-          className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400"
-          aria-hidden
-        />
-        <input
-          type="search"
-          value={term}
-          onChange={(e) => {
-            setTerm(e.target.value);
-            setOpen(true);
-          }}
-          onFocus={() => setOpen(true)}
-          onBlur={() => setOpen(false)}
-          onKeyDown={(e) => e.key === "Escape" && setOpen(false)}
-          placeholder="Search members, teams and apps"
-          className={cx(t.input, "bg-slate-100 pl-9 focus:bg-white")}
-          data-testid="global-search"
-        />
-      </label>
-      {open && q && (
-        <div
-          className="absolute inset-x-0 top-full z-30 mt-2 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 text-sm shadow-xl"
-          onMouseDown={(e) => e.preventDefault()}
-        >
-          {results.length === 0 ? (
-            <p className="px-4 py-3 text-slate-500">
-              No members, teams or apps match “{term.trim()}”
-            </p>
-          ) : (
-            results.map((r) => (
-              <button
-                key={`${r.kind}-${r.key}`}
-                type="button"
-                className="flex w-full items-center gap-3 px-4 py-2 text-left hover:bg-slate-100"
-                onClick={() => {
-                  navigate(r.to);
-                  setTerm("");
-                  setOpen(false);
-                }}
-              >
-                {r.avatar ? (
-                  <Avatar name={r.label} size={22} />
-                ) : (
-                  <span className="size-[22px]" />
-                )}
-                <span className="min-w-0 flex-1 truncate">{r.label}</span>
-                <span className="text-xs text-slate-500">{r.kind}</span>
-              </button>
-            ))
-          )}
+    <Dialog
+      open={commandOpen}
+      onClose={close}
+      title={<span className="sr-only">Command menu</span>}
+      className="mt-[12vh] mb-auto w-full max-w-xl overflow-hidden rounded-xl bg-white p-0 text-slate-900 shadow-2xl"
+    >
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (found[0]) go(`/issue/${found[0].key}`);
+          else actions[0]?.run();
+        }}
+      >
+        <label className="flex items-center gap-2 border-b border-slate-200 px-4">
+          <Search className="size-4 text-slate-400" aria-hidden />
+          <span className="sr-only">Search issues, projects and commands</span>
+          <input
+            autoFocus
+            className="h-12 flex-1 bg-transparent text-sm outline-none"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search issues, projects and commands"
+            data-testid="command-input"
+          />
+          <kbd className="rounded border border-slate-200 px-1.5 text-[11px] text-slate-500">
+            Esc
+          </kbd>
+        </label>
+      </form>
+      <div
+        className="max-h-96 overflow-y-auto p-2 text-[13px]"
+        data-testid="command-results"
+      >
+        {found.length > 0 && (
+          <p className="px-2 pt-1 pb-1 text-xs text-slate-500">Issues</p>
+        )}
+        {found.map((i) => (
+          <button
+            key={i.id}
+            type="button"
+            className="flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-left hover:bg-slate-100"
+            onClick={() => go(`/issue/${i.key}`)}
+          >
+            <StatusIcon category={statusOf(i)?.category ?? "backlog"} />
+            <span className="w-16 shrink-0 text-slate-500">{i.key}</span>
+            <span className="truncate">{i.title}</span>
+          </button>
+        ))}
+        {foundProjects.length > 0 && (
+          <p className="px-2 pt-2 pb-1 text-xs text-slate-500">Projects</p>
+        )}
+        {foundProjects.map((p) => (
+          <button
+            key={p.id}
+            type="button"
+            className="flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-left hover:bg-slate-100"
+            onClick={() => go(`/projects/${p.id}`)}
+          >
+            <Mountain className="size-4 text-slate-400" aria-hidden />
+            {p.name}
+          </button>
+        ))}
+        {actions.length > 0 && (
+          <p className="px-2 pt-2 pb-1 text-xs text-slate-500">Commands</p>
+        )}
+        {actions.map((a) => (
+          <button
+            key={a.label}
+            type="button"
+            className="flex w-full items-center rounded-md px-2 py-2 text-left hover:bg-slate-100"
+            onClick={a.run}
+          >
+            {a.label}
+          </button>
+        ))}
+        {found.length + foundProjects.length + actions.length === 0 && (
+          <p className="px-2 py-6 text-center text-slate-500">
+            Nothing matches “{q.trim()}”
+          </p>
+        )}
+      </div>
+    </Dialog>
+  );
+}
+
+function NewIssueDialog() {
+  const {
+    newIssueOpen,
+    setNewIssueOpen,
+    createIssue,
+    statuses,
+    toast,
+    projects,
+  } = useStore();
+  const navigate = useNavigate();
+  const [teamId, setTeamId] = useState("eng");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [statusId, setStatusId] = useState("todo");
+  const [priority, setPriority] = useState(0);
+  const [assigneeId, setAssigneeId] = useState("");
+  const [labelId, setLabelId] = useState("");
+  const [projectId, setProjectId] = useState("");
+  const [touched, setTouched] = useState(false);
+  useEffect(() => {
+    if (newIssueOpen) setTeamId(newIssueOpen.teamId);
+  }, [newIssueOpen]);
+  const close = () => {
+    setTitle("");
+    setDescription("");
+    setTouched(false);
+    setNewIssueOpen(null);
+  };
+  const team = teams.find((x) => x.id === teamId) ?? teams[0];
+  const select = cx(t.input, "h-8 w-auto py-0 text-[13px]");
+  return (
+    <Dialog
+      open={newIssueOpen !== null}
+      onClose={close}
+      title={
+        <span className="text-sm font-medium text-slate-500">
+          {team.key} › New issue
+        </span>
+      }
+      className={cx(t.dialog, "max-w-2xl")}
+    >
+      <form
+        className="mt-3 flex flex-col gap-3"
+        noValidate
+        onSubmit={(e) => {
+          e.preventDefault();
+          setTouched(true);
+          if (!title.trim()) return;
+          const issue = createIssue({
+            teamId,
+            title: title.trim(),
+            description: description.trim(),
+            statusId,
+            priority,
+            assigneeId: assigneeId || null,
+            labelIds: labelId ? [labelId] : [],
+            projectId: projectId || null,
+          });
+          toast(`${issue.key} created`);
+          close();
+          navigate(`/team/${teamId}/issues`);
+        }}
+      >
+        <label>
+          <span className="sr-only">Title</span>
+          <input
+            autoFocus
+            className="w-full text-lg font-medium outline-none placeholder:text-slate-400"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Issue title"
+            aria-invalid={touched && !title.trim()}
+            data-testid="new-issue-title"
+          />
+        </label>
+        {touched && !title.trim() && (
+          <p className="text-sm text-rose-600">Enter a title</p>
+        )}
+        <label>
+          <span className="sr-only">Description</span>
+          <textarea
+            className="min-h-24 w-full resize-none text-sm outline-none placeholder:text-slate-400"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Add a description"
+          />
+        </label>
+        <div className="flex flex-wrap gap-2">
+          <select
+            aria-label="Team"
+            className={select}
+            value={teamId}
+            onChange={(e) => setTeamId(e.target.value)}
+          >
+            {teams.map((x) => (
+              <option key={x.id} value={x.id}>
+                {x.name}
+              </option>
+            ))}
+          </select>
+          <select
+            aria-label="Status"
+            className={select}
+            value={statusId}
+            onChange={(e) => setStatusId(e.target.value)}
+          >
+            {statuses[teamId]
+              .filter((s) => s.category !== "triage")
+              .map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+          </select>
+          <select
+            aria-label="Priority"
+            className={select}
+            value={priority}
+            onChange={(e) => setPriority(Number(e.target.value))}
+          >
+            {priorities.map((p) => (
+              <option key={p.value} value={p.value}>
+                {p.label}
+              </option>
+            ))}
+          </select>
+          <select
+            aria-label="Assignee"
+            className={select}
+            value={assigneeId}
+            onChange={(e) => setAssigneeId(e.target.value)}
+          >
+            <option value="">No assignee</option>
+            {people
+              .filter((p) => team.members.includes(p.id))
+              .map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+          </select>
+          <select
+            aria-label="Label"
+            className={select}
+            value={labelId}
+            onChange={(e) => setLabelId(e.target.value)}
+          >
+            <option value="">No label</option>
+            {labels.map((l) => (
+              <option key={l.id} value={l.id}>
+                {l.name}
+              </option>
+            ))}
+          </select>
+          <select
+            aria-label="Project"
+            className={select}
+            value={projectId}
+            onChange={(e) => setProjectId(e.target.value)}
+          >
+            <option value="">No project</option>
+            {projects.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
         </div>
-      )}
+        <div className="flex justify-end gap-2 border-t border-slate-100 pt-3">
+          <button type="button" className={t.secondary} onClick={close}>
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className={t.primary}
+            data-testid="create-issue"
+          >
+            Create issue
+          </button>
+        </div>
+      </form>
+    </Dialog>
+  );
+}
+
+function InboxPage() {
+  return (
+    <div>
+      <Header crumbs={[{ label: "Inbox" }]} />
+      <h1 className="sr-only">Inbox</h1>
+      <ul className="divide-y divide-slate-100">
+        {notifications.map((n) => {
+          const key = n.title.match(/[A-Z]{3}-\d+/)?.[0];
+          const body = (
+            <>
+              <span
+                className={cx(
+                  "size-2 shrink-0 rounded-full",
+                  n.unread ? "bg-[#3046C5]" : "bg-transparent",
+                )}
+              />
+              <span
+                className={cx(
+                  "min-w-0 flex-1 truncate",
+                  n.unread && "font-medium",
+                )}
+              >
+                {n.title}
+              </span>
+              <span className="shrink-0 text-xs text-slate-500">
+                {relativeTime(n.time)}
+              </span>
+            </>
+          );
+          return (
+            <li key={n.id}>
+              {key ? (
+                <Link
+                  to={`/issue/${key}`}
+                  className={cx(
+                    "flex items-center gap-3 px-4 py-3 text-[13px] hover:bg-slate-50 md:px-6",
+                    t.focus,
+                  )}
+                >
+                  {body}
+                </Link>
+              ) : (
+                <div className="flex items-center gap-3 px-4 py-3 text-[13px] md:px-6">
+                  {body}
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
 
-function Home() {
-  const { members, teams, apps } = useStore();
-  const stats: Record<string, ReactNode> = {
-    people: `${members.length} members in ${teams.length} teams`,
-    organization: company.region,
-    security: `${members.filter((m) => m.twoFactor === "Not enrolled").length} without 2-step verification`,
-    developers: `${apps.length} apps, 3 webhooks`,
-    billing: `${company.plan} plan`,
-  };
-  return (
-    <Page
-      crumbs={[{ label: "Home" }]}
-      title="Welcome back, Priya"
-      description={`Manage ${company.name}'s people, security and billing from here.`}
-    >
-      <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {areas.map(({ to, label, Icon, id, blurb }) => (
-          <li key={to}>
-            <Link
-              to={to}
-              data-testid={`home-${id}`}
-              className={cx(
-                t.panel,
-                "flex h-full flex-col gap-3 p-5 hover:border-[#3046C5]/40 hover:shadow-sm",
-                t.focus,
-              )}
-            >
-              <span className="grid size-10 place-items-center rounded-lg bg-[#EEF0FC] text-[#3046C5]">
-                <Icon className="size-5" aria-hidden />
-              </span>
-              <span>
-                <span className="block font-semibold">{label}</span>
-                <span className="block text-sm text-slate-500">{blurb}</span>
-              </span>
-              <span className="mt-auto text-sm text-slate-700 tabular-nums">
-                {stats[id]}
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </Page>
-  );
-}
-
-function PolicyRoute() {
-  const { policyId } = useParams();
+function WorkflowGate({ want }: { want: "baseline" | "variant" }) {
   const { v } = useStore();
-  if (policyId === "sign-in")
-    return v ? <Navigate to="/security/policies" replace /> : <SignInPolicy />;
-  if (policyId === "authentication")
-    return v ? (
-      <AuthenticationPolicy />
-    ) : (
-      <Navigate to="/security/policies" replace />
-    );
-  if (policies.some((p) => p.id === policyId))
-    return <OtherPolicy id={policyId ?? ""} />;
-  return <Navigate to="/security/policies" replace />;
-}
-
-function NotFound() {
-  return (
-    <Page
-      crumbs={[{ label: "Home", to: "/" }, { label: "Page not found" }]}
-      title="Page not found"
-      description="This page moved or no longer exists."
-    >
-      <div>
-        <Link to="/" className={t.primary}>
-          Go to Home
-        </Link>
-      </div>
-    </Page>
+  return v === (want === "variant") ? (
+    <WorkflowSettings />
+  ) : (
+    <Navigate to="/settings/teams" replace />
   );
 }
 
@@ -352,173 +631,111 @@ function Shell({
   toasts: ReactNode;
   toast: (m: string) => void;
 }) {
-  const { v } = useStore();
   const navigate = useNavigate();
+  const user = people.find((p) => p.id === me);
   return (
     <div
-      className={cx("flex min-h-screen", t.page)}
+      className={cx("flex h-dvh overflow-hidden", t.page)}
       style={{ fontFamily: "'Onest', ui-sans-serif, system-ui, sans-serif" }}
     >
       <aside
-        className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col gap-6 bg-[#141B3D] px-3 py-4 md:flex"
+        className="hidden w-60 shrink-0 overflow-y-auto border-r border-slate-200 bg-slate-50 px-3 py-3 md:block"
         data-testid="logo"
       >
-        <Brand />
-        <Nav toast={toast} />
+        <Sidebar />
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-slate-200 bg-white/90 px-4 backdrop-blur md:px-8">
-          <MobileNav
-            label="Corvid navigation"
-            className="bg-[#141B3D]"
-          >
-            <div className="mb-6">
-              <Brand />
-            </div>
-            <div className="flex min-h-[70vh] flex-col">
-              <Nav toast={toast} />
-            </div>
+        <div className="flex h-11 shrink-0 items-center gap-2 border-b border-slate-200 px-3">
+          <MobileNav label="Corvid navigation" className="bg-slate-50">
+            <Sidebar />
           </MobileNav>
-          <GlobalSearch />
+          <span className="flex items-center gap-2 md:hidden">
+            <Logo size={20} />
+            <span className="text-[13px] font-semibold">Corvid</span>
+          </span>
           <div className="ml-auto flex items-center gap-1">
             <Menu
               label="Help"
-              trigger={<CircleHelp className="size-5" aria-hidden />}
+              trigger={<CircleHelp className="size-4" aria-hidden />}
               triggerClassName={t.ghost}
               testId="help-menu"
               items={[
                 {
-                  label: "Admin guide",
-                  onSelect: () => toast("Admin guide opened"),
+                  label: "Keyboard shortcuts",
+                  onSelect: () => toast("Press ⌘K to search and run commands"),
                 },
+                { label: "Docs", onSelect: () => toast("Docs opened") },
                 {
                   label: "Contact support",
                   onSelect: () => toast("Support chat opened"),
-                },
-                {
-                  label: "System status",
-                  onSelect: () => toast("Status page opened"),
                 },
               ]}
             />
             <NotificationsMenu
               items={notifications}
-              triggerClassName="text-slate-600"
+              triggerClassName="size-8 text-slate-600"
             />
-            <div className="ml-1">
-              <UserMenu
-                name="Priya Raman"
-                email="priya@halden.io"
-                items={["Your profile", "Switch organization"]}
-                onSelect={(item) =>
-                  item === "Your profile"
-                    ? navigate("/people/teams/engineering/members/priya-raman")
-                    : toast(
-                        item === "Sign out"
-                          ? "Signed out"
-                          : "You only belong to Halden Robotics",
-                      )
-                }
-              />
-            </div>
+            <UserMenu
+              name={user?.name ?? ""}
+              email={user?.email ?? ""}
+              items={["Your issues", "Settings"]}
+              onSelect={(item) =>
+                item === "Settings"
+                  ? navigate("/settings")
+                  : item === "Your issues"
+                    ? navigate("/")
+                    : toast("Signed out")
+              }
+            />
           </div>
-        </header>
-        <main className="mx-auto w-full max-w-6xl min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8">
+        </div>
+        <main className="min-h-0 flex-1 overflow-y-auto">
           <Routes>
-            <Route index element={<Home />} />
-            <Route path="people" element={<PeopleHub />} />
-            <Route path="people/members" element={<AllMembers />} />
-            <Route path="people/teams" element={<TeamsList />} />
-            <Route path="people/teams/:teamId" element={<TeamRecord />} />
+            <Route index element={<MyIssues />} />
+            <Route path="inbox" element={<InboxPage />} />
+            <Route path="projects" element={<ProjectsList />} />
+            <Route path="projects/:projectId" element={<ProjectDetail />} />
+            <Route path="issue/:key" element={<IssuePage />} />
+            <Route path="team/:teamId/issues" element={<TeamIssues />} />
+            <Route path="team/:teamId/views" element={<ViewsPage />} />
             <Route
-              path="people/teams/:teamId/access"
-              element={<TeamAccess />}
+              path="team/:teamId/views/:viewId"
+              element={<SavedViewPage />}
             />
-            {!v && (
-              <Route
-                path="people/teams/:teamId/storage"
-                element={<TeamStorage />}
-              />
-            )}
+            <Route path="team/:teamId/cycles" element={<CyclesList />} />
             <Route
-              path="people/teams/:teamId/members/:memberId"
-              element={<MemberRecord />}
+              path="team/:teamId/cycles/:cycleId"
+              element={<CycleDetail />}
             />
-            <Route path="organization" element={<OrganizationHub />} />
+            <Route path="team/:teamId/triage" element={<Triage />} />
+            <Route path="settings" element={<SettingsHome />} />
+            <Route path="settings/workspace" element={<WorkspaceSettings />} />
+            <Route path="settings/members" element={<MembersSettings />} />
+            <Route path="settings/labels" element={<LabelsSettings />} />
+            <Route path="settings/teams" element={<TeamsSettings />} />
+            <Route path="settings/teams/:teamId" element={<TeamSettings />} />
             <Route
-              path="organization/profile"
-              element={<OrganizationProfile />}
-            />
-            <Route
-              path="organization/regions"
-              element={<OrganizationRegions />}
-            />
-            {v && (
-              <Route
-                path="organization/storage"
-                element={<OrganizationStorage />}
-              />
-            )}
-            <Route path="security" element={<SecurityHub />} />
-            <Route path="security/audit" element={<AuditLog />} />
-            <Route path="security/policies" element={<PoliciesList />} />
-            <Route
-              path="security/policies/:policyId"
-              element={<PolicyRoute />}
-            />
-            {v && (
-              <Route
-                path="security/policies/authentication/domains"
-                element={<AuthenticationDomains />}
-              />
-            )}
-            {v && (
-              <Route
-                path="security/policies/authentication/methods"
-                element={<AuthenticationMethods />}
-              />
-            )}
-            {v && (
-              <Route
-                path="security/policies/authentication/two-step"
-                element={<AuthenticationTwoStep />}
-              />
-            )}
-            <Route path="developers" element={<DevelopersHub />} />
-            <Route path="developers/webhooks" element={<Webhooks />} />
-            <Route path="developers/apps" element={<AppsList />} />
-            <Route path="developers/apps/:appId" element={<AppRecord />} />
-            {v && (
-              <Route
-                path="developers/apps/:appId/keys"
-                element={<KeysPage />}
-              />
-            )}
-            <Route
-              path="developers/apps/:appId/keys/:keyId"
-              element={<KeyDetail />}
-            />
-            <Route path="billing" element={<BillingHub />} />
-            <Route path="billing/payment" element={<PaymentMethod />} />
-            <Route
-              path="billing/subscriptions"
-              element={<SubscriptionsList />}
+              path="settings/teams/:teamId/workflow"
+              element={<WorkflowGate want="baseline" />}
             />
             <Route
-              path="billing/subscriptions/:subscriptionId"
-              element={<SubscriptionRecord />}
+              path="settings/teams/:teamId/statuses"
+              element={<WorkflowGate want="variant" />}
             />
-            {!v && (
-              <Route
-                path="billing/subscriptions/:subscriptionId/invoices/:invoiceId"
-                element={<InvoiceDetail />}
-              />
-            )}
-            {v && <Route path="billing/history" element={<BillingHistory />} />}
-            <Route path="*" element={<NotFound />} />
+            <Route
+              path="settings/teams/:teamId/cycles"
+              element={<CycleSettings />}
+            />
+            <Route
+              path="settings/teams/:teamId/triage"
+              element={<TriageSettings />}
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
       </div>
+      <CommandMenu />
+      <NewIssueDialog />
       {toasts}
     </div>
   );

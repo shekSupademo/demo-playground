@@ -466,47 +466,49 @@ export const apps: DemoApp[] = [
   {
     id: "corvid",
     name: "Corvid",
-    product: "Admin console",
-    categories: ["12. Deep navigation"],
-    flow: "From Home, click down to each feature: reset a member's 2-step verification, raise a team's storage limit, rotate an API key, allow a sign-in domain, and download an invoice.",
+    product: "Issue tracker",
+    categories: ["12. Deep workflows"],
+    flow: "Build and save a filtered board of urgent bugs, split an issue into sub-issues and finish one, add backlog issues to the current cycle, add a milestone to a project, then add an In review status to the team workflow.",
     changes: [
       {
         item: 59,
-        what: "Tab renamed and action moved, 6 levels deep",
+        what: "Saved view: save action and where views live",
         baseline:
-          "People → Teams → Engineering → Maya Chen → Security tab → Reset 2-step",
+          "Engineering → Issues → Filter and Display → Save view button; the view appears in the sidebar under the team",
         variant:
-          "Tab renamed Sign-in and security; Reset 2-step moved into the member's … menu",
+          "Save as view is inside the … menu; views live on a Views page under the team, not in the sidebar",
       },
       {
         item: 60,
-        what: "Feature moved to another branch",
+        what: "Sub-issues: add action and section state",
         baseline:
-          "People → Teams → Design → Settings tab → Storage → Edit limit",
-        variant: "Organization → Storage → Design row → Edit limit",
+          "Issue page → Sub-issues section, open → Add sub-issue inline form",
+        variant:
+          "Issue … menu → Add sub-issue dialog; the Sub-issues section starts collapsed",
       },
       {
         item: 61,
-        what: "Level added before the action",
+        what: "Cycle planning: where you add issues",
         baseline:
-          "Developers → Apps → Billing sync → Credentials tab → Production key → Rotate",
+          "Engineering → Cycles → Cycle 24 → Add issues → pick from the backlog",
         variant:
-          "Credentials tab → Manage keys page → Production key → Rotate, and you type the key name to confirm",
+          "No Add issues in the cycle; open each backlog issue and set its Cycle property",
       },
       {
         item: 62,
-        what: "Record split into deeper pages",
+        what: "Project milestones: tab removed",
         baseline:
-          "Security → Policies → Sign-in policy → Allowed domains tab → Add domain",
+          "Projects → Fleet dashboard v2 → Milestones tab → Add milestone",
         variant:
-          "Security → Policies → Authentication → Domains page → Add domain",
+          "Milestones tab removed; Overview side panel → Milestones + button",
       },
       {
         item: 63,
-        what: "Detail page removed, action in a row menu",
+        what: "Team workflow settings: page renamed and add action moved",
         baseline:
-          "Billing → Subscriptions → Business plan → Invoices tab → last month's invoice → Download PDF",
-        variant: "Billing → History → last month's invoice row … menu → Download PDF",
+          "Settings → Teams → Engineering → Workflow → Add status, choose a category",
+        variant:
+          "Settings → Teams → Engineering → Issue statuses → + on the category row",
       },
     ],
   },

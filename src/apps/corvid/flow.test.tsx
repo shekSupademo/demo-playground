@@ -1,5 +1,11 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from "@testing-library/react";
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import App from "./App";
 
@@ -21,135 +27,193 @@ afterEach(cleanup);
 const click = (id: string) => fireEvent.click(screen.getByTestId(id));
 const type = (id: string, value: string) =>
   fireEvent.change(screen.getByTestId(id), { target: { value } });
-const lastMonth = (() => {
-  const d = new Date();
-  d.setDate(1);
-  d.setMonth(d.getMonth() - 1);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-})();
 const toasts = () => screen.getByTestId("toasts").textContent;
+const rows = () => screen.queryAllByTestId("issue-row");
 
 describe.each(["baseline", "variant"] as const)("corvid %s", (variant) => {
   const v = variant === "variant";
 
-  it("keeps every feature off Home and the sidebar", () => {
+  it("keeps every demo feature off the landing page", () => {
     render(<App variant={variant} />);
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(
+      "My issues",
+    );
     for (const id of [
-      "reset-2fa",
-      "edit-limit",
-      "rotate-key",
-      "add-domain",
-      "download-invoice",
+      "save-view",
+      "add-sub-issue",
+      "add-cycle-issues",
+      "add-milestone",
+      "add-status",
     ])
       expect(screen.queryByTestId(id)).toBeNull();
   });
 
-  it("resets a member's 2-step verification", () => {
+  it("filters, regroups and saves a custom view", () => {
     render(<App variant={variant} />);
-    click("nav-people");
-    click("hub-teams");
-    click("team-engineering");
-    click("member-maya-chen");
-    click("tab-security");
-    expect(screen.getByTestId("tab-security").textContent).toBe(
-      v ? "Sign-in and security" : "Security",
-    );
-    expect(screen.queryByTestId("reset-2fa") !== null).toBe(!v);
-    if (v) click("menu-reset-2fa");
-    else click("reset-2fa");
-    click("confirm-reset-2fa");
-    expect(toasts()).toContain("2-step verification reset for Maya Chen");
-    expect(screen.getByTestId("twofa-status").textContent).toContain(
-      "Not enrolled",
-    );
-  });
-
-  it("raises a team's storage limit", () => {
-    render(<App variant={variant} />);
-    if (v) {
-      click("nav-people");
-      click("hub-teams");
-      click("team-design");
-      click("tab-settings");
-      expect(screen.queryByTestId("settings-storage")).toBeNull();
-      click("nav-organization");
-      click("hub-storage");
-      click("edit-limit-design");
-    } else {
-      click("nav-organization");
-      expect(screen.queryByTestId("hub-storage")).toBeNull();
-      click("nav-people");
-      click("hub-teams");
-      click("team-design");
-      click("tab-settings");
-      click("settings-storage");
-      click("edit-limit");
+    click("nav-team-eng-issues");
+    const total = rows().length;
+    click("filter-button");
+    click("filter-field-priority");
+    click("filter-value-1");
+    click("filter-value-2");
+    click("filter-done");
+    click("filter-button");
+    click("filter-field-label");
+    click("filter-value-bug");
+    click("filter-done");
+    const filtered = rows();
+    expect(filtered.length).toBeGreaterThan(0);
+    expect(filtered.length).toBeLessThan(total);
+    for (const row of filtered) {
+      expect(["1", "2"]).toContain(row.dataset.priority);
+      expect(row.dataset.labels).toContain("bug");
     }
-    type("storage-limit", "750");
-    click("save-limit");
-    expect(toasts()).toContain("Storage limit updated");
-    expect(screen.getByTestId("limit-design").textContent).toContain("750 GB");
-  });
+    click("display-button");
+    click("display-layout-board");
+    type("display-group", "assignee");
+    expect(screen.getByTestId("board-column-none")).toBeTruthy();
 
-  it("rotates an API key", () => {
-    render(<App variant={variant} />);
-    click("nav-developers");
-    click("hub-apps");
-    click("app-billing-sync");
-    click("tab-credentials");
-    if (v) click("manage-keys");
-    click("key-production");
-    const before = screen.getByTestId("key-suffix").textContent;
-    click("rotate-key");
+    if (v) {
+      expect(screen.queryByTestId("save-view")).toBeNull();
+      click("menu-save-view");
+    } else click("save-view");
+    type("view-name", "Urgent bugs");
+    click("confirm-save-view");
+    expect(toasts()).toContain("Urgent bugs saved");
+
+    click("nav-my-issues");
     if (v) {
       expect(
-        (screen.getByTestId("confirm-rotate") as HTMLButtonElement).disabled,
-      ).toBe(true);
-      type("confirm-key-name", "Production key");
+        within(screen.getByTestId("sidebar")).queryByText("Urgent bugs"),
+      ).toBeNull();
+      click("nav-team-eng-views");
     }
-    click("confirm-rotate");
-    expect(toasts()).toContain("Production key rotated");
-    expect(screen.getByTestId("key-suffix").textContent).not.toBe(before);
+    fireEvent.click(
+      within(screen.getByTestId(v ? "views-list" : "sidebar")).getByText(
+        "Urgent bugs",
+      ),
+    );
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(
+      "Urgent bugs",
+    );
+    expect(screen.getByTestId("filter-chip-priority").textContent).toContain(
+      "Urgent",
+    );
+    expect(screen.getByTestId("board-column-none")).toBeTruthy();
+    expect(rows()).toHaveLength(filtered.length);
   });
 
-  it("allows a new sign-in domain", () => {
+  it("breaks an issue into sub-issues and tracks their progress", () => {
+    window.location.hash = "#/issue/ENG-118";
     render(<App variant={variant} />);
-    click("nav-security");
-    click("hub-policies");
-    if (v) {
-      expect(screen.queryByTestId("policy-sign-in")).toBeNull();
-      click("policy-authentication");
-      click("section-domains");
-    } else {
-      click("policy-sign-in");
-      click("tab-domains");
+    for (const title of ["Profile tile queries", "Cache depot geometry"]) {
+      if (v) {
+        expect(screen.queryByTestId("add-sub-issue")).toBeNull();
+        click("menu-add-sub-issue");
+      } else click("add-sub-issue");
+      type("sub-issue-title", title);
+      click("save-sub-issue");
     }
-    click("add-domain");
-    click("save-domain");
-    expect(screen.getByText("Enter a domain like example.com")).toBeTruthy();
-    type("domain-input", "halden-labs.io");
-    click("save-domain");
-    expect(toasts()).toContain("halden-labs.io added");
-    expect(screen.getByTestId("domain-list").textContent).toContain(
-      "halden-labs.io",
+    expect(toasts()).toContain("Sub-issue created");
+    const section = screen.getByTestId("sub-issues");
+    expect((section as HTMLDetailsElement).open).toBe(!v);
+    expect(screen.getByTestId("sub-issue-progress").textContent).toBe("0/2");
+    const [first] = within(section).getAllByTestId("sub-issue-row");
+    fireEvent.click(within(first).getByTestId("set-status-done"));
+    expect(screen.getByTestId("sub-issue-progress").textContent).toBe("1/2");
+  });
+
+  it("adds backlog issues to the current cycle", () => {
+    window.location.hash = "#/team/eng/cycles";
+    render(<App variant={variant} />);
+    click("cycle-eng-24");
+    const before = Number(screen.getByTestId("cycle-scope").textContent);
+    if (v) {
+      expect(screen.queryByTestId("add-cycle-issues")).toBeNull();
+      for (const key of ["ENG-140", "ENG-141"]) {
+        click("nav-team-eng-issues");
+        fireEvent.click(screen.getByText(key));
+        click("set-cycle-eng-24");
+      }
+      click("nav-team-eng-cycles");
+      click("cycle-eng-24");
+    } else {
+      click("add-cycle-issues");
+      click("pick-ENG-140");
+      click("pick-ENG-141");
+      click("confirm-add-issues");
+      expect(toasts()).toContain("2 issues added to Cycle 24");
+    }
+    expect(Number(screen.getByTestId("cycle-scope").textContent)).toBe(before + 2);
+  });
+
+  it("adds a milestone to a project", () => {
+    window.location.hash = "#/projects";
+    render(<App variant={variant} />);
+    click("project-fleet-v2");
+    if (v) expect(screen.queryByTestId("tab-milestones")).toBeNull();
+    else click("tab-milestones");
+    click("add-milestone");
+    click("save-milestone");
+    expect(screen.getByText("Enter a milestone name")).toBeTruthy();
+    type("milestone-name", "Pilot with two depots");
+    click("save-milestone");
+    expect(toasts()).toContain("Pilot with two depots created");
+    expect(screen.getByTestId("milestones").textContent).toContain(
+      "Pilot with two depots",
     );
   });
 
-  it("downloads last month's invoice", () => {
+  it("adds a workflow status that issues can use", () => {
+    window.location.hash = "#/settings";
     render(<App variant={variant} />);
-    click("nav-billing");
+    click("settings-teams");
+    click("settings-team-eng");
     if (v) {
-      expect(screen.queryByTestId("hub-subscriptions")).not.toBeNull();
-      click("hub-history");
-      click(`download-invoice-${lastMonth}`);
+      expect(screen.queryByTestId("team-workflow")).toBeNull();
+      click("team-statuses");
+      click("add-status-started");
     } else {
-      expect(screen.queryByTestId("hub-history")).toBeNull();
-      click("hub-subscriptions");
-      click("subscription-business");
-      click("tab-invoices");
-      click(`invoice-${lastMonth}`);
-      click("download-invoice");
+      click("team-workflow");
+      click("add-status");
+      type("status-category", "started");
     }
-    expect(toasts()).toContain(`Invoice INV-${lastMonth} downloaded`);
+    type("status-name", "In review");
+    click("save-status");
+    expect(toasts()).toContain("In review added");
+    click("nav-team-eng-issues");
+    expect(
+      screen.getAllByRole("menuitem", { name: "In review" }).length,
+    ).toBeGreaterThan(0);
+  });
+
+  it("accepts an issue from triage", () => {
+    window.location.hash = "#/team/eng/triage";
+    render(<App variant={variant} />);
+    const count = screen.getAllByTestId("triage-item").length;
+    fireEvent.click(screen.getAllByTestId("triage-item")[0]);
+    click("triage-accept");
+    expect(toasts()).toContain("moved to Todo");
+    expect(screen.getAllByTestId("triage-item")).toHaveLength(count - 1);
+  });
+
+  it("creates an issue and finds it with the command menu", () => {
+    render(<App variant={variant} />);
+    click("new-issue");
+    click("create-issue");
+    expect(screen.getByText("Enter a title")).toBeTruthy();
+    type("new-issue-title", "Depot map flickers on zoom");
+    click("create-issue");
+    expect(toasts()).toContain("created");
+    fireEvent.keyDown(document, { key: "k", metaKey: true });
+    type("command-input", "flickers");
+    fireEvent.click(
+      within(screen.getByTestId("command-results")).getByText(
+        "Depot map flickers on zoom",
+      ),
+    );
+    expect(screen.getByTestId("issue-title").textContent).toBe(
+      "Depot map flickers on zoom",
+    );
   });
 });
