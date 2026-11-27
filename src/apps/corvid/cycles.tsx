@@ -8,6 +8,7 @@ import { IssueCollection } from "./issues";
 import { type Issue, progress } from "./model";
 import { Bar, Header, PriorityIcon, StatusIcon, t } from "./parts";
 import { defaultDisplay, useStore } from "./store";
+import { TeamTabs } from "./teams";
 
 const today = () => new Date().toISOString().slice(0, 10);
 const phase = (c: Cycle) =>
@@ -24,8 +25,10 @@ export function CyclesList() {
   return (
     <div>
       <Header
+        tabs={<TeamTabs teamId={teamId} />}
         crumbs={[
-          { label: team.name, to: `/team/${teamId}/issues` },
+          { label: "Teams", to: "/teams" },
+          { label: team.name, to: `/team/${teamId}` },
           { label: "Cycles" },
         ]}
       />
@@ -274,8 +277,10 @@ export function CycleDetail() {
   return (
     <div className="flex min-h-full flex-col">
       <Header
+        tabs={<TeamTabs teamId={teamId} />}
         crumbs={[
-          { label: team.name, to: `/team/${teamId}/issues` },
+          { label: "Teams", to: "/teams" },
+          { label: team.name, to: `/team/${teamId}` },
           { label: "Cycles", to: `/team/${teamId}/cycles` },
           {
             label: `Cycle ${cycle.number}`,

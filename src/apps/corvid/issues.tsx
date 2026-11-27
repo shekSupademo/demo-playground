@@ -37,6 +37,7 @@ import {
   t,
 } from "./parts";
 import { defaultDisplay, type SavedView, useStore } from "./store";
+import { TeamTabs } from "./teams";
 
 const fieldLabels: Record<FilterField, string> = {
   status: "Status",
@@ -729,8 +730,10 @@ function IssuesWorkspace({
   return (
     <div className="flex min-h-full flex-col">
       <Header
+        tabs={<TeamTabs teamId={teamId} />}
         crumbs={[
-          { label: team.name, to: `/team/${teamId}/issues` },
+          { label: "Teams", to: "/teams" },
+          { label: team.name, to: `/team/${teamId}` },
           ...(view
             ? [
                 ...(v ? [{ label: "Views", to: `/team/${teamId}/views` }] : []),
@@ -873,8 +876,10 @@ export function ViewsPage() {
   return (
     <div>
       <Header
+        tabs={<TeamTabs teamId={teamId} />}
         crumbs={[
-          { label: team.name, to: `/team/${teamId}/issues` },
+          { label: "Teams", to: "/teams" },
+          { label: team.name, to: `/team/${teamId}` },
           { label: "Views" },
         ]}
       />

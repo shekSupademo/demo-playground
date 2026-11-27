@@ -154,7 +154,8 @@ export function IssueDetail() {
     <div className="flex min-h-full flex-col">
       <Header
         crumbs={[
-          { label: team.name, to: `/team/${team.id}/issues` },
+          { label: "Teams", to: "/teams" },
+          { label: team.name, to: `/team/${team.id}` },
           ...(parent
             ? [{ label: parent.key, to: `/issue/${parent.key}` }]
             : []),

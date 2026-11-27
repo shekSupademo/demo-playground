@@ -508,13 +508,16 @@ export type Crumb = { label: string; to?: string; testId?: string };
 export function Header({
   crumbs,
   actions,
+  tabs,
 }: {
   crumbs: Crumb[];
   actions?: ReactNode;
+  tabs?: ReactNode;
 }) {
   useDocumentTitle(`${crumbs.at(-1)?.label ?? "Corvid"} – Corvid`);
   return (
-    <div className="flex min-h-12 flex-wrap items-center gap-3 border-b border-slate-200 px-4 py-2 md:px-6">
+    <div className="border-b border-slate-200">
+    <div className="flex min-h-12 flex-wrap items-center gap-3 px-4 py-2 md:px-6">
       <nav aria-label="Breadcrumb" className="min-w-0 flex-1">
         <ol className="flex min-w-0 items-center gap-1 text-[13px] text-slate-500">
           {crumbs.map((c, i) => (
@@ -556,6 +559,8 @@ export function Header({
           {actions}
         </div>
       )}
+    </div>
+    {tabs && <div className="px-4 pb-2 md:px-6">{tabs}</div>}
     </div>
   );
 }

@@ -468,21 +468,21 @@ export const apps: DemoApp[] = [
     name: "Corvid",
     product: "Issue tracker",
     categories: ["12. Deep workflows"],
-    flow: "Build and save a filtered board of urgent bugs, split an issue into sub-issues and finish one, add backlog issues to the current cycle, add a milestone to a project, then add an In review status to the team workflow.",
+    flow: "Starting from My issues, build and save a filtered board of urgent bugs, split an issue into sub-issues and finish one, add backlog issues to the current cycle, add a milestone to a project, then add an In review status to the team workflow.",
     changes: [
       {
         item: 59,
         what: "Saved view: save action and where views live",
         baseline:
-          "Engineering → Issues → Filter and Display → Save view button; the view appears in the sidebar under the team",
+          "Teams → Engineering → Issues tab → Filter and Display → Save view button; the view appears under Favorites in the sidebar",
         variant:
-          "Save as view is inside the … menu; views live on a Views page under the team, not in the sidebar",
+          "Save as view is inside the … menu; views live on the team's Views tab, not in the sidebar",
       },
       {
         item: 60,
         what: "Sub-issues: add action and section state",
         baseline:
-          "Issue page → Sub-issues section, open → Add sub-issue inline form",
+          "Teams → Engineering → Issues tab → ENG-118 → Sub-issues section, open → Add sub-issue inline form",
         variant:
           "Issue … menu → Add sub-issue dialog; the Sub-issues section starts collapsed",
       },
@@ -490,15 +490,15 @@ export const apps: DemoApp[] = [
         item: 61,
         what: "Cycle planning: where you add issues",
         baseline:
-          "Engineering → Cycles → Cycle 24 → Add issues → pick from the backlog",
+          "Teams → Engineering → Cycles tab → Cycle 24 → Add issues → pick from the backlog",
         variant:
-          "No Add issues in the cycle; open each backlog issue and set its Cycle property",
+          "No Add issues in the cycle; Issues tab → open each backlog issue → Cycle property → Cycle 24",
       },
       {
         item: 62,
         what: "Project milestones: tab removed",
         baseline:
-          "Projects → Fleet dashboard v2 → Milestones tab → Add milestone",
+          "Initiatives → Fleet platform 2027 → Fleet dashboard v2 → Milestones tab → Add milestone",
         variant:
           "Milestones tab removed; Overview side panel → Milestones + button",
       },

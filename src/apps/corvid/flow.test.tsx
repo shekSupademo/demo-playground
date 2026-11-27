@@ -28,6 +28,11 @@ const click = (id: string) => fireEvent.click(screen.getByTestId(id));
 const type = (id: string, value: string) =>
   fireEvent.change(screen.getByTestId(id), { target: { value } });
 const toasts = () => screen.getByTestId("toasts").textContent;
+const team = (tab: string) => {
+  click("nav-teams");
+  click("team-eng");
+  click(`team-tab-${tab}`);
+};
 const rows = () => screen.queryAllByTestId("issue-row");
 
 describe.each(["baseline", "variant"] as const)("corvid %s", (variant) => {
@@ -50,7 +55,7 @@ describe.each(["baseline", "variant"] as const)("corvid %s", (variant) => {
 
   it("filters, regroups and saves a custom view", () => {
     render(<App variant={variant} />);
-    click("nav-team-eng-issues");
+    team("issues");
     fireEvent.click(screen.getByRole("tab", { name: "Active" }));
     const total = rows().length;
     click("filter-button");
@@ -87,7 +92,7 @@ describe.each(["baseline", "variant"] as const)("corvid %s", (variant) => {
       expect(
         within(screen.getByTestId("sidebar")).queryByText("Urgent bugs"),
       ).toBeNull();
-      click("nav-team-eng-views");
+      team("views");
     }
     fireEvent.click(
       within(screen.getByTestId(v ? "views-list" : "sidebar")).getByText(
@@ -105,8 +110,9 @@ describe.each(["baseline", "variant"] as const)("corvid %s", (variant) => {
   });
 
   it("breaks an issue into sub-issues and tracks their progress", () => {
-    window.location.hash = "#/issue/ENG-118";
     render(<App variant={variant} />);
+    team("issues");
+    fireEvent.click(screen.getByText("ENG-118"));
     for (const title of ["Profile tile queries", "Cache depot geometry"]) {
       if (v) {
         expect(screen.queryByTestId("add-sub-issue")).toBeNull();
@@ -125,18 +131,18 @@ describe.each(["baseline", "variant"] as const)("corvid %s", (variant) => {
   });
 
   it("adds backlog issues to the current cycle", () => {
-    window.location.hash = "#/team/eng/cycles";
     render(<App variant={variant} />);
+    team("cycles");
     click("cycle-eng-24");
     const before = Number(screen.getByTestId("cycle-scope").textContent);
     if (v) {
       expect(screen.queryByTestId("add-cycle-issues")).toBeNull();
       for (const key of ["ENG-140", "ENG-141"]) {
-        click("nav-team-eng-issues");
+        team("issues");
         fireEvent.click(screen.getByText(key));
         click("set-cycle-eng-24");
       }
-      click("nav-team-eng-cycles");
+      team("cycles");
       click("cycle-eng-24");
     } else {
       click("add-cycle-issues");
@@ -149,8 +155,9 @@ describe.each(["baseline", "variant"] as const)("corvid %s", (variant) => {
   });
 
   it("adds a milestone to a project", () => {
-    window.location.hash = "#/projects";
     render(<App variant={variant} />);
+    click("nav-initiatives");
+    click("initiative-fleet-platform");
     click("project-fleet-v2");
     if (v) expect(screen.queryByTestId("tab-milestones")).toBeNull();
     else click("tab-milestones");
@@ -182,7 +189,7 @@ describe.each(["baseline", "variant"] as const)("corvid %s", (variant) => {
     type("status-name", "In review");
     click("save-status");
     expect(toasts()).toContain("In review added");
-    click("nav-team-eng-issues");
+    team("issues");
     fireEvent.click(screen.getAllByRole("menuitem", { name: "In review" })[0]);
     const groups = screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent);
     expect(groups.some((g) => g?.startsWith("In review"))).toBe(true);

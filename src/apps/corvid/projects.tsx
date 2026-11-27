@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { Avatar, Badge, formatDate, relativeTime } from "../../kit";
 import { cx, Dialog } from "../../ui";
-import { type Health, type Milestone, people, teams } from "./data";
+import { initiatives, type Health, type Milestone, people, teams } from "./data";
 import { IssueCollection } from "./issues";
 import { progress } from "./model";
 import { Bar, Header, PropRow, Tabs, t, useTab } from "./parts";
@@ -307,12 +307,14 @@ export function ProjectDetail() {
   const project = projects.find((p) => p.id === projectId);
   if (!project) return <Navigate to="/projects" replace />;
   const lead = people.find((x) => x.id === project.leadId);
+  const initiative = initiatives.find((x) => x.projectIds.includes(project.id));
   const pr = prog(project.id);
   return (
     <div className="flex min-h-full flex-col">
       <Header
         crumbs={[
-          { label: "Projects", to: "/projects" },
+          { label: "Initiatives", to: "/initiatives" },
+          ...(initiative ? [{ label: initiative.name, to: `/initiatives/${initiative.id}` }] : []),
           { label: project.name },
         ]}
       />

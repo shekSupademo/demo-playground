@@ -14,6 +14,7 @@ import {
   t,
 } from "./parts";
 import { useStore } from "./store";
+import { TeamTabs } from "./teams";
 
 export function Triage() {
   const { teamId = "" } = useParams();
@@ -40,8 +41,10 @@ export function Triage() {
   return (
     <div className="flex min-h-full flex-col">
       <Header
+        tabs={<TeamTabs teamId={teamId} />}
         crumbs={[
-          { label: team.name, to: `/team/${teamId}/issues` },
+          { label: "Teams", to: "/teams" },
+          { label: team.name, to: `/team/${teamId}` },
           { label: "Triage" },
         ]}
       />

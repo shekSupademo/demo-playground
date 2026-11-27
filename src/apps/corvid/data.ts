@@ -1273,3 +1273,32 @@ export const notifications = [
     unread: false,
   },
 ];
+
+export type Initiative = { id: string; name: string; summary: string; ownerId: string; target: string; projectIds: string[] };
+
+export const initiatives: Initiative[] = [
+  {
+    id: "fleet-platform",
+    name: "Fleet platform 2027",
+    summary: "Let one operator run every depot from a single dashboard, with safe remote updates.",
+    ownerId: "priya",
+    target: daysFromToday(120),
+    projectIds: ["fleet-v2", "ota"],
+  },
+  {
+    id: "field-service",
+    name: "Field service",
+    summary: "Cut the time a technician needs to fix a robot on site in half.",
+    ownerId: "tomas",
+    target: daysFromToday(90),
+    projectIds: ["tech-app"],
+  },
+  {
+    id: "revenue",
+    name: "Revenue model",
+    summary: "Move customers from seat pricing to usage pricing.",
+    ownerId: "priya",
+    target: daysFromToday(150),
+    projectIds: ["billing"],
+  },
+];

@@ -1,16 +1,15 @@
 import {
-  ChevronDown,
+  Target,
+  UsersRound,
   CircleHelp,
   Inbox,
   Layers,
   ListTodo,
   type LucideIcon,
   Mountain,
-  RefreshCcw,
   Search,
   Settings,
   SquarePen,
-  TriangleAlert,
 } from "lucide-react";
 import { type ReactNode, useEffect, useState } from "react";
 import {
@@ -50,6 +49,8 @@ import {
 } from "./settings";
 import { StoreProvider, useStore } from "./store";
 import { Triage } from "./triage";
+import { TeamHome, TeamProjects, TeamsPage } from "./teams";
+import { InitiativeDetail, InitiativesList } from "./initiatives";
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
   cx(
@@ -87,9 +88,7 @@ function NavItem({
 }
 
 function Sidebar() {
-  const { issues, statusOf, views, v, setCommandOpen, setNewIssueOpen } =
-    useStore();
-  const [collapsed, setCollapsed] = useState<string[]>(["des"]);
+  const { views, v, setCommandOpen, setNewIssueOpen } = useStore();
   return (
     <div className="flex h-full flex-col gap-4" data-testid="sidebar">
       <div className="flex items-center gap-2 px-1">
@@ -131,101 +130,19 @@ function Sidebar() {
           testId="nav-my-issues"
         />
       </nav>
-      <div>
-        <p className="px-2 pb-1 text-xs font-medium text-slate-500">
-          Workspace
-        </p>
-        <NavItem
-          to="/projects"
-          Icon={Mountain}
-          label="Projects"
-          testId="nav-projects"
-        />
+      <div className="flex flex-col gap-0.5">
+        <p className="px-2 pb-1 text-xs font-medium text-slate-500">Workspace</p>
+        <NavItem to="/initiatives" Icon={Target} label="Initiatives" testId="nav-initiatives" />
+        <NavItem to="/teams" Icon={UsersRound} label="Teams" testId="nav-teams" />
       </div>
-      <div className="flex flex-col gap-2">
-        <p className="px-2 text-xs font-medium text-slate-500">Your teams</p>
-        {teams.map((team) => {
-          const open = !collapsed.includes(team.id);
-          const triage = issues.filter(
-            (i) => i.teamId === team.id && statusOf(i)?.category === "triage",
-          ).length;
-          const own = views.filter((x) => x.teamId === team.id);
-          return (
-            <div key={team.id}>
-              <button
-                type="button"
-                aria-expanded={open}
-                onClick={() =>
-                  setCollapsed((all) =>
-                    open ? [...all, team.id] : all.filter((x) => x !== team.id),
-                  )
-                }
-                className={cx(
-                  "flex h-7 w-full items-center gap-2 rounded-md px-2 text-[13px] font-medium text-slate-700 hover:bg-slate-200/40",
-                  t.focus,
-                )}
-              >
-                <span
-                  className="grid size-4 place-items-center rounded text-[9px] font-bold text-white"
-                  style={{ background: team.color }}
-                >
-                  {team.key[0]}
-                </span>
-                {team.name}
-                <ChevronDown
-                  className={cx(
-                    "ml-auto size-3.5 text-slate-400",
-                    !open && "-rotate-90",
-                  )}
-                  aria-hidden
-                />
-              </button>
-              {open && (
-                <div className="ml-3 flex flex-col gap-0.5 border-l border-slate-200 pl-2">
-                  <NavItem
-                    to={`/team/${team.id}/issues`}
-                    Icon={Layers}
-                    label="Issues"
-                    testId={`nav-team-${team.id}-issues`}
-                  />
-                  <NavItem
-                    to={`/team/${team.id}/cycles`}
-                    Icon={RefreshCcw}
-                    label="Cycles"
-                    testId={`nav-team-${team.id}-cycles`}
-                  />
-                  <NavItem
-                    to={`/team/${team.id}/triage`}
-                    Icon={TriangleAlert}
-                    label="Triage"
-                    count={triage}
-                    testId={`nav-team-${team.id}-triage`}
-                  />
-                  {v ? (
-                    <NavItem
-                      to={`/team/${team.id}/views`}
-                      end
-                      Icon={Layers}
-                      label="Views"
-                      testId={`nav-team-${team.id}-views`}
-                    />
-                  ) : (
-                    own.map((x) => (
-                      <NavItem
-                        key={x.id}
-                        to={`/team/${team.id}/views/${x.id}`}
-                        Icon={Layers}
-                        label={x.name}
-                        testId={`nav-view-${x.id}`}
-                      />
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+      {!v && views.length > 0 && (
+        <div className="flex flex-col gap-0.5">
+          <p className="px-2 pb-1 text-xs font-medium text-slate-500">Favorites</p>
+          {views.map((x) => (
+            <NavItem key={x.id} to={`/team/${x.teamId}/views/${x.id}`} Icon={Layers} label={x.name} testId={`nav-view-${x.id}`} />
+          ))}
+        </div>
+      )}
       <div className="mt-auto flex flex-col gap-0.5">
         <NavItem
           to="/settings"
@@ -696,6 +613,11 @@ function Shell({
             <Route path="projects" element={<ProjectsList />} />
             <Route path="projects/:projectId" element={<ProjectDetail />} />
             <Route path="issue/:key" element={<IssuePage />} />
+            <Route path="initiatives" element={<InitiativesList />} />
+            <Route path="initiatives/:initiativeId" element={<InitiativeDetail />} />
+            <Route path="teams" element={<TeamsPage />} />
+            <Route path="team/:teamId" element={<TeamHome />} />
+            <Route path="team/:teamId/projects" element={<TeamProjects />} />
             <Route path="team/:teamId/issues" element={<TeamIssues />} />
             <Route path="team/:teamId/views" element={<ViewsPage />} />
             <Route
