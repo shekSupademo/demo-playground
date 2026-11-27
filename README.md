@@ -1,72 +1,61 @@
-# Northbeam
+# Demo playground
 
-A frontend-only business banking dashboard. It's a realistic, interaction-heavy UI for testing tools that watch code changes and check their effect on the user-facing app.
+Nine small, independent apps for testing tools that re-record product demos after the UI changes. Each app covers one category of change, so you can test the categories in parallel. Every app has a **baseline** and a **variant**, and the admin page switches each app between them.
 
-There's no backend. Shared demo variants are stored in Supabase, and all other data is generated sample data and is kept in the browser's `localStorage`. **Settings → Company → Reset demo data** restores the original data.
+## Apps
 
-## Pages and flows
+| Path | App | Categories | Items |
+|---|---|---|---|
+| `/plano/` | Plano, project tracker | 1. Content and copy, 2. Visual style, 3. Sections added or removed | 1–21 |
+| `/pipeline/` | Pipeline, sales CRM | 4. Element position and visibility | 22–28 |
+| `/shopline/` | Shopline, store admin | 5. Component type swaps | 29–34 |
+| `/filebox/` | Filebox, file manager | 6. Interaction model | 35–39 |
+| `/tripway/` | Tripway, hotel booking | 7. Flow and steps | 40–46 |
+| `/peoplehub/` | Peoplehub, HR onboarding | 8. Forms and validation | 47–49 |
+| `/metricly/` | Metricly, analytics | 9. Navigation and information architecture | 50–53 |
+| `/mailbird/` | Mailbird, email campaigns | 10. Interruptions and gates | 54–56 |
+| `/notely/` | Notely, notes | 11. Full redesign | 57–58 |
 
-| Route | What you can do |
-|---|---|
-| `#/` Home | Total balance chart (30D/90D/6M), money in and out, burn and runway, a "Needs attention" list, account tiles, cash flow chart, recent transactions |
-| `#/transactions` | Search, filter (account, category, status, direction, date range, minimum amount, missing receipt), sort, paginate, bulk-categorize, CSV export, a detail drawer (click a row) with category, an **Add note** / **Save note** editor and receipt upload |
-| `#/accounts/:id` | Per-account balance chart, routing and account numbers with copy buttons, that account's transactions |
-| `#/payments` | Upcoming and recent payments, recipients with search and a "Pay" button |
-| `#/bills` | **Drag-and-drop** approval board (Inbox → Approved → Scheduled → Paid). Drag across columns or reorder within one. Dropping on Paid posts a pending transaction and debits Operating. Each card also has a **hover menu** with "Move to…" as a keyboard-friendly alternative. A searchable vendor **dropdown** filters the board |
-| `#/cards` | Click a card to open its **Manage card** drawer (freeze or unfreeze, edit name and monthly limit), issue new virtual or physical cards in two steps (type, then details), spend-vs-limit bars |
-| `#/invoices` | Status tabs, an invoice editor with line items and validation, send, view, delete, and **Record payment** from the invoice view, which asks you to confirm and then posts a revenue transaction |
-| `#/insights` | Spend by category (click through to filtered transactions), top vendors, net cash flow by month |
-| `#/settings` | Company profile and theme, team invites with roles (the last admin can't be removed), notification toggles and threshold, reset data, and an **Integrations** tab whose list (QuickBooks, Slack, Gusto with Connect, then Sync now) is a same-origin **iframe** loading `public/integrations/index.html`. `src/lib/integrations.ts` sets its src, title, name and load delay |
+`src/registry.ts` lists every change, with what the baseline and the variant show, and the flow to record in each app. The admin page shows the same table.
 
-Complex controls, built for testing interactions:
-- **Searchable dropdowns** (`role="combobox"`, type to filter, arrow keys and Enter): the category filter, the bulk "Set category…" control, the drawer's Category, the new card's Cardholder and Type, the Bills vendor filter, and Send money's Pay to.
-- **Sliders:** the card monthly limit (synced with a number field, with clickable tick marks and a warning when the limit is below this month's spend), plus a two-handle **Amount** range filter on Transactions.
-- **Drag and drop:** the Bills board, plus a receipt drop zone in the transaction drawer.
-- **Hover menus:** the "⋯" on each transaction row opens on hover, and **Categorize ▸** opens a submenu flyout. Bill cards have the same kind of menu.
+## Admin page
 
-Also available everywhere:
-- **Move money**: a send-money form (a searchable recipient dropdown, amount, account, date and memo on one screen, then a review) that can add a recipient and checks the balance and date, plus transfers between accounts.
-- **⌘K / Ctrl+K**: a command palette that searches pages, actions and transactions.
-- **Dark mode**.
-- **Mobile navigation**.
+The site root is the admin page. For each app it has:
 
-Key elements carry `data-testid` attributes for automated checks.
+- A **Baseline / Variant** switch. The choice is stored in Supabase and applies to every visitor on their next page load. **All to baseline** and **All to variant** switch every app at once.
+- **Open**, which follows the shared switch.
+- **Pinned baseline** and **Pinned variant** (`?variant=baseline` or `?variant=variant`), which ignore the shared switch. Use these for parallel runs that must hold a version without affecting anyone else.
+
+Each app starts from the same sample data on every load and keeps no data in the browser, so runs are repeatable. If Supabase can't be reached, every app shows its baseline.
+
+`public/form-lab/` and `public/integrations/` are standalone static pages and are served as they are.
 
 ## Develop
 
 ```bash
 pnpm install
-pnpm dev      # http://localhost:5173
+pnpm dev      # http://localhost:5173, admin at /, apps at /<app>/
+pnpm test
 pnpm build    # type-check and build to dist/
 ```
 
+To use the shared switches locally, put `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in `.env.local`. Without them, apps show their baseline unless pinned, and the admin page can't save.
+
+### Add an app
+
+1. Add its id to `appIds` and its entry to `apps` in `src/registry.ts`.
+2. Add `src/apps/<id>/App.tsx` with `export default function App({ variant })`, and register it in `src/apps/loaders.ts`.
+3. Add `<id>/index.html` (copy another app's and change the id).
+4. Add the id to the check constraint and the seed rows in Supabase.
+
 ## Deploy
 
-`.github/workflows/pages.yml` builds every push to `main` and publishes it to GitHub Pages, which is free. Pull requests run the same build as a check. One-time setup: **Settings → Pages → Source: GitHub Actions**.
+`.github/workflows/pages.yml` tests and builds every push to `main` and publishes it to GitHub Pages. Pull requests run the same checks without deploying.
 
-### Shared demo variants
+### Supabase setup
 
-1. Create a free project at supabase.com.
-2. In its **SQL editor**, run `supabase/demo_variants.sql`. It creates a one-row `demo_variants` table that anyone can read and update, with checks that allow only the four features set to `baseline` or `variant`.
-3. In **Project Settings → API keys**, copy the project URL and the publishable key. Both are safe to expose, because row-level security limits what the key can change.
-4. In this repository, open **Settings → Secrets and variables → Actions → Variables** and add `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`.
-5. Rerun the **Deploy to GitHub Pages** workflow.
+1. In the Supabase **SQL editor**, run `supabase/demo_apps.sql`. It creates one row per app that anyone can read and switch between `baseline` and `variant`, and nothing else.
+2. In **Project Settings → API keys**, copy the project URL and the publishable key. Both are safe to expose, because row-level security limits what the key can change.
+3. In this repository, open **Settings → Secrets and variables → Actions → Variables** and add `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`.
 
-To use the shared store with `pnpm dev`, put `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in `.env.local`. Without them, the app uses the defaults and changes apply to that tab only.
-
-A free Supabase project pauses after a week with no activity. Restore it from the Supabase dashboard. Until then, the app uses the defaults.
-
-Stack: React 19, React Router 7 (hash routing for Pages), Tailwind CSS 4, Recharts, Vite 6, TypeScript.
-
-## Demo variants
-
-Open **Demo admin** in the sidebar or go to `#/admin`. Each selector applies immediately and is shared: every visitor loads the same selection from Supabase. Changes made by others show up on your next page load. Until someone saves a selection, or if Supabase can't be reached, the app uses `src/demoVariantDefaults.json`. To go back to those defaults, set `variants` to `null` in the `demo_variants` table. Any combination of the four variants works.
-
-| Feature | Variant | What changes |
-|---|---|---|
-| Cards | UI change | A full-width orange **Card management** banner highlights **Issue card** and expandable **Card tips**. The card list adds a **Your cards** heading and warm accents. The issue-card form stays the same. |
-| Payments | Flow change | **Send money** moves into the three-dot **More payment actions** menu. Recipient verification requires a sample PDF, PNG, or JPG up to 5 MB, a document type, and confirmation that it matches. Date and memo move to a separate **Delivery** step. This applies to entry points on Payments. |
-| Bills | Big flow change | The status board becomes a searchable vendor list. Open a vendor, choose a bill, then select **Pay now** or **Schedule** and confirm. |
-| App branding | Rebranding | **Fieldnote** replaces the app wordmark and browser icon, adds forest-green navigation, warm surfaces, and serif headings, and renames **Home** to **Overview** and **Insights** to **Analytics**. The other variant selectors work independently. |
-
-**Shareable preview** opens the feature in a new tab with all four selections encoded in the URL. For example, `?variants=payments#/payments` enables just the guided payment variant, and `?variants=#/payments` forces all baselines. A preview ignores the shared selection, and changing selectors while viewing it only updates that tab's URL. The URL carries variant settings only. Demo records continue to use the browser’s sample data, which you can restore from Settings. **Reset to baseline** resets the selectors.
+A free Supabase project pauses after a week with no activity. Restore it from the Supabase dashboard. Until then, the apps show their baselines.
