@@ -86,7 +86,7 @@ export function Admin() {
               Demo playground
             </h1>
             <p className="mt-2 max-w-2xl text-sm text-zinc-600">
-              Nine independent apps, one per change category. Switch an app to
+              Ten independent apps, one per change category. Switch an app to
               its variant to apply every change in its category at once.
               Visitors see the change on their next page load.
             </p>

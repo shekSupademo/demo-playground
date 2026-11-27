@@ -5,6 +5,7 @@ import {
   saveVariants,
   variantOverride,
 } from "./variants";
+import { appIds } from "../registry";
 
 const tableUrl = "https://project.supabase.co/rest/v1/demo_apps";
 const fetchMock = vi.fn<typeof fetch>();
@@ -76,7 +77,7 @@ describe("loadAllVariants", () => {
     expect(variants?.plano).toBe("variant");
     expect(variants?.pipeline).toBe("baseline");
     expect(variants?.notely).toBe("baseline");
-    expect(Object.keys(variants ?? {})).toHaveLength(9);
+    expect(Object.keys(variants ?? {})).toHaveLength(appIds.length);
     expect(fetchMock).toHaveBeenCalledWith(
       `${tableUrl}?select=id,variant`,
       expect.anything(),

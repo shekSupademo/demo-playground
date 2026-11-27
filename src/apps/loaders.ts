@@ -16,4 +16,5 @@ export const appLoaders: Record<
   metricly: () => import("./metricly/App"),
   mailbird: () => import("./mailbird/App"),
   notely: () => import("./notely/App"),
+  corvid: () => import("./corvid/App"),
 };

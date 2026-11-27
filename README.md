@@ -1,6 +1,6 @@
 # Demo playground
 
-Nine small, independent apps for testing tools that re-record product demos after the UI changes. Each app covers one category of change, so you can test the categories in parallel. Every app has a **baseline** and a **variant**, and the admin page switches each app between them.
+Ten small, independent apps for testing tools that re-record product demos after the UI changes. Each app covers one category of change, so you can test the categories in parallel. Every app has a **baseline** and a **variant**, and the admin page switches each app between them.
 
 ## Apps
 
@@ -15,6 +15,7 @@ Nine small, independent apps for testing tools that re-record product demos afte
 | `/metricly/` | Metricly, analytics | 9. Navigation and information architecture | 50–53 |
 | `/mailbird/` | Mailbird, email campaigns | 10. Interruptions and gates | 54–56 |
 | `/notely/` | Notely, notes | 11. Full redesign | 57–58 |
+| `/corvid/` | Corvid, admin console | 12. Deep navigation | 59–63 |
 
 `src/registry.ts` lists every change, with what the baseline and the variant show, and the flow to record in each app. The admin page shows the same table.
 

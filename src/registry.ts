@@ -26,6 +26,7 @@ export const appIds = [
   "metricly",
   "mailbird",
   "notely",
+  "corvid",
 ] as const;
 
 export type AppId = (typeof appIds)[number];
@@ -459,6 +460,53 @@ export const apps: DemoApp[] = [
         what: "Feature removed",
         baseline: "Tags on notes and a tag filter",
         variant: "Tags removed",
+      },
+    ],
+  },
+  {
+    id: "corvid",
+    name: "Corvid",
+    product: "Admin console",
+    categories: ["12. Deep navigation"],
+    flow: "From Home, click down to each feature: reset a member's 2-step verification, raise a team's storage limit, rotate an API key, allow a sign-in domain, and download an invoice.",
+    changes: [
+      {
+        item: 59,
+        what: "Tab renamed and action moved, 6 levels deep",
+        baseline:
+          "People → Teams → Engineering → Maya Chen → Security tab → Reset 2-step",
+        variant:
+          "Tab renamed Sign-in and security; Reset 2-step moved into the member's … menu",
+      },
+      {
+        item: 60,
+        what: "Feature moved to another branch",
+        baseline:
+          "People → Teams → Design → Settings tab → Storage → Edit limit",
+        variant: "Organization → Storage → Design row → Edit limit",
+      },
+      {
+        item: 61,
+        what: "Level added before the action",
+        baseline:
+          "Developers → Apps → Billing sync → Credentials tab → Production key → Rotate",
+        variant:
+          "Credentials tab → Manage keys page → Production key → Rotate, and you type the key name to confirm",
+      },
+      {
+        item: 62,
+        what: "Record split into deeper pages",
+        baseline:
+          "Security → Policies → Sign-in policy → Allowed domains tab → Add domain",
+        variant:
+          "Security → Policies → Authentication → Domains page → Add domain",
+      },
+      {
+        item: 63,
+        what: "Detail page removed, action in a row menu",
+        baseline:
+          "Billing → Subscriptions → Business plan → Invoices tab → last month's invoice → Download PDF",
+        variant: "Billing → History → last month's invoice row … menu → Download PDF",
       },
     ],
   },

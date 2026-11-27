@@ -1,12 +1,12 @@
 create table public.demo_apps (
   id text primary key check (
-    id in ('plano', 'pipeline', 'shopline', 'filebox', 'tripway', 'peoplehub', 'metricly', 'mailbird', 'notely')
+    id in ('plano', 'pipeline', 'shopline', 'filebox', 'tripway', 'peoplehub', 'metricly', 'mailbird', 'notely', 'corvid')
   ),
   variant text not null default 'baseline' check (variant in ('baseline', 'variant'))
 );
 
 insert into public.demo_apps (id)
-values ('plano'), ('pipeline'), ('shopline'), ('filebox'), ('tripway'), ('peoplehub'), ('metricly'), ('mailbird'), ('notely');
+values ('plano'), ('pipeline'), ('shopline'), ('filebox'), ('tripway'), ('peoplehub'), ('metricly'), ('mailbird'), ('notely'), ('corvid');
 
 alter table public.demo_apps enable row level security;
 
