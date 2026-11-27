@@ -26,7 +26,7 @@ export function Dialog({
   children: ReactNode;
   className?: string;
   testId?: string;
-  placement?: "center" | "side";
+  placement?: "center" | "side" | "start";
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -44,7 +44,7 @@ export function Dialog({
       aria-labelledby={titleId}
       onClose={onClose}
       data-testid={testId}
-      className={cx(placement === "side" ? "my-0 mr-0 ml-auto h-dvh max-h-none" : "m-auto", "backdrop:bg-black/40", className)}
+      className={cx(placement === "side" ? "my-0 mr-0 ml-auto h-dvh max-h-none" : placement === "start" ? "my-0 ml-0 mr-auto h-dvh max-h-none" : "m-auto", "backdrop:bg-black/40", className)}
       {...({ closedby: "any" } as object)}
     >
       {open && (
