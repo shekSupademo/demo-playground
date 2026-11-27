@@ -495,6 +495,9 @@ export function IssueCollection({
 }) {
   const { statuses, projects, setNewIssueOpen } = useStore();
   const team = teams.find((x) => x.id === teamId);
+  const statusList = [...statuses[teamId ?? "eng"], ...Object.values(statuses).flat()].filter(
+    (s, i, all) => all.findIndex((x) => x.id === s.id) === i,
+  );
   const shown = sortIssues(
     display.showSubIssues ? issues : issues.filter((i) => !i.parentId),
     display.orderBy,
@@ -503,7 +506,7 @@ export function IssueCollection({
     shown,
     display.groupBy,
     {
-      statuses: statuses[teamId ?? "eng"],
+      statuses: statusList,
       people: people.filter((p) => !team || team.members.includes(p.id)),
       projects,
     },
@@ -531,7 +534,7 @@ export function IssueCollection({
               {display.groupBy === "status" && (
                 <StatusIcon
                   category={
-                    statuses[teamId ?? "eng"].find((s) => s.id === g.key)
+                    statusList.find((s) => s.id === g.key)
                       ?.category ?? "backlog"
                   }
                 />
@@ -562,7 +565,7 @@ export function IssueCollection({
               {display.groupBy === "status" && (
                 <StatusIcon
                   category={
-                    statuses[teamId ?? "eng"].find((s) => s.id === g.key)
+                    statusList.find((s) => s.id === g.key)
                       ?.category ?? "backlog"
                   }
                 />
@@ -709,7 +712,18 @@ function IssuesWorkspace({
     return applyFilters(inScope, filters);
   }, [issues, statuses, teamId, scope, filters, view]);
   const save = (name: string) => {
-    const saved = saveView({ teamId, name, filters, display });
+    const scoped =
+      scope === "all" || filters.some((f) => f.field === "status" && f.values.length)
+        ? filters
+        : [
+            ...filters,
+            {
+              field: "status" as const,
+              op: "is" as const,
+              values: statuses[teamId].filter((s) => scopes[scope].match(s.category)).map((s) => s.id),
+            },
+          ];
+    const saved = saveView({ teamId, name, filters: scoped, display });
     navigate(`/team/${teamId}/views/${saved.id}`);
   };
   return (

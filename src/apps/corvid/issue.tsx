@@ -262,7 +262,7 @@ export function IssueDetail() {
           <details
             data-testid="sub-issues"
             open={open}
-            onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}
+            onToggle={(e) => e.target === e.currentTarget && setOpen(e.currentTarget.open)}
             className="mt-8 rounded-lg border border-slate-200"
           >
             <summary

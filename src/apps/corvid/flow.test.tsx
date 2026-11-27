@@ -51,6 +51,7 @@ describe.each(["baseline", "variant"] as const)("corvid %s", (variant) => {
   it("filters, regroups and saves a custom view", () => {
     render(<App variant={variant} />);
     click("nav-team-eng-issues");
+    fireEvent.click(screen.getByRole("tab", { name: "Active" }));
     const total = rows().length;
     click("filter-button");
     click("filter-field-priority");
@@ -182,9 +183,9 @@ describe.each(["baseline", "variant"] as const)("corvid %s", (variant) => {
     click("save-status");
     expect(toasts()).toContain("In review added");
     click("nav-team-eng-issues");
-    expect(
-      screen.getAllByRole("menuitem", { name: "In review" }).length,
-    ).toBeGreaterThan(0);
+    fireEvent.click(screen.getAllByRole("menuitem", { name: "In review" })[0]);
+    const groups = screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent);
+    expect(groups.some((g) => g?.startsWith("In review"))).toBe(true);
   });
 
   it("accepts an issue from triage", () => {
